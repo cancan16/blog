@@ -125,9 +125,13 @@ public class BikeController {
 ```
 
 a.png
+![简单使用MongDB-GEO_a](https://volc1612.gitee.io/blog/images/简单使用MongDB-GEO/简单使用MongDB-GEO_a.png)
+
+效果
+
+![简单使用MongDB-GEO_b](https://volc1612.gitee.io/blog/images/简单使用MongDB-GEO/简单使用MongDB-GEO_a.gif)
 
 
-b.png
 
 
 
