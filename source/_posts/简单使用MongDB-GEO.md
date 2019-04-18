@@ -6,12 +6,16 @@ categories: MongDB
 tags: [mongdb]
 ---
 
+<iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width=330 height=86 src="//music.163.com/outchain/player?type=2&id=571340083&auto=0&height=66"></iframe>
+
 ### win安装mongodb
 
 MongDB版本
 <a href="https://www.mongodb.com/dr/fastdl.mongodb.org/win32/mongodb-win32-x86_64-2008plus-ssl-3.6.12.zip/download">3.6.12下载地址</a>
 
 * 创建`mongo.conf`配置文件，内容如下
+
+<!-- more -->
 
 ```
 dbpath=D:\mongo\data
@@ -108,12 +112,10 @@ public class BikeController {
 
     /**
      * 根据当前经纬度查找附近单车
-     *
      * @return
      */
     @PostMapping("/findNearBike")
     public List<GeoResult<Bike>> findNearBike(double longitude, double latitude) {
-        // 200米范围内，状态为的0的bike， 数量限制20
         NearQuery nearQuery = NearQuery
                 .near(longitude, latitude)
                 .maxDistance(0.2, Metrics.KILOMETERS)
@@ -131,6 +133,7 @@ a.png
 
 ![简单使用MongDB-GEO_b](https://volc1612.gitee.io/blog/images/简单使用MongDB-GEO/简单使用MongDB-GEO_b.gif)
 
+**查询附近单车数据代码对于高版本的MongoDB不适用。**
 
 
 
