@@ -1,3 +1,11 @@
+---
+title: 原子操作CAS
+date: 2019-04-21 12:00:00
+update: 2019-04-21 12:00:00
+categories: CAS
+tags: [CAS]
+---
+
 ### 原子操作CAS
 
 `synchronized`基于阻塞的锁的机制，存在的问题
