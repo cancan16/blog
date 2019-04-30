@@ -191,10 +191,7 @@ public class UseRwLock implements GoodsService {
 性能对比
 
 ```java
-package com.xiangxue.ch4.rw;
-
 import com.xiangxue.tools.SleepTools;
-
 import java.util.Random;
 
 /**
@@ -279,12 +276,234 @@ public class BusiApp {
 ```
 
 
+使用排它锁测试
+
+```
+Thread-31读取商品数据耗时：4401ms
+Thread-20读取商品数据耗时：5309ms
+Thread-17读取商品数据耗时：6071ms
+Thread-30读取商品数据耗时：7827ms
+Thread-16读取商品数据耗时：8578ms
+Thread-7读取商品数据耗时：9070ms
+Thread-0写商品数据耗时：9351ms---------
+Thread-3读取商品数据耗时：10272ms
+Thread-10读取商品数据耗时：10832ms
+Thread-21读取商品数据耗时：11240ms
+Thread-18读取商品数据耗时：11896ms
+Thread-14读取商品数据耗时：12068ms
+Thread-1读取商品数据耗时：12594ms
+Thread-9读取商品数据耗时：12648ms
+Thread-15读取商品数据耗时：12676ms
+Thread-11写商品数据耗时：12762ms---------
+Thread-6读取商品数据耗时：13554ms
+Thread-25读取商品数据耗时：13690ms
+Thread-22写商品数据耗时：14272ms---------
+Thread-2读取商品数据耗时：14902ms
+Thread-8读取商品数据耗时：15117ms
+Thread-27读取商品数据耗时：14981ms
+Thread-13读取商品数据耗时：15189ms
+Thread-12读取商品数据耗时：15184ms
+Thread-26读取商品数据耗时：15191ms
+Thread-29读取商品数据耗时：15461ms
+Thread-4读取商品数据耗时：15732ms
+Thread-24读取商品数据耗时：15572ms
+Thread-23读取商品数据耗时：15637ms
+Thread-28读取商品数据耗时：15961ms
+Thread-19读取商品数据耗时：16169ms
+Thread-5读取商品数据耗时：16308ms
+Thread-32读取商品数据耗时：16136ms
+```
+
+使用读写锁测试
+
+```
+Thread-6读取商品数据耗时：730ms
+Thread-10读取商品数据耗时：730ms
+Thread-2读取商品数据耗时：730ms
+Thread-0写商品数据耗时：689ms---------
+Thread-3读取商品数据耗时：814ms
+Thread-4读取商品数据耗时：815ms
+Thread-8读取商品数据耗时：814ms
+Thread-7读取商品数据耗时：819ms
+Thread-9读取商品数据耗时：819ms
+Thread-1读取商品数据耗时：826ms
+Thread-5读取商品数据耗时：838ms
+Thread-18读取商品数据耗时：775ms
+Thread-14读取商品数据耗时：785ms
+Thread-11写商品数据耗时：653ms---------
+Thread-16读取商品数据耗时：838ms
+Thread-12读取商品数据耗时：839ms
+Thread-17读取商品数据耗时：841ms
+Thread-21读取商品数据耗时：841ms
+Thread-19读取商品数据耗时：843ms
+Thread-20读取商品数据耗时：843ms
+Thread-13读取商品数据耗时：846ms
+Thread-15读取商品数据耗时：848ms
+Thread-22写商品数据耗时：642ms---------
+Thread-32读取商品数据耗时：810ms
+Thread-27读取商品数据耗时：795ms
+Thread-31读取商品数据耗时：791ms
+Thread-28读取商品数据耗时：815ms
+Thread-24读取商品数据耗时：816ms
+Thread-25读取商品数据耗时：820ms
+Thread-30读取商品数据耗时：824ms
+Thread-29读取商品数据耗时：825ms
+Thread-26读取商品数据耗时：824ms
+Thread-23读取商品数据耗时：812ms
+```
+
+读写锁`ReentrantReadWriteLock`效率明显要高。在`读多写少`情况下使用读写锁。
+
+#### Condition接口
+
+一个`Lock`可以创建多个`Condition`
 
 
+显示锁使用`Condition`条件通知
 
+```java
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
+/**
+ * 类说明：
+ */
+public class ExpressCond {
+    public final static String CITY = "ShangHai";
+    private int km;/*快递运输里程数*/
+    private String site;/*快递到达地点*/
+    private Lock lock = new ReentrantLock();
+    private Condition keCond = lock.newCondition();
+    private Condition siteCond = lock.newCondition();
 
+    public ExpressCond(int km, String site) {
+        this.km = km;
+        this.site = site;
+    }
 
+    /* 变化公里数，然后通知处于wait状态并需要处理公里数的线程进行业务处理*/
+    public void changeKm() {
+        lock.lock();
+        try {
+            this.km = 101;
+            // 唤醒keCond条件等待的线程
+            keCond.signalAll();
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    /* 变化地点，然后通知处于wait状态并需要处理地点的线程进行业务处理*/
+    public void changeSite() {
+        lock.lock();
+        try {
+            // 快递到达目的地后
+            this.site = "BeiJing";
+            // 唤醒siteCond条件等待的线程
+            siteCond.signalAll();
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    /*当快递的里程数大于100时更新数据库*/
+    public void waitKm() {
+        lock.lock();
+        try {
+            // 小于等于100时一直处于等待状态
+            while (this.km <= 100) {
+                try {
+                    System.out.println("未到达里程数， 线程" + Thread.currentThread().getId() + "处于等待");
+                    keCond.await();
+                    System.out.println("check km thread[" + Thread.currentThread().getId()
+                            + "] is be notifed.");
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        } finally {
+            lock.unlock();
+        }
+        System.out.println("the Km is " + this.km + ",I will change db");
+    }
+
+    /*当快递到达目的地时通知用户*/
+    public void waitSite() {
+        lock.lock();
+        try {
+            // 地点等于出发地上海时一直等待
+            while (CITY.equals(this.site)) {
+                try {
+                    System.out.println("未到达目的地， 线程" + Thread.currentThread().getId() + "处于等待");
+                    siteCond.await();
+                    System.out.println("check site thread[" + Thread.currentThread().getId()
+                            + "] is be notifed.");
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        } finally {
+            lock.unlock();
+        }
+        System.out.println("the site is " + this.site + ",I will call user");
+    }
+}
+```
+
+测试
+
+```java
+/**
+ * 类说明：测试Lock和Condition实现等待通知
+ * 快递里程数变化通知
+ */
+public class TestCond {
+    private static ExpressCond express = new ExpressCond(0, ExpressCond.CITY);
+
+    /*检查里程数变化的线程,不满足条件，线程一直等待*/
+    private static class CheckKm extends Thread {
+        @Override
+        public void run() {
+            express.waitKm();
+        }
+    }
+
+    /*检查地点变化的线程,不满足条件，线程一直等待*/
+    private static class CheckSite extends Thread {
+        @Override
+        public void run() {
+            express.waitSite();
+        }
+    }
+
+    public static void main(String[] args) throws InterruptedException {
+        // 多个线程通知快递到达目的地
+//        for (int i = 0; i < 3; i++) {
+//            new CheckSite().start();
+//        }
+        // 多个线程修改快递里程数
+        for (int i = 0; i < 3; i++) {
+            new CheckKm().start();
+        }
+        Thread.sleep(1000);
+        express.changeKm();//快递里程变化
+//        express.changeSite();//快递到达目的地
+    }
+}
+```
+
+```
+未到达里程数， 线程11处于等待
+未到达里程数， 线程12处于等待
+未到达里程数， 线程13处于等待
+check km thread[11] is be notifed.
+the Km is 101,I will change db
+check km thread[12] is be notifed.
+the Km is 101,I will change db
+check km thread[13] is be notifed.
+the Km is 101,I will change db
+```
 
 
 
