@@ -505,5 +505,291 @@ check km thread[13] is be notifed.
 the Km is 101,I will change db
 ```
 
+### AbstractQueuedSynchronizer(AQS)
 
+#### `AQS`使用方式和其中的设计模式
+
+`AQS`使用了继承模板方法设计模式。
+
+##### 模板方法模式
+
+模板方法的父类
+
+```java
+import java.util.Date;
+
+/**
+ * 模板方法的父类
+ */
+public abstract class SendCustom {
+
+    public abstract void to();
+
+    public abstract void from();
+
+    public abstract void content();
+
+    public void date() {
+        System.out.println(new Date());
+    }
+
+    public abstract void send();
+
+    //框架方法-模板方法
+    public void sendMessage() {
+        to();
+        from();
+        content();
+        date();
+        send();
+    }
+}
+```
+
+模板方法的派生类
+
+```java
+/**
+ * 模板方法的派生类
+ */
+public class SendSms extends SendCustom {
+
+    @Override
+    public void to() {
+        System.out.println("Mark");
+
+    }
+
+    @Override
+    public void from() {
+        System.out.println("Bill");
+
+    }
+
+    @Override
+    public void content() {
+        System.out.println("Hello world");
+
+    }
+
+    @Override
+    public void send() {
+        System.out.println("Send sms");
+    }
+
+    public static void main(String[] args) {
+        SendCustom sendC = new SendSms();
+        sendC.sendMessage();
+    }
+}
+```
+
+#### AQS使用的模板方法
+
+> 基本方法 
+
+* 独占式获取锁
+accquire
+acquireInterruptibly
+tryAcquireNanos
+
+* 共享式获取锁
+acquireShared
+acquireSharedInterruptibly
+tryAcquireSharedNanos
+
+* 独占式释放锁
+release
+
+* 共享式释放锁
+releaseShared
+
+> 需要子类覆盖的流程方法
+
+独占式获取  tryAcquire
+独占式释放  tryRelease
+共享式获取 tryAcquireShared
+共享式释放  tryReleaseShared
+这个同步器是否处于独占模式 isHeldExclusively
+
+* 同步状态state：
+getState:获取当前的同步状态
+setState：设置当前同步状态
+compareAndSetState 使用CAS设置状态，保证状态设置的原子性
+
+#### 实现一个类似于`ReentrantLock`的锁 
+
+自己实现的重入锁
+
+```java
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.AbstractQueuedSynchronizer;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+
+/**
+ * 类说明：实现一个自己的可重入锁 ReentrantLock
+ */
+public class SelfLock implements Lock {
+
+    //state 表示获取到锁 state=1 获取到了锁，state=0，表示这个锁当前没有线程拿到
+    private static class Sync extends AbstractQueuedSynchronizer {
+
+        /**
+         * 判断线程是否占有锁
+         */
+        protected boolean isHeldExclusively() {
+            return getState() == 1;
+        }
+
+        /**
+         * 尝试获取锁
+         *
+         * @param arg
+         * @return
+         */
+        protected boolean tryAcquire(int arg) {
+            // compareAndSetState原子操作(期望当前没有被线程获取,获取后更新锁已经被线程获取)
+            if (compareAndSetState(0, 1)) {
+                // 设置当前线程已经拿到了锁
+                setExclusiveOwnerThread(Thread.currentThread());
+                return true;
+            }
+            // 尝试获取锁失败
+            return false;
+        }
+
+        /**
+         * 释放锁
+         *
+         * @param arg
+         * @return
+         */
+        protected boolean tryRelease(int arg) {
+            if (getState() == 0) {
+                throw new UnsupportedOperationException();
+            }
+            // 设置没有线程获取到锁
+            setExclusiveOwnerThread(null);
+            /**
+             * 这里设置锁状态不是原子操作，而上面尝试获取锁是原子操作，原因是只有一个线程会释放锁，没有线程抢着释放锁
+             */
+            setState(0);
+            return true;
+        }
+
+        /**
+         * 新建状态
+         *
+         * @return
+         */
+        Condition newCondition() {
+            return new ConditionObject();
+        }
+    }
+
+    private final Sync sycn = new Sync();
+
+    @Override
+    public void lock() {
+        sycn.acquire(1);
+
+    }
+
+    @Override
+    public void lockInterruptibly() throws InterruptedException {
+        sycn.acquireInterruptibly(1);
+
+    }
+
+    @Override
+    public boolean tryLock() {
+        return sycn.tryAcquire(1);
+    }
+
+    @Override
+    public boolean tryLock(long time, TimeUnit unit) throws InterruptedException {
+        return sycn.tryAcquireNanos(1, unit.toNanos(time));
+    }
+
+    @Override
+    public void unlock() {
+        sycn.release(1);
+
+    }
+
+    @Override
+    public Condition newCondition() {
+        return sycn.newCondition();
+    }
+}
+```
+
+测试锁
+
+```java
+import java.util.concurrent.locks.Lock;
+
+/**
+ * 类说明：
+ */
+public class TestMyLock {
+    public void test() {
+//        final Lock lock = new ReentrantLock();
+        final Lock lock = new SelfLock();
+
+        class Worker extends Thread {
+            public void run() {
+                while (true) {
+                    lock.lock();
+                    try {
+                        SleepTools.second(1);
+                        System.out.println(Thread.currentThread().getName());
+                        SleepTools.second(1);
+                    } finally {
+                        lock.unlock();
+                    }
+                    SleepTools.second(2);
+                }
+            }
+        }
+        // 启动10个子线程
+        for (int i = 0; i < 10; i++) {
+            Worker w = new Worker();
+            w.setDaemon(true);
+            w.start();
+        }
+        // 主线程每隔1秒换行
+        for (int i = 0; i < 10; i++) {
+            SleepTools.second(1);
+            System.out.println();
+        }
+    }
+
+    public static void main(String[] args) {
+        TestMyLock testMyLock = new TestMyLock();
+        testMyLock.test();
+    }
+}
+```
+
+结果
+
+```java
+Thread-0
+
+
+Thread-1
+
+
+Thread-0
+
+
+Thread-3
+
+
+Thread-7
+
+
+```
 
