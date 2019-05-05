@@ -65,6 +65,7 @@ public class LockDemo {
 
 #### 读写锁中`ReentrantReadWriteLock`锁和`synchronized`性能对比
 
+`synchronized`内部实现了可重入锁。
 `ReentrantReadWriteLock`实现了`ReadWriteLock`接口。使用商品库存量的场景，模拟`ReentrantReadWriteLock`效率。
 
 商品实体
