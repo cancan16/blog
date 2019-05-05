@@ -793,5 +793,23 @@ Thread-7
 
 ```
 
+### AQS中的数据结构-节点和同步队列
 
+![显示锁和AQS_a](https://volc1612.gitee.io/blog/images/显示锁和AQS/显示锁和AQS_a.png)
+
+`java.util.concurrent.locks.AbstractQueuedSynchronizer`内部类`Node`属性
+
+* CANCELLED：线程等待超时或者被中断了，需要从队列中移走
+* SIGNAL：后续的节点等待状态，当前节点，通知后面的节点去运行
+* CONDITION：当前节点处于等待队列
+* PROPAGATE：共享中，表示状态要往后面的节点传播
+* 初始化状态为`0`
+
+#### 节点加入到同步队列
+
+![显示锁和AQS_b](https://volc1612.gitee.io/blog/images/显示锁和AQS/显示锁和AQS_b.png)
+
+#### 首节点的变化
+
+![显示锁和AQS_b](https://volc1612.gitee.io/blog/images/显示锁和AQS/显示锁和AQS_b.png)
 
