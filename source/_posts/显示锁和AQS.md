@@ -807,9 +807,73 @@ Thread-7
 
 #### 节点加入到同步队列
 
+线程1获取到锁后，线程2无法获取锁就会打包成节点放到`CAS`同步队列中。使用`CAS`操作设置尾节点，因为可能有多个线程同时进行获取锁的操作，都可能成为尾节点。
+
 ![显示锁和AQS_b](https://volc1612.gitee.io/blog/images/显示锁和AQS/显示锁和AQS_b.png)
+
+快递添加尾节点源码
+
+```java
+private Node addWaiter(Node mode) {
+    Node node = new Node(Thread.currentThread(), mode);
+    // Try the fast path of enq; backup to full enq on failure
+    Node pred = tail;
+    if (pred != null) {
+        node.prev = pred;
+        if (compareAndSetTail(pred, node)) {
+            pred.next = node;
+            return node;
+        }
+    }
+    // 如果快速添加不成功，就是用CAS自旋添加
+    enq(node);
+    return node;
+}
+```    
+
+```java
+private Node enq(final Node node) {
+    for (;;) {
+        Node t = tail;
+        if (t == null) { // Must initialize
+            if (compareAndSetHead(new Node()))
+                tail = head;
+        } else {
+            node.prev = t;
+            if (compareAndSetTail(t, node)) {
+                t.next = node;
+                return t;
+            }
+        }
+    }
+}
+```    
 
 #### 首节点的变化
 
-![显示锁和AQS_b](https://volc1612.gitee.io/blog/images/显示锁和AQS/显示锁和AQS_b.png)
+设置首节点不需要`CAS`操作
+![显示锁和AQS_c](https://volc1612.gitee.io/blog/images/显示锁和AQS/显示锁和AQS_c.png)
+
+#### 独占式同步状态获取与释放
+
+![显示锁和AQS_d](https://volc1612.gitee.io/blog/images/显示锁和AQS/显示锁和AQS_d.png)
+
+#### 一个Condition包含一个等待队列
+
+![显示锁和AQS_e](https://volc1612.gitee.io/blog/images/显示锁和AQS/显示锁和AQS_e.png)
+
+#### 同步队列与等待队列
+
+![显示锁和AQS_f](https://volc1612.gitee.io/blog/images/显示锁和AQS/显示锁和AQS_f.png)
+
+#### 节点在队列之间的移动
+
+* await方法
+
+![显示锁和AQS_g](https://volc1612.gitee.io/blog/images/显示锁和AQS/显示锁和AQS_g.png)
+
+* signal方法
+
+![显示锁和AQS_h](https://volc1612.gitee.io/blog/images/显示锁和AQS/显示锁和AQS_h.png)
+
 
