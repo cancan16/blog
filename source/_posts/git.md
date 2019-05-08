@@ -102,6 +102,12 @@ $ git branch -a
 $ git checkout -b develop_one
 ```
 
+### 切换分支到develop_one
+
+```bash
+$ git checkout develop_one
+```
+
 ### 推送当前分支（develop_one）到远端仓库
 
 ```bash
