@@ -170,3 +170,57 @@ execution.isolation.strategy
 * execution.timeout.enabled 是否开启超时限制 （一定不要禁用）
 
 * execution.isolation.semaphore.maxConcurrentRequests 隔离策略为 信号量的时候，如果达到最大并发数时，后续请求会被拒绝，默认是10
+
+#### 设置hystrix超时时间
+
+```yml
+# 设置hystrix超时时间，默认是1秒，超过一秒就会走服务降级
+hystrix:
+  command:
+    default:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 4000
+```
+
+### 断路器`Dashboard`监控仪表盘
+
+> 加入依赖
+
+```xml
+<dependency>
+<groupId>org.springframework.cloud</groupId>
+<artifactId>spring-cloud-starter-netflix-hystrix-dashboard</artifactId>
+</dependency>
+
+<dependency>
+<groupId>org.springframework.boot</groupId>
+<artifactId>spring-boot-starter-actuator</artifactId>
+</dependency>
+```
+
+> 启动类增加注解
+
+```
+@EnableHystrixDashboard
+```
+
+> 配置文件增加endpoint
+
+```yml
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+```        
+
+> 访问入口
+
+浏览器访问`http://localhost:8781/hystrix`
+Hystrix Dashboard输入： `http://localhost:8781/actuator/hystrix.stream`
+
+![服务降级熔断hystrix_a](https://volc1612.gitee.io/blog/images/服务降级熔断hystrix/服务降级熔断hystrix_a.png)
+
+![服务降级熔断hystrix_b](https://volc1612.gitee.io/blog/images/服务降级熔断hystrix/服务降级熔断hystrix_b.png)
