@@ -1,9 +1,9 @@
 ---
-title: 网管zuul
+title: 网关zuul
 date: 2019-05-12 22:38:52
 update: 2019-05-12 22:38:52
 categories: SPRINGCLOUD
-tags: [网关]
+tags: [zuul]
 ---
 
 ### 微服务网关介绍和使用场景

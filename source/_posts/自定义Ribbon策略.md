@@ -3,7 +3,7 @@ title: 自定义Ribbon策略
 date: 2019-05-04 21:53:53
 update: 2019-05-04 21:53:53
 categories: SPRINGCLOUD
-tags: [springcloud]
+tags: [ribbon]
 ---
 
 ### 自定义Ribbon策略
