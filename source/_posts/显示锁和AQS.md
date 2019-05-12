@@ -10,6 +10,8 @@ tags: [aqs]
 
 #### 显示锁范式
 
+<!-- more -->
+
 ```java
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
