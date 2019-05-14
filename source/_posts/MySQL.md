@@ -306,3 +306,29 @@ select * from B where exists(select cc from A where cc=B.cc)
 <font color=#FF0000 face="Menlo">in是把外表和内表作hash连接，而exists是对外表作loop循环，每次loop循环再对内表进行查询，一直以来认为exists比in效率高的说法是不准确的。如果查询的两个表大小相当，那么用in和exists差别不大；如果两个表中一个较小一个较大，则子查询表大的用exists(大表)，子查询表小的用in(小表);
 跟显示字段的多少没有太大区别。
 </font>
+
+### MySQL树结构
+
+```mysql
+SELECT T2.id,
+T2.pid,
+T2.url,
+T2.platform_id,
+T2.create_account_id,
+T2.type,
+T2.STATUS,
+T2.sort,
+T2.`desc`,
+T2.NAME,
+T2.icon_url
+FROM (
+	SELECT @r                                                    AS _id,
+		(SELECT @r := pid FROM tb_p_resources WHERE id = _id) AS pid,
+		@l := @l + 1                                          AS lvl
+	FROM (SELECT @r := #{id}, @l := 0) vars,
+		tb_p_resources h
+	WHERE @r != 0
+) T1
+	JOIN tb_p_resources T2 ON T1._id = T2.id
+ORDER BY T1.lvl DESC
+```		
