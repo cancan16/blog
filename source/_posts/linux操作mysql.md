@@ -1090,3 +1090,11 @@ Query OK, 0 rows affected (0.00 sec)
 mysql> SET PASSWORD FOR 'lcmysql'@'183.208.11.117' = PASSWORD("1234567");
 Query OK, 0 rows affected (0.00 sec)
 ```
+
+### Linux远程连接mysql命令
+
+mysql -h[ip] -p[port] -u[username] -p[password]
+
+```bash
+[root@izbp1d9e2n6iw6mvtx07jmz ~]# mysql -h127.0.0.1 -p3306 -uroot -proot
+```
