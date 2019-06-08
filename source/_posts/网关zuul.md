@@ -35,3 +35,34 @@ zuul：是Netflix开源的微服务网关，和Eureka,Ribbon,Hystrix等组件配
 kong: 由Mashape公司开源的，基于Nginx的API gateway
 nginx+lua：是一个高性能的HTTP和反向代理服务器,lua是脚本语言，让Nginx执行Lua脚本，并且高并发、非阻塞的处理各种请求
 
+
+### SpringCloud的网关组件zuul基本使用
+
+> 加入依赖
+
+```xml
+<dependency>
+    <groupId>org.springframework.cloud</groupId>
+    <artifactId>spring-cloud-starter-netflix-zuul</artifactId>
+</dependency>
+```
+
+> 启动类加入注解
+
+`@EnableZuulProxy`
+默认集成断路器`@EnableCircuitBreaker`
+
+> 自定义路由转发
+
+```yml
+zuul:
+  routes:
+    order-service: /apigateway/**
+```    
+
+> 访问`order-service`服务的`getProductInfo``controller`
+
+```
+http://localhost:9000/apigateway/getProductInfo
+```
+
