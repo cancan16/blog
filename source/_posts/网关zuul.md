@@ -93,4 +93,18 @@ zuul:
 
 #### 过滤器执行顺序问题 ，过滤器的order值越小，越先执行
 
+过滤器执行流程
+
+![网关zuul-a](https://volc1612.gitee.io/blog/images/网关zuul/网关zuul-a.png)
+
 #### 共享RequestContext，上下文对象
+
+### 自定义Zuul过滤器实现登录鉴权实战
+
+	简介：自定义Zuul过滤器实现登录鉴权实战
+
+	1、新建一个filter包
+
+	2、新建一个类，实现ZuulFilter，重写里面的方法
+
+	3、在类顶部加注解，@Component,让Spring扫描
