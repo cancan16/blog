@@ -66,3 +66,31 @@ zuul:
 http://localhost:9000/apigateway/getProductInfo
 ```
 
+### 高级篇幅之Zuul常用问题分析和网关过滤器原理分析
+
+#### 路由名称定义问题
+
+```yml
+zuul:
+  routes:
+    order-service: /apigateway/**
+    product-service: /apigateway/**
+```
+以上配置会覆盖掉`order-service`，值不能重复。
+
+#### 处理Http请求头过滤掉cookie问题
+
+```yml
+zuul:
+  routes:
+    order-service: /apigateway/**
+    product-service: /apigateway/product/**
+  # 统一入口为上面的配置，其他入口忽略
+  ignored-patterns: /*-service/**
+  # 处理http请求头为空的问题
+  sensitive-headers:
+```  
+
+#### 过滤器执行顺序问题 ，过滤器的order值越小，越先执行
+
+#### 共享RequestContext，上下文对象
