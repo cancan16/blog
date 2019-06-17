@@ -58,7 +58,7 @@ nginx+lua：是一个高性能的HTTP和反向代理服务器,lua是脚本语言
 zuul:
   routes:
     order-service: /apigateway/**
-```    
+```
 
 > 访问`order-service`服务的`getProductInfo``controller`
 
