@@ -2,8 +2,8 @@
 title: 原子操作CAS
 date: 2019-04-21 12:00:00
 update: 2019-04-21 12:00:00
-categories: CAS
-tags: [CAS]
+categories: 并发编程
+tags: [原子操作CAS]
 ---
 
 ### 原子操作CAS
