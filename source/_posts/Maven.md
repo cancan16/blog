@@ -57,6 +57,19 @@ c)	3、执行命令：for /r %i in (*.lastUpdated) do del %i
 使用相对稳定的私服下载地址：开源中国(http://maven.oschina.net/help.html)
 在maven指向的setting.xml文件中进行改变私服URL配置。
 
+### 引入外部jar依赖，并使用idea的package插件打成jar包-打包
+
+打包->JAR
+
+外部依赖位置
+![a](https://volc1612.gitee.io/blog/images/Maven/a.png)
+
+pom引用依赖
+![b](https://volc1612.gitee.io/blog/images/Maven/b.png)
+
+pom新增插件
+
+![c](https://volc1612.gitee.io/blog/images/Maven/c.png)
 
 
 

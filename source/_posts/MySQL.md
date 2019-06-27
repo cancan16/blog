@@ -331,4 +331,4 @@ FROM (
 ) T1
 	JOIN tb_p_resources T2 ON T1._id = T2.id
 ORDER BY T1.lvl DESC
-```		
+```

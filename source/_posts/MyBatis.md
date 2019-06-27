@@ -278,3 +278,186 @@ INSERT INTO `student`(`name`, `age`) VALUES('Jack', 19)
 
 当唯一字段name=Jack已经存在则执行UPDATE `age`=19;
 当唯一字段name=Jack没有时，则新增
+
+### 树结构数据
+
+菜单实体
+
+```java
+import lombok.Data;
+import javax.persistence.*;
+import java.util.Date;
+import java.util.Set;
+
+/**
+ * 资源
+ *
+ * @author liucancan
+ * @date 2018/12/26
+ */
+@Data
+@Table(name = "tb_p_resources")
+public class AccountResource {
+    /**
+     * 主键id
+     */
+    @Id
+    @Column(name = "Id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
+
+    /**
+     * 资源地址
+     */
+    private String url;
+
+    /**
+     * 父级资源id
+     */
+    private Integer pid;
+
+    /**
+     * 排序
+     */
+    private Integer sort;
+
+    /**
+     * 资源名称
+     */
+    private String name;
+
+    /**
+     * 图标
+     */
+    private String iconUrl;
+    
+    /**
+     * 资源树
+     */
+    @Transient
+    private Set<AccountResource> childResource;
+
+    @Transient
+    private String roleIds;
+}
+```
+
+mapper接口
+
+```java
+/**
+* @Date 16:13 2019/6/26
+* @Description 根据角色ids查询该角色拥有的资源, 返回树结构
+* @Return
+*/
+Set<AccountResource> selectResourceTreeByParam(@Param("roleIds") String roleIds);
+```
+
+mapper.xml
+
+```xml
+<resultMap id="BaseResourceMap" type="AccountResource">
+    <result column="id" property="id"/>
+    <result column="name" property="name"/>
+    <result column="url" property="url"/>
+    <result column="icon_url" property="iconUrl"/>
+    <result column="icon_url_select" property="iconUrlSelect"/>
+    <result column="roleIds" jdbcType="VARCHAR" property="roleIds"/>
+    <collection property="childResource" column="{roleIds=roleIds,id=id}"
+                ofType="AccountResource" select="selectResourceChilds"/>
+</resultMap>
+<resultMap id="childResourceMap" type="AccountResource">
+    <id property="id" column="id"/>
+    <result property="name" column="name"/>
+    <result property="url" column="url"/>
+    <result property="iconUrl" column="icon_url"/>
+    <result column="icon_url_select" property="iconUrlSelect"/>
+    <result column="roleIds" jdbcType="VARCHAR" property="roleIds"/>
+    <collection property="childResource" column="{roleIds=roleIds,id=id}"
+                ofType="AccountResource" select="selectResourceChilds"/>
+</resultMap>
+
+<!-- 查询用户拥有的顶级菜单 -->
+<select id="selectResourceTreeByParam" resultMap="BaseResourceMap">
+    select tpr.id
+            , tpr.url
+            , tpr.name
+            , tpr.icon_url
+            , tpr.icon_url_select
+            , (select #{roleIds}) as roleIds
+    from tb_p_resources tpr
+    where tpr.id in (
+        select DISTINCT resources_id
+        from tb_p_role_resources
+        where role_id in (
+            SELECT SUBSTRING_INDEX(SUBSTRING_INDEX(#{roleIds}, ',', help_topic_id + 1), ',', - 1) AS roleId
+            FROM mysql.help_topic
+            WHERE help_topic_id &lt; LENGTH(#{roleIds}) - LENGTH(REPLACE(#{roleIds}, ',', '')) + 1)
+    )
+        and tpr.type = 1
+        and tpr.pid = 0
+    order by tpr.sort asc
+</select>
+
+<!-- 根据顶级菜单查询查询子菜单 -->
+<select id="selectResourceChilds" resultMap="childResourceMap">
+    SELECT tpr.id
+            , tpr.NAME
+            , tpr.url
+            , tpr.pid
+            , tpr.icon_url
+            , icon_url_select
+            , (select #{roleIds}) as roleIds
+    FROM tb_p_resources tpr
+    WHERE tpr.id IN
+            (
+                select DISTINCT resources_id
+                from tb_p_role_resources
+                where role_id in (
+                    SELECT SUBSTRING_INDEX(SUBSTRING_INDEX(#{roleIds}, ',', help_topic_id + 1), ',', - 1) AS roleId
+                    FROM mysql.help_topic
+                    WHERE help_topic_id &lt; LENGTH(#{roleIds}) - LENGTH(REPLACE(#{roleIds}, ',', '')) + 1)
+            )
+        AND tpr.pid = #{id}
+        AND tpr.type = 1
+    order by tpr.sort asc
+</select>
+```
+
+数据结构
+
+```
+"resources": [
+                {
+                    "title": "微商户",
+                    "icon": "fa fa-lg fa-fw PCico02 PCico",
+                    "items": [
+                        {
+                            "icon": "fa fa-cube common_opacity PCico",
+                            "title": "页面管理",
+                            "route": "/mpsaas-web-management/testView/microPage",
+                            "subPage": [
+                                "/mpsaas-web-management/testView/microPageEdit"
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "title": "商品管理",
+                    "icon": "fa fa-lg fa-fw PCico03 PCico",
+                    "items": [
+                        {
+                            "icon": "fa fa-group common_opacity PCico",
+                            "title": "商品分组",
+                            "route": "/mpsaas-web-management/testView/merchandise/group",
+                            "subPage": [
+                                "/mpsaas-web-management/testView/merchandise/group/groupAdd",
+                                "/mpsaas-web-management/testView/merchandise/group/groupEdit"
+                            ]
+                        }
+                    ]
+                }
+            ],
+```            
+
+* 需要注意的是`<collection property="childResource" column="{roleIds=roleIds,id=id}" ofType="AccountResource" select="selectResourceChilds"/>`中传入String类的roleIds，那么`selectResourceChilds`sql中不能够使用`<foreach collection="roleIds.split(',')" item="item" index="index" open="(" close=")" separator=","> #{item}</foreach>`遍历roleIds，否则会`报不能存在Integer类型的roleIds的get和set方法`，所以应该避免这样的遍历。
