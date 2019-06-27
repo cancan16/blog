@@ -67,9 +67,28 @@ c)	3、执行命令：for /r %i in (*.lastUpdated) do del %i
 pom引用依赖
 ![b](https://volc1612.gitee.io/blog/images/Maven/b.png)
 
+```xml
+<dependency>
+	<groupId>Ice</groupId>
+	<artifactId>Ice</artifactId>
+	<version>1.0</version>
+	<scope>system</scope>
+	<systemPath>${basedir}/src/lib/wlfullclient.jar</systemPath>
+</dependency>
+```					
+
 pom新增插件
 
 ![c](https://volc1612.gitee.io/blog/images/Maven/c.png)
 
-
+```xml
+<plugin>
+	<groupId>org.springframework.boot</groupId>
+	<artifactId>spring-boot-maven-plugin</artifactId>
+	<version>1.5.2.RELEASE</version>
+	<configuration>
+		<includeSystemScope>true</includeSystemScope>
+	</configuration>
+</plugin>
+```			
 
