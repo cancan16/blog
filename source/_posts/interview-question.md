@@ -8243,7 +8243,141 @@ public static String toUpperCaseFirstOne(String s){
 
 思路：请求进行处理时用redis锁标识上一请求是否处理完成，如果处理完成，则通过索引去数据返回，速度很快。如果正在执行，则使用死循环等待索引建好之后，再从索引中取数据返回。
 
-### 解决
+### 非静态代码块，静态成员，静态代码块，构造方法加载顺序
+
+```java
+public class TestStatic3 {
+    public static void main(String[] args) {
+    }
+    {
+        System.out.println("TestStatic3->非静态代码块");
+    }
+    static {
+        System.out.println("TestStatic3->静态代码块");
+    }
+
+    public TestStatic3() {
+        System.out.println("TestStatic3->构造方法");
+    }
+}
+
+```
+
+运行该类的main方法时，JVM首先加载该类的静态代码块。
+```
+TestStatic3->静态代码块
+```
+
+```java
+public class TestStatic3 {
+    public static void main(String[] args) {
+    }
+    static TestStatic3 st = new TestStatic3();
+    {
+        System.out.println("TestStatic3->非静态代码块");
+    }
+    static {
+        System.out.println("TestStatic3->静态代码块");
+    }
+    public TestStatic3() {
+        System.out.println("TestStatic3->构造方法");
+    }
+}
+```
+
+该类的加载顺序：
+1. 静态成员变量`st`，在`new TestStatic3`时则遵循JVM创建对象的加载顺序，非静态成员变量->非静态代码块->构造方法->静态成员变量->静态代码块；
+2. 非静代码块；
+3. 构造方法；
+4. 该类的静态代码块；
+
+```
+TestStatic3->非静态代码块
+TestStatic3->构造方法
+TestStatic3->静态代码块
+```
+
+```java
+package com.redstar.imp.entity.po;
+
+class A {
+    public A() {
+        System.out.println("class A");
+    }
+
+    {
+        System.out.println("I'm A class");
+    }
+
+    static {
+        System.out.println("class A static");
+    }
+}
+
+public class B extends A {
+    public B() {
+        System.out.println("class B");
+    }
+
+    {
+        System.out.println("I'm B class");
+    }
+
+    static {
+        System.out.println("class B static");
+    }
+
+    public static void main(String[] args) {
+        new B();
+    }
+}
+```
+
+先加载A和B的静态成员变量->静态代码块->然后执行main方法new 对象过程，A的非静态代码块->A的构造->B的非静态代码块->B的构造
+
+```
+class A static
+class B static
+I'm A class
+class A
+I'm B class
+class B
+```
+
+```java
+public class TestStatic {
+    public static void main(String[] args) {
+    }
+    static TestStatic st = new TestStatic();
+    static {
+        System.out.println("A1");
+    }
+    {
+        System.out.println("A2");
+    }
+    TestStatic() {
+        System.out.println("A3");
+        System.out.println("Aa = " + a + ", Ab = " + b);
+    }
+
+    public static void staticFunction() {
+        System.out.println("A4");
+    }
+    int a = 110;
+    static int b = 120;
+}
+```
+
+new 一个对象时JVM加载顺序，非静态成员变量->非静态代码块->构造方法->静态成员变量->静态代码块
+
+```
+A2
+A3
+Aa = 110, Ab = 0
+A1
+```
+
+
 
 ### spring security工作原理
 
