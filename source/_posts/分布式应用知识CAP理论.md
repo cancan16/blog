@@ -2,7 +2,7 @@
 title: 分布式应用知识CAP理论
 date: 2019-04-25 15:00:27
 update: 2019-04-25 15:00:27
-categories: 并发编程
+categories: SPRINGCLOUD
 tags: [分布式应用CAP]
 ---
 
