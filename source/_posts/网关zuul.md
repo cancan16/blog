@@ -212,6 +212,10 @@ public class LoginFilter extends ZuulFilter {
 
 ### 高并发情况下接口限流
 
+谷歌guava框架介绍，网关限流使用
+1、nginx层限流
+2、网关层限流
+
 只对一个接口限流，每秒1000的并发，超过1000则返回太多请求的结果
 
 ```java
@@ -274,3 +278,4 @@ public class OrderRateLimiterFilter extends ZuulFilter {
 
 ### 网关Zuul集群搭建
 
+![网关zuul-b](https://volc1612.gitee.io/blog/images/网关zuul/网关zuul-b.png)
