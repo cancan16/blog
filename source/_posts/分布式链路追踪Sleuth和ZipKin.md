@@ -40,3 +40,37 @@ INFO [order-service,d57cb07dc038d4d5,d01d2e4c91ecfa97,false]
 3、第三个值，852ef4cfcdecabf3、spanid 基本的工作单元，获取元数据，如发送一个http
 
 4、第四个值：false，是否要将该信息输出到zipkin服务中来收集和展示。
+
+### 分布式链路追踪组件Sleuth常见问题说明
+
+IDEA控制台只打印一次链路追踪组件的INFO日志
+
+解决：接口层添加info级别日志
+
+```java
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+/**
+ * 商品接口
+ */
+@RestController
+@RequestMapping
+public class ProductController {
+
+    private final Logger logger = LoggerFactory.getLogger(getClass());
+
+    @Value("${server.port}")
+    private Integer port;
+
+    @GetMapping("/findProductInfo")
+    public String findProductInfo() {
+        logger.info("123");
+        return "订单服务获取商品信息， 端口号： " + port;
+    }
+}
+```
