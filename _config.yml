@@ -89,5 +89,5 @@ search:
 symbols_count_time:
   symbols: true
   time: true
-  total_symbols: false
-  total_time: false
+  total_symbols: true
+  total_time: true
