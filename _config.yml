@@ -3,18 +3,18 @@
 ## Source: https://github.com/hexojs/hexo/
 
 # Site
-title: Work is the process of avoiding problems, finding problems, and fixing them quickly in case they reappear, and settling down to experience continuous improvement.
-subtitle: 
-description: 学海&无涯
+title: Hexo
+subtitle:
+description:
 keywords:
 author: volc
-language: zh-Hans
+language: zh-CN
 timezone:
 
 # URL
 ## If your site is put in a subdirectory, set url as 'http://yoursite.com/child' and root as '/child/'
-url: https://volc1612.gitee.io/blog
-root: /blog/
+url: http://yoursite.com
+root: /
 permalink: :year/:month/:day/:title/
 permalink_defaults:
 
@@ -78,30 +78,10 @@ theme: next
 # Deployment
 ## Docs: https://hexo.io/docs/deployment.html
 deploy:
-  type: git
-  repo: https://gitee.com/volc1612/blog.git
-  branch: master
+  type:
 
-# 设置头像
-avatar: /images/0.jpg
-
-# Social links
-social:
-  GitHub: https://github.com/volc1605
-  Twitter: https://twitter.com/volcliu
-  微博: http://weibo.com/2297464654/profile?topnav=1&wvr=6&is_all=1
-  知乎: https://www.zhihu.com/people/volc
-
-# hexo sitemap网站地图
-sitemap:
-  path: sitemap.xml
-baidusitemap:
-  path: baidusitemap.xml
-
-search:
-  path: search.xml
-  field: post
-# 百度站点统计
-baidu_analytics: 87980c86b4555bd9921e799ec5e26fb5
-# google统计
-google_analytics: 85094232-1
+symbols_count_time:
+  symbols: true
+  time: true
+  total_symbols: false
+  total_time: false

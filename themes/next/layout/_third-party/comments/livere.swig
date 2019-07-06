@@ -1,14 +1,18 @@
+{% set liveRefer = page.path %}
+{% if not is_post() %}
+  {% set liveRefer = page.path.replace('index.html', '') %}
+{% endif %}
 
-
-  {% if page.comments and theme.livere_uid %}
-    <script type="text/javascript">
-      (function(d, s) {
-        var j, e = d.getElementsByTagName(s)[0];
-        if (typeof LivereTower === 'function') { return; }
-        j = d.createElement(s);
-        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
-        j.async = true;
-        e.parentNode.insertBefore(j, e);
-      })(document, 'script');
-    </script>
-  {% endif %}
+<script>
+  window.livereOptions = {
+    refer: '{{ liveRefer }}'
+  };
+  (function(d, s) {
+    var j, e = d.getElementsByTagName(s)[0];
+    if (typeof LivereTower === 'function') { return; }
+    j = d.createElement(s);
+    j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+    j.async = true;
+    e.parentNode.insertBefore(j, e);
+  })(document, 'script');
+</script>
