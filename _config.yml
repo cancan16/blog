@@ -82,6 +82,10 @@ deploy:
   repo: https://gitee.com/volc1612/blog.git
   branch: master
 
+search:
+  path: search.xml
+  field: post  
+
 symbols_count_time:
   symbols: true
   time: true
