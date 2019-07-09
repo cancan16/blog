@@ -219,3 +219,12 @@ git pull origin master
 上述命令其实相当于git fetch 和 git merge，
 在实际使用中，git fetch更安全一些，
 因为在merge前，我们可以查看更新情况，然后再决定是否合并。
+
+### `git pull`报错
+
+> git pull
+
+```
+error: cannot lock ref 'refs/remotes/origin/master': Unable to create 'D:/wk/doc/.git/refs/remotes/origin/master.lock': File exists.
+```
+解决方法：删除`master.lock`文件
