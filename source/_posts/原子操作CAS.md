@@ -36,7 +36,7 @@ CAS操作长期不成功，cpu不断的循环
 * 更新基本类型类：AtomicBoolean，AtomicInteger，AtomicLong
 * 更新数组类：AtomicIntegerArray，AtomicLongArray，AtomicReferenceArray
 * 更新引用类型：AtomicReference，AtomicMarkableReference，AtomicStampedReference
-* 原子更新字段类： AtomicReferenceFieldUpdater，AtomicIntegerFieldUpdater，AtomicLongFieldUpdater
+* 原子更新字段类：AtomicReferenceFieldUpdater，AtomicIntegerFieldUpdater，AtomicLongFieldUpdater
 
 #### AtomicReference
 
@@ -91,7 +91,7 @@ Mark
 15
 ```
 
-####
+#### 解决CAS带来的ABA问题
 
 ```java
 import java.util.concurrent.atomic.AtomicStampedReference;
@@ -106,7 +106,7 @@ public class UseAtomicStampedReference {
 
 
     public static void main(String[] args) throws InterruptedException {
-        final int oldStamp = asr.getStamp();//那初始的版本号
+        final int oldStamp = asr.getStamp();// 拿初始的版本号
         final String oldReferenc = asr.getReference();
 
         System.out.println(oldReferenc + "===========" + oldStamp);
