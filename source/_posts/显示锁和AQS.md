@@ -816,7 +816,7 @@ Thread-7
 
 ![显示锁和AQS_b](https://volc1612.gitee.io/blog/images/显示锁和AQS/显示锁和AQS_b.png)
 
-快递添加尾节点源码
+快速添加尾节点源码
 
 ```java
 private Node addWaiter(Node mode) {
