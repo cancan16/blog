@@ -140,8 +140,27 @@ http://cloud.spring.io/spring-cloud-static/Finchley.SR1/single/spring-cloud.html
 
 #### 配置zipkin.base-url
 
+```yml
+spring:
+  # zipkin服务所在地址
+  zipkin:
+    base-url: http://localhost:9411/
+```    
+
 #### 配置采样百分闭spring.sleuth.sampler
 
+```yml
+spring:
+  # 配置采样百分比，开发环境可以设置为1表示全部
+  sleuth:
+    sampler:
+      probability: 1
+```      
+
+
+效果图
+
+![分布式链路追踪Sleuth和ZipKin-a](https://volc1612.gitee.io/blog/images/分布式链路追踪Sleuth和ZipKin/分布式链路追踪Sleuth和ZipKin-a.png)
 
 #### 推荐资料
 
