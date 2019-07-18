@@ -21,4 +21,9 @@ springcloud的configs-server:
     地址：http://cloud.spring.io/spring-cloud-config/
 推荐干货文章：http://jm.taobao.org/2016/09/28/an-article-about-config-center/
 
+![微服务核心知识分布式配置中心Config-a](https://volc1612.gitee.io/blog/images/微服务核心知识分布式配置中心Config/微服务核心知识分布式配置中心Config-a.png)
 <!-- more -->
+
+
+### SpringCloud的配置中心组件config-server
+
