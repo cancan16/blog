@@ -736,7 +736,7 @@ public class SelfLock implements Lock {
 import java.util.concurrent.locks.Lock;
 
 /**
- * 类说明：
+ * 类说明：测试自定义锁是否生效，如果生效，则主线程就不会启动10个子线程
  */
 public class TestMyLock {
     public void test() {
