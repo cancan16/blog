@@ -8,6 +8,8 @@ tags: [aqs]
 
 ### 显式锁和AQS
 
+Java提供一系列的显示锁类，均位于`java.util.concurrent.locks`包中。
+
 #### 显示锁范式
 
 <!-- more -->
