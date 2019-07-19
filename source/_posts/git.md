@@ -228,3 +228,12 @@ git pull origin master
 error: cannot lock ref 'refs/remotes/origin/master': Unable to create 'D:/wk/doc/.git/refs/remotes/origin/master.lock': File exists.
 ```
 解决方法：删除`master.lock`文件
+
+### 常见错误
+
+```bash
+[root@izbp1d9e2n6iw6mvtx07jmz ]# git pull
+error: 'refs/remotes/origin/fix' exists; cannot create 'refs/remotes/origin/fix/menu-permission'
+# 解决命令
+[root@izbp1d9e2n6iw6mvtx07jmz ]# git update-ref -d refs/remotes/origin/fix
+```
