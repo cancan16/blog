@@ -105,6 +105,8 @@ spring:
 
 * 修改对应服务的配置文件,把`application.yml`改为`bootstrap.yml`
 
+因为`spring`加载配置文件首先加载`application`。服务配置文件应后加载
+
 ```yml
 #指定注册中心地址
 eureka:
@@ -128,9 +130,8 @@ spring:
       # 建议用lable去区分环境，默认是lable是master分支
       label: master
 ```
-
 注意点：
-    1.配置文件要用bootstrap.yml
-    2.默认读取文件名是 服务名称
+1.配置文件要用bootstrap.yml
+2.默认读取文件名是 服务名称
 
 
