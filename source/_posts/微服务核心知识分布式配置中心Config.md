@@ -89,6 +89,48 @@ spring:
 `http://localhost:9100/master/product-service.json`
 会自动装换数据格式
 
+### 分布式配置中心客户端使用实战
 
+简介：微服务里面客户端接入配置中心实战
+官方文档：http://cloud.spring.io/spring-cloud-config/single/spring-cloud-config.html#_spring_cloud_config_client
+		
+* 加入依赖
+
+```xml
+<dependency>
+    <groupId>org.springframework.cloud</groupId>
+    <artifactId>spring-cloud-config-client</artifactId>
+</dependency>
+```
+
+* 修改对应服务的配置文件,把`application.yml`改为`bootstrap.yml`
+
+```yml
+#指定注册中心地址
+eureka:
+    client:
+    serviceUrl:
+        defaultZone: http://localhost:8761/eureka/
+
+#服务的名称
+spring:
+  application:
+    # 使用ribbon时服务名称不能有下划线
+    name: product-service
+    #指定从哪个配置中心读取
+  cloud:
+    config:
+      discovery:
+        service-id: CONFIG-SERVICE
+        enabled: true
+      # 配置文件环境
+      profile: test
+      # 建议用lable去区分环境，默认是lable是master分支
+      label: master
+```
+
+注意点：
+    1.配置文件要用bootstrap.yml
+    2.默认读取文件名是 服务名称
 
 
