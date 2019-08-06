@@ -237,3 +237,16 @@ error: 'refs/remotes/origin/fix' exists; cannot create 'refs/remotes/origin/fix/
 # 解决命令
 [root@izbp1d9e2n6iw6mvtx07jmz ]# git update-ref -d refs/remotes/origin/fix
 ```
+
+### linux更新远端分支删除远端不见的跟踪分支
+
+查看remote地址，远程分支，还有本地分支与之相对应关系等信息
+
+```bash
+[root@izbp1d9e2n6iw6mvtx07jmz imp-server]# git remote show origin
+```
+在本地删除远端不见的分支
+
+```bash
+[root@izbp1d9e2n6iw6mvtx07jmz imp-server]# git remote prune origin
+```
