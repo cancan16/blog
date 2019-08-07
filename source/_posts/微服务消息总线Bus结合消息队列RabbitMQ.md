@@ -14,3 +14,6 @@ tags: [Bus]
 2、为什么使用这个
 配置更新了，但是其他系统不知道是否更新
 		
+3. RabbitMQ介绍	
+官方文档：http://www.rabbitmq.com/getstarted.html
+中文文档：http://rabbitmq.mr-ping.com/
