@@ -17,3 +17,5 @@ tags: [Bus]
 3. RabbitMQ介绍	
 官方文档：http://www.rabbitmq.com/getstarted.html
 中文文档：http://rabbitmq.mr-ping.com/
+
+<!-- more -->
