@@ -767,3 +767,33 @@ Cached:           102868 kB
 ```bash
 [root@izbp1d9e2n6iw6mvtx07jmz imp-server]# ps aux --sort=-rss
 ```
+
+### centos7开启防火墙
+
+```bash
+[root@localhost ~]# systemctl start firewalld.service
+```
+
+### 查看端口号开放情况
+
+```bash
+[root@localhost ~]# firewall-cmd --list-ports  
+```
+
+```bash
+[root@localhost ~]# firewall-cmd --zone=public --add-port=80/tcp --permanent  
+```
+
+命令含义：
+–zone #作用域
+–add-port=80/tcp #添加端口，格式为：端口/通讯协议
+–permanent #永久生效，没有此参数重启后失效
+
+### 重启防火墙
+
+#重启firewall  
+firewall-cmd --reload  
+#停止firewall  
+systemctl stop firewalld.service  
+#禁止firewall开机启动  
+systemctl disable firewalld.service  
