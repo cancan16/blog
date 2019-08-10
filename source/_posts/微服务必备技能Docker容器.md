@@ -37,3 +37,24 @@ tags: [Docker]
 ### linux安装docker
 
 参考：https://help.aliyun.com/document_detail/51853.html?spm=a2c4g.11186623.6.820.RaToNY
+
+centos 7系统安装
+
+#### 添加yum源
+
+```bash
+# yum install epel-release –y
+# yum clean all
+# yum list
+```
+#### 安装并运行Docker
+
+```bash
+# yum install docker-io –y
+# systemctl start docker
+```
+#### 检查安装结果
+
+```bash
+# docker info
+```

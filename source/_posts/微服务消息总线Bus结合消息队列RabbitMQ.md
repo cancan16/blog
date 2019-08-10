@@ -19,3 +19,5 @@ tags: [Bus]
 中文文档：http://rabbitmq.mr-ping.com/
 
 <!-- more -->
+
+![微服务消息总线Bus结合消息队列RabbitMQ-a](https://volc1612.gitee.io/blog/images/微服务消息总线Bus结合消息队列RabbitMQ/微服务消息总线Bus结合消息队列RabbitMQ-a.png)
