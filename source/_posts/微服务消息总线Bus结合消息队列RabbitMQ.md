@@ -49,7 +49,7 @@ tags: [Bus]
 4)创建容器
 
 ```bash
-[root@localhost ~]# docker run -d --name="myrabbitmq" -p 5671:5671 -p 15672:15672 rabbitmq:management
+[root@localhost ~]# docker run -d --name="myrabbitmq" -p 5672:5672 -p 15672:15672 rabbitmq:management
 5b5fa9406cd016587601dc074a00f16dfcf4e5905a0bcd3c2c1f1e64d2608e76
 ```
 
@@ -82,3 +82,65 @@ CONTAINER ID        IMAGE                 COMMAND                  CREATED      
 ```
 192.168.2.113就是对外(局域网)提供的ip
 
+浏览器访问： http://192.168.2.113:15672登录rabbitmq
+
+### config-client实时更新配置文件
+
+如：product-server服务
+
+#### config-client服务添加依赖
+
+```xml
+<!--配置中心结合消息队列-->
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-actuator</artifactId>
+</dependency>
+
+<dependency>
+    <groupId>org.springframework.cloud</groupId>
+    <artifactId>spring-cloud-starter-bus-amqp</artifactId>
+</dependency>
+```
+
+#### 暴露端点
+
+```xml
+#暴露全部的监控信息
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+```
+
+#### 配置RabbitMQ的连接
+
+```xml
+spring:
+    rabbitmq:
+        host: localhost
+        port: 5672
+        username: guest
+        password: guest
+```
+
+#### 需要刷新配置的地方，增加注解类注解@RefreshScope
+
+```java
+@RefreshScope
+public class ProductController {}
+```
+
+#### 触发回调
+
+当配置中心仓库product-server项目的配置文件发生变化时，触发product-server项目回调方法
+
+post请求：http://localhost:8771/actuator/bus-refresh
+
+![微服务消息总线Bus结合消息队列RabbitMQ-b](https://volc1612.gitee.io/blog/images/微服务消息总线Bus结合消息队列RabbitMQ/微服务消息总线Bus结合消息队列RabbitMQ-b.png)
+
+#### 验证配置文件是否实时更新
+
+访问`product-server`接口获取配置文件中env配置值
+`http://localhost:8771/getConfigByServer`
