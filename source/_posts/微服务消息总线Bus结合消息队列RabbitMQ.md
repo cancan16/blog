@@ -144,3 +144,9 @@ post请求：http://localhost:8771/actuator/bus-refresh
 
 访问`product-server`接口获取配置文件中env配置值
 `http://localhost:8771/getConfigByServer`
+
+#### config-client集群部署，配置文件会实时获取
+
+触发回调任意的`config-clinet`集群中的一个节点，其他节点也能实时更新配置文件
+
+**动态刷新配置: 在开发和测试环境使用，尽量少在生产环境使用，生产环境尽量重新启动配置中心服务**
