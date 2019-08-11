@@ -250,3 +250,62 @@ error: 'refs/remotes/origin/fix' exists; cannot create 'refs/remotes/origin/fix/
 ```bash
 [root@izbp1d9e2n6iw6mvtx07jmz imp-server]# git remote prune origin
 ```
+
+
+### `sourcetree`clone私有仓库
+
+#### 生成公钥
+
+```bash
+$ ssh-keygen -t rsa -C "916215796@qq.com"
+Generating public/private rsa key pair.
+Enter file in which to save the key (/c/Users/Administrator/.ssh/id_rsa):
+Created directory '/c/Users/Administrator/.ssh'.
+Enter passphrase (empty for no passphrase):
+Enter same passphrase again:
+Your identification has been saved in /c/Users/Administrator/.ssh/id_rsa.
+Your public key has been saved in /c/Users/Administrator/.ssh/id_rsa.pub.
+The key fingerprint is:
+SHA256:Q1cBoScUX0I74iCrTF5iVQEtxyUN9uq9CalNSFlAb+U 916215796@qq.com
+The key's randomart image is:
++---[RSA 2048]----+
+|   .++*==o=o+.   |
+|    .=+*.o =     |
+|    oo= E *      |
+|   . * = = .     |
+|  + = . S        |
+| = = o o .       |
+|  + . = .        |
+|     + . o       |
+|    . . o        |
++----[SHA256]-----+
+```
+
+打开`C:\Users\Administrator\.ssh\id_rsa.pub`文件复制公钥
+
+#### github账号添加公钥
+
+打开登录github设置页面`SSH and GPG keys`添加`new SSH ksy`,`title`随便写，值粘贴复制的公钥，保存
+
+#### 测试是否SSH连接是否成功
+
+```bash
+$ ssh -T git@github.com
+The authenticity of host 'github.com (13.250.177.223)' can't be established.
+RSA key fingerprint is SHA256:nThbg6kXUpJWGl7E1IGOCspRomTxdCARLviKw6E5SY8.
+Are you sure you want to continue connecting (yes/no)? yes
+Warning: Permanently added 'github.com,13.250.177.223' (RSA) to the list of known hosts.
+Hi volc1605! You've successfully authenticated, but GitHub does not provide shell access.
+```
+
+#### sourcetree添加SSH秘钥
+
+选择`SSH`客户端为`OpenSSH`，`SSH`秘钥选择生成的`id_rsa`文件
+
+![git-h](https://volc1612.gitee.io/blog/images/git/git-h.png)
+
+#### 添加github账号
+
+![git-j](https://volc1612.gitee.io/blog/images/git/git-j.png)
+
+这样就可以clone私有仓库了
