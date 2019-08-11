@@ -15,6 +15,8 @@ http://cloud.spring.io/spring-cloud-static/Finchley.SR1/single/spring-cloud.html
 
 一个组件，专门用于记录链路数据的开源组件，接口日志埋点。
 
+<!-- more -->
+
 #### 使用
 
 添加依赖
