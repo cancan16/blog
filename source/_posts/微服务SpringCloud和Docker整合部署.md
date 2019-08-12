@@ -59,10 +59,47 @@ ENTRYPOINT ["java","-jar","/app.jar"]
 `ENTRYPOINT`: 容器启动时执行的命令
 `EXPOSE`: 8080 暴露镜像端口
 
-#### 构建镜像
+#### 本地构建镜像
 
-终端控制台执行
+使用本地的docker构建本地项目
+
+##### IDEA终端控制台执行使用`MAVEN`构建`springboot`项目镜像
 
 ```bash
 $ mvn install dockerfile:build
+```
+
+构建完成后`docker images`查看镜像列表，已经打包完成
+
+#### 本地推送到阿里云私有镜像Registry
+
+```bash
+$ sudo docker login --username=cs12337 registry.cn-hangzhou.aliyuncs.com
+$ sudo docker tag [ImageId] registry.cn-hangzhou.aliyuncs.com/my-private-rmi/volc:[镜像版本号]
+$ sudo docker push registry.cn-hangzhou.aliyuncs.com/my-private-rmi/volc:[镜像版本号]
+```
+
+[ImageId]: 本地打包好的项目镜像ID
+[镜像版本号]: 自己指定镜像版本号
+
+### 服务器从阿里云私有镜像Registry拉取镜像并运行项目
+
+```bash
+$ sudo docker login --username=cs12337 registry.cn-hangzhou.aliyuncs.com
+$ sudo docker pull registry.cn-hangzhou.aliyuncs.com/my-private-rmi/volc:[镜像版本号]
+```
+
+拉取成功后`docker images`查看项目镜像
+
+项目部署到容器中，并启动该容器
+`$ docker run -d --name [容器名称] -p [对外端口号]:[docker容器映射该项目的端口号]  [镜像ID]`
+```bash
+$ docker run -d --name docker_demo -p 8099:8080  a1b9fc71720d
+```
+
+### 查看项目启动日志
+
+`$ docker logs -f  [容器ID]`
+```bash
+$ docker logs -f  containerid
 ```
