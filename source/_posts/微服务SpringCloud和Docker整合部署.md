@@ -8,6 +8,8 @@ tags: [Docker]
 
 ### 构建SpringBoot应用docker镜像
 
+<!-- more -->
+
 ####步骤：maven里面添加配置pom.xml
 		
 ```xml        
