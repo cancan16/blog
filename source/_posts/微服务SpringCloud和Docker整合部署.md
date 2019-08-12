@@ -71,7 +71,7 @@ $ mvn install dockerfile:build
 
 构建完成后`docker images`查看镜像列表，已经打包完成
 
-#### 本地推送到阿里云私有镜像Registry
+### 本地推送到阿里云私有镜像Registry
 
 ```bash
 $ sudo docker login --username=cs12337 registry.cn-hangzhou.aliyuncs.com
@@ -82,7 +82,7 @@ $ sudo docker push registry.cn-hangzhou.aliyuncs.com/my-private-rmi/volc:[镜像
 [ImageId]: 本地打包好的项目镜像ID
 [镜像版本号]: 自己指定镜像版本号
 
-### 服务器从阿里云私有镜像Registry拉取镜像并运行项目
+### 公网服务器从阿里云私有镜像Registry拉取镜像并运行项目
 
 ```bash
 $ sudo docker login --username=cs12337 registry.cn-hangzhou.aliyuncs.com
