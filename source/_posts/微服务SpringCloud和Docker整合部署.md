@@ -67,6 +67,11 @@ ENTRYPOINT ["java","-jar","/app.jar"]
 
 ##### IDEA终端控制台执行使用`MAVEN`构建`springboot`项目镜像
 
+win环境下的docker需要开启2375口号
+
+![微服务SpringCloud和Docker整合部署-a](https://volc1612.gitee.io/blog/images/微服务SpringCloud和Docker整合部署/微服务SpringCloud和Docker整合部署-a.png)
+
+
 ```bash
 $ mvn install dockerfile:build
 ```
