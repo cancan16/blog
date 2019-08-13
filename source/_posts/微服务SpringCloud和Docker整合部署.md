@@ -10,9 +10,9 @@ tags: [Docker]
 
 <!-- more -->
 
-####步骤：maven里面添加配置pom.xml
+#### maven里面添加配置pom.xml
 		
-```xml        
+```xml
 <properties>
     <docker.image.prefix>xdclass</docker.image.prefix>
 </properties>
@@ -32,7 +32,7 @@ tags: [Docker]
         </plugin>
     </plugins>
 </build>
-```        
+```
 
 配置讲解
 Spotify的`docker-maven-plugin`插件是用maven插件方式构建docker镜像的。
