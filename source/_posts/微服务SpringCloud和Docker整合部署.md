@@ -76,6 +76,44 @@ win环境下的docker需要开启2375口号
 $ mvn install dockerfile:build
 ```
 
+##### 本地win环境打包报错
+
+报错内容
+```
+WARNING: HK2 service reification failed for [org.glassfish.jersey.message.internal.DataSourceProvider]...
+```
+原因是`dockerfile-maven-plugin`打包插件需要依赖`activation`，修改不配置插件如下
+
+```xml
+<build>
+    <finalName>eureka-server</finalName>
+    <plugins>
+        <plugin>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-maven-plugin</artifactId>
+        </plugin>
+        <plugin>
+            <groupId>com.spotify</groupId>
+            <artifactId>dockerfile-maven-plugin</artifactId>
+            <version>1.3.6</version>
+            <configuration>
+                <repository>${docker.image.prefix}/${project.artifactId}</repository>
+                <buildArgs>
+                    <JAR_FILE>target/${project.build.finalName}.jar</JAR_FILE>
+                </buildArgs>
+            </configuration>
+            <dependencies>
+                <dependency>
+                    <groupId>javax.activation</groupId>
+                    <artifactId>activation</artifactId>
+                    <version>1.1.1</version>
+                </dependency>
+            </dependencies>
+        </plugin>
+    </plugins>
+</build>
+```
+
 构建完成后`docker images`查看镜像列表，已经打包完成
 
 ### 本地推送到阿里云私有镜像Registry
