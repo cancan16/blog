@@ -156,3 +156,21 @@ $ docker logs -f  containerid
 ```
 com.sun.jersey.api.client.ClientHandlerException: java.net.ConnectException: Connection refused: connect
 ```
+
+### docker安装部署redis
+
+1、搜索镜像 docker search redis
+
+2、拉取 docker pull docker.io/redis
+
+3、启动 docker run --name "my_redis" -p 6379:6379 -d 4e8db158f18d
+参考：
+docker run --name "xd_redis" -p 6379:6379 -d 4e8db158f18d --requirepass "123456" -v $PWD/data:/data
+
+### docker登录redis
+
+`docker exec -it [容器ID] redis-cli`
+
+```
+$ docker exec -it 36b947a3de0b redis-cli
+```
