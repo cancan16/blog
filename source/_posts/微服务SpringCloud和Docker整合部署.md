@@ -148,3 +148,11 @@ $ docker run -d --name docker_demo -p 8099:8080  a1b9fc71720d
 ```bash
 $ docker logs -f  containerid
 ```
+
+### 本地打包遇到的问题
+
+打包配置中心时，需要注册到注册中心，而注册中心没有启动，导致注册失败，报如下错误，但是不会影响打包。
+
+```
+com.sun.jersey.api.client.ClientHandlerException: java.net.ConnectException: Connection refused: connect
+```
