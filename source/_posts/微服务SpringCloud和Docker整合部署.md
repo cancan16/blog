@@ -151,11 +151,18 @@ $ docker logs -f  containerid
 
 ### 本地打包遇到的问题
 
-打包配置中心时，需要注册到注册中心，而注册中心没有启动，导致注册失败，报如下错误，但是不会影响打包。
+打包配置中心服务时，会检测注册到eureka的地址是否正确，配置中心服务配置文件中注册中心的地址应该填写内网地址。
 
 ```
 com.sun.jersey.api.client.ClientHandlerException: java.net.ConnectException: Connection refused: connect
 ```
+
+#### 打包跳过单元测试
+
+注意：
+1、maven打包构建，会触发单元测试，部分情况可以跳过，
+mvn install -Dmaven.test.skip=true dockerfile:build
+
 
 ### docker安装部署redis
 
@@ -174,3 +181,27 @@ docker run --name "xd_redis" -p 6379:6379 -d 4e8db158f18d --requirepass "123456"
 ```
 $ docker exec -it 36b947a3de0b redis-cli
 ```
+
+### 服务注册到eureka中，ip有误的解决方法
+
+![微服务SpringCloud和Docker整合部署-b](https://volc1612.gitee.io/blog/images/微服务SpringCloud和Docker整合部署/微服务SpringCloud和Docker整合部署-b.png)
+
+应该显示IP或域名
+
+解决方式：
+
+```yml
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://10.0.75.1:8761/eureka/
+  instance:
+    instance-id: ${spring.cloud.client.ip-address}:${server.port}
+    prefer-ip-address: true
+```
+
+重新注册到注册中心
+
+![微服务SpringCloud和Docker整合部署-c](https://volc1612.gitee.io/blog/images/微服务SpringCloud和Docker整合部署/微服务SpringCloud和Docker整合部署-c.png)
+
+
