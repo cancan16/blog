@@ -204,4 +204,27 @@ eureka:
 
 ![微服务SpringCloud和Docker整合部署-c](https://volc1612.gitee.io/blog/images/微服务SpringCloud和Docker整合部署/微服务SpringCloud和Docker整合部署-c.png)
 
+### docker部署网关服务启动日志报错
 
+由于连接`rabbitmq`配置地址不是内网ip，网关服务一直尝试连接`rabbitmq`
+
+```
+ramework.amqp.AmqpConnectException: java.net.ConnectException: Connection refused (Connection refused)
+2019-08-17 06:20:09.409  INFO [product-service,,,] 1 --- [WjeCqDzVgEkQ-10] o.s.a.r.l.SimpleMessageListenerContainer : Restarting Consumer@598d4c54: tags=[{}], channel=null, acknowledgeMode=AUTO local queue size=0
+2019-08-17 06:20:09.412  INFO [product-service,,,] 1 --- [WjeCqDzVgEkQ-11] o.s.a.r.c.CachingConnectionFactory       : Attempting to connect to: [127.0.0.1:5672]
+```
+
+解决方法修改配置文件连接`rabbitmq`改为内网ip，重新启动容器
+
+```yml
+#服务的名称
+spring:
+  rabbitmq:
+    host: 10.0.75.1
+    port: 5672
+    username: guest
+    password: guest
+```
+
+
+**生产环境不能用`localhost`或者`127.0.0.1`，最好使用内网IP**
