@@ -422,8 +422,55 @@ $("[name=gender][value="+ data.gender+"]").prop("checked", "checked");
 $("[name=gender][value="+ data.gender +"]").click();
 ```
 
-### 前端ajax解决跨域请求
+### ztree插件的坑
 
-```html
+数据中pid和pId大小写问题，
+应该指定pid
 
+```js
+var setting = {
+	check: {
+		enable: true
+	},
+	data: {
+		simpleData: {
+			enable: true,
+			// 指定数据中的父节点字段为pId
+			pIdKey: "pId"
+		},
+		key: {
+			name: "mallName"
+		}
+	}
+};
+```	
+### 接口接受复杂的js数组问题
+
+接口中不能直接接受复杂的js数组，如{[id:123,name:"123]}
+
+只能接受简单的数组元素，如{"123","232"},
+
+```js
+let arr = ["123","1234"];
+$.ajax({
+    url: "",
+    type: "POST",
+    data: {"arr": arr},
+    success: function (data) {
+    }, error: function (data) {
+    }
+});
+```    
+后台：接参
+
+```java
+@RestController
+@RequestMapping("/ww")
+public class Test {
+    @PostMapping(value = "/tt")
+    public void tt(@RequestParam("arr[]") List<String> arr) {
+
+    }
+}
 ```
+如果要接受复杂对象，需要转成json字符串，JSON.stringify(arr)
