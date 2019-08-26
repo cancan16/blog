@@ -309,26 +309,50 @@ select * from B where exists(select cc from A where cc=B.cc)
 
 ### MySQL树结构
 
+* 根据某节点ID查询所有父节点(包含该节点)
 ```mysql
 SELECT T2.id,
 T2.pid,
-T2.url,
-T2.platform_id,
-T2.create_account_id,
-T2.type,
-T2.STATUS,
-T2.sort,
-T2.`desc`,
-T2.NAME,
-T2.icon_url
+T1.lvl
 FROM (
 	SELECT @r                                                    AS _id,
 		(SELECT @r := pid FROM tb_p_resources WHERE id = _id) AS pid,
 		@l := @l + 1                                          AS lvl
-	FROM (SELECT @r := #{id}, @l := 0) vars,
+	FROM (SELECT @r := 14, @l := 0) vars,
 		tb_p_resources h
 	WHERE @r != 0
 ) T1
 	JOIN tb_p_resources T2 ON T1._id = T2.id
 ORDER BY T1.lvl DESC
+```
+
+* 根据某节点查询所有子节点(不包含该节点)
+
+```sql
+SELECT
+	id 
+FROM
+	(
+SELECT
+	t0.id,t0.pid
+FROM
+	(
+SELECT
+	tpu.id,
+	tpu.NAME,
+	( SELECT p_unit_id FROM tb_p_unit_relation_t tpurt WHERE tpurt.c_unit_id = tpu.id ) pid 
+FROM
+	tb_p_unit_t tpu 
+WHERE
+	tpu.`status` = 0 
+	) t0 
+WHERE
+	t0.pid > 0 
+ORDER BY
+	t0.pid,
+	t0.id DESC 
+	) realname_sorted,
+	( SELECT @pv := 3 ) initialisation 
+WHERE
+	( FIND_IN_SET( pid, @pv ) > 0 AND @pv := concat( @pv, ',', id ) )
 ```
