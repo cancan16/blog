@@ -356,3 +356,33 @@ ORDER BY
 WHERE
 	( FIND_IN_SET( pid, @pv ) > 0 AND @pv := concat( @pv, ',', id ) )
 ```
+
+### 行转列
+
+```sql
+SELECT
+	SUBSTRING_INDEX( SUBSTRING_INDEX( '重庆,南京,苏州,常州,杭州,济南,东莞,佛山,中山,厦门,福州,武汉,大连,沈阳,天津,石家庄,哈尔滨,北京,上海', ',', help_topic_id + 1 ), ',', - 1 ) AS city 
+FROM
+	mysql.help_topic 
+WHERE
+	help_topic_id < LENGTH( '重庆,南京,苏州,常州,杭州,济南,东莞,佛山,中山,厦门,福州,武汉,大连,沈阳,天津,石家庄,哈尔滨,北京,上海' ) - LENGTH( REPLACE ( '重庆,南京,苏州,常州,杭州,济南,东莞,佛山,中山,厦门,福州,武汉,大连,沈阳,天津,石家庄,哈尔滨,北京,上海', ',', '' ) ) + 1
+```
+
+![mysql-a](https://volc1612.gitee.io/blog/images/mysql/mysql-a.png)
+
+### A表中的字段，模糊匹配B中字段
+
+查询B表中的name字段包含A表中的city字段
+
+```sql
+select A.city,B.`name`,B.id from (
+SELECT
+	SUBSTRING_INDEX( SUBSTRING_INDEX( '重庆,南京,苏州,常州,杭州,济南,东莞,佛山,中山,厦门,福州,武汉,大连,沈阳,天津,石家庄,哈尔滨,北京,上海', ',', help_topic_id + 1 ), ',', - 1 ) AS city 
+FROM
+	mysql.help_topic
+WHERE
+	help_topic_id < LENGTH( '重庆,南京,苏州,常州,杭州,济南,东莞,佛山,中山,厦门,福州,武汉,大连,沈阳,天津,石家庄,哈尔滨,北京,上海' ) - LENGTH( REPLACE ( '重庆,南京,苏州,常州,杭州,济南,东莞,佛山,中山,厦门,福州,武汉,大连,沈阳,天津,石家庄,哈尔滨,北京,上海', ',', '' ) ) + 1
+) A inner join floor B on B.`name`  like concat("%",A.city,"%");
+```
+
+![mysql-b](https://volc1612.gitee.io/blog/images/mysql/mysql-b.png)
