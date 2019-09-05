@@ -499,3 +499,7 @@ server {
 ```
 http://www.macalline.com/assets = http://127.0.0.1:8081/assets = F:/static/assets
 
+
+### Nginx角色跨域问题
+
+参考： https://www.cnblogs.com/hawk-whu/p/6725699.html
