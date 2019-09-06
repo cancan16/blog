@@ -362,3 +362,13 @@ URIEncoding="UTF-8"可解决get请求中文乱码
 			   
 <Connector port="39051" protocol="AJP/1.3" redirectPort="8443" />
 ```
+
+### 命令启动一个jar
+
+`nohup...&` 后台启动
+
+`--Dspring.config.location`指定项目引用的配置文件启动
+
+```
+nohup java -jar xxxx.jar  --Dspring.config.location=application.properties &
+```
