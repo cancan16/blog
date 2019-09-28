@@ -6,6 +6,8 @@ categories: SPRINGCLOUD
 tags: [Docker]
 ---
 
+<div class="note primary"><p>构建SpringBoot应用docker镜像</p></div>
+
 ### 构建SpringBoot应用docker镜像
 
 <!-- more -->
