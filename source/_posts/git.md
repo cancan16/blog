@@ -309,3 +309,7 @@ Hi volc1605! You've successfully authenticated, but GitHub does not provide shel
 ![git-j](https://volc1612.gitee.io/blog/images/git/git-j.png)
 
 这样就可以clone私有仓库了
+
+### sourceTree工具撤销回滚合并
+
+![git-k](https://volc1612.gitee.io/blog/images/git/git-k.png)
