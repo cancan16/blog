@@ -313,3 +313,13 @@ Hi volc1605! You've successfully authenticated, but GitHub does not provide shel
 ### sourceTree工具撤销回滚合并
 
 ![git-k](https://volc1612.gitee.io/blog/images/git/git-k.png)
+
+### sourcetree更新代码提示错误
+
+sourcetree提示错误error: cannot lock ref 'refs/remotes/origin/master': unable to resolve reference 'refs/remotes/origin/master': reference broken
+
+```
+$ git gc --prune=now
+$ git remote prune origin
+```
+删除项目中origin目录
