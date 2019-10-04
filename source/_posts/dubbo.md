@@ -1,15 +1,19 @@
 ---
-title: dubbo
+title: Dubbo
 date: 2019-10-04 08:42:34
 update: 2019-10-04 08:42:34
 categories: DUBBO
 tags: [dubbo]
 ---
 
+![dubbo](https://volc1612.gitee.io/blog/images/dubbo/dubbo-d.jpg)
+
 ### 什么是Dubbo
 
 Dubbo是由阿里开源，后来加入了 Apache 。正式由于 Dubbo 的出现，才使得越来越多的公司开始使用以及接受分布式架构。是⼀个⾼性能，轻量级，基于Java的RPC框架。Dubbo提供三个关键功能，包括基
 于接⼝的远程调⽤，容错和负载平衡以及⾃动服务注册和发现。
+
+<!-- more -->
 
 #### 什么是RPC
 
