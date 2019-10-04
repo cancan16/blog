@@ -797,3 +797,62 @@ firewall-cmd --reload
 systemctl stop firewalld.service  
 #禁止firewall开机启动  
 systemctl disable firewalld.service  
+
+### 检查启动端口
+
+[root@localhost bin]# netstat -an|grep 2181
+tcp6       0      0 :::2181                 :::*                    LISTEN 
+
+### `chkconfig`管理开机启动sh脚本配置
+
+以zkServer.sh为例
+
+#### 在`/etc/init.d/`目录下创建`autoStarZookeeper`文件
+内容如下
+
+```sh
+#!/bin/bash
+#chkconfig: 3 88 88
+#description:zookepper开机自动启动
+cd /usr/local/zookeeper-3.4.14/bin
+./zkServer.sh start
+```
+
+#### 添加到chkconfig，开机自启动
+
+```sh
+[root@c69-01 ~]# chkconfig --add autoStarZookeeper
+[root@c69-01 ~]# chkconfig --list autoStarZookeeper
+autoStarZookeeper           	0:off	1:off	2:off	3:on	4:off	5:off	6:off
+```
+
+重新启动linux系统
+
+#### 通过查看端口号是否占用验证`zookepper`开机启动配置是否生效
+
+zookeeper服务设置的端口号是2181
+
+```sh
+alhost ~]$ netstat -an|grep 2181
+tcp6       0      0 :::2181                 :::*                    LISTEN   
+```
+2181端口号已经被占用说明配置已经生效了
+
+#### 从`chkconfig`管理中删除`autoStarZookeeper`
+
+```sh
+[root@c69-01 ~]# chkconfig --del autoStarZookeeper
+```
+
+### 查询端口号被哪个服务占用
+
+```sh
+# 查询2181端口号被哪个进程占用
+[root@localhost volc]# lsof -i:2181
+COMMAND  PID USER   FD   TYPE DEVICE SIZE/OFF NODE NAME
+java    7165 root   24u  IPv6  47464      0t0  TCP *:eforward (LISTEN)
+# 查询7165进程号信息
+[root@localhost volc]# ps -aux | grep 7165
+root       7165  0.1  1.1 2259728 11640 ?       Sl   23:11   0:01 java -Dzookeeper.log.dir=. -Dzookeeper.root.logger=INFO,CONSOLE -cp /usr/local/zookeeper-3.4.14/bin/../zookeeper-server/target/classes:/usr/local/zookeeper-3.4.14/bin/../build/classes:/usr/local/zookeeper-3.4.14/bin/../zookeeper-server/target/lib/*.jar:/usr/local/zookeeper-3.4.14/bin/../build/lib/*.jar:/usr/local/zookeeper-3.4.14/bin/../lib/slf4j-log4j12-1.7.25.jar:/usr/local/zookeeper-3.4.14/bin/../lib/slf4j-api-1.7.25.jar:/usr/local/zookeeper-3.4.14/bin/../lib/netty-3.10.6.Final.jar:/usr/local/zookeeper-3.4.14/bin/../lib/log4j-1.2.17.jar:/usr/local/zookeeper-3.4.14/bin/../lib/jline-0.9.94.jar:/usr/local/zookeeper-3.4.14/bin/../lib/audience-annotations-0.5.0.jar:/usr/local/zookeeper-3.4.14/bin/../zookeeper-3.4.14.jar:/usr/local/zookeeper-3.4.14/bin/../zookeeper-server/src/main/resources/lib/*.jar:/usr/local/zookeeper-3.4.14/bin/../conf: -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.local.only=false org.apache.zookeeper.server.quorum.QuorumPeerMain /usr/local/zookeeper-3.4.14/bin/../conf/zoo.cfg
+root       9471  0.0  0.0 112708   976 pts/0    R+   23:21   0:00 grep --color=auto 7165
+```
