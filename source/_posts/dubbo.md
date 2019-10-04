@@ -6,7 +6,7 @@ categories: DUBBO
 tags: [dubbo]
 ---
 
-![dubbo](https://volc1612.gitee.io/blog/images/dubbo/dubbo-d.jpg)
+![dubbo](https://volc1612.gitee.io/blog/images/dubbo/dubbo-d.png)
 
 ### 什么是Dubbo
 
