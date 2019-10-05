@@ -768,6 +768,18 @@ Cached:           102868 kB
 [root@izbp1d9e2n6iw6mvtx07jmz imp-server]# ps aux --sort=-rss
 ```
 
+### centos7查看防火墙状态
+
+```sh
+[root@localhost volc]# systemctl status firewalld.service
+● firewalld.service - firewalld - dynamic firewall daemon
+   Loaded: loaded (/usr/lib/systemd/system/firewalld.service; enabled; vendor preset: enabled)
+   Active: active (running) since Sat 2019-10-05 09:50:55 CST; 1s ago
+     Docs: man:firewalld(1)
+Hint: Some lines were ellipsized, use -l to show in full.
+[root@localhost volc]# systemctl status firewalld.service
+```
+
 ### centos7开启防火墙
 
 ```bash
@@ -800,8 +812,10 @@ systemctl disable firewalld.service
 
 ### 检查启动端口
 
+```sh
 [root@localhost bin]# netstat -an|grep 2181
 tcp6       0      0 :::2181                 :::*                    LISTEN 
+```
 
 ### `chkconfig`管理开机启动sh脚本配置
 
@@ -836,6 +850,7 @@ zookeeper服务设置的端口号是2181
 alhost ~]$ netstat -an|grep 2181
 tcp6       0      0 :::2181                 :::*                    LISTEN   
 ```
+
 2181端口号已经被占用说明配置已经生效了
 
 #### 从`chkconfig`管理中删除`autoStarZookeeper`
