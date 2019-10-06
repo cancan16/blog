@@ -63,4 +63,4 @@ nohup java -jar dubbo-admin-0.1.jar &
 
 `http://localhost:8080`
 
-![dubbo admin-a](https://volc1612.gitee.io/blog/images/dubbo admin/dubbo admin-a.jpg)
+![dubbo-admin-a](https://volc1612.gitee.io/blog/images/dubbo-admin/dubbo-admin-a.png)
