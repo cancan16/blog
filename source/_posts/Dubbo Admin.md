@@ -64,3 +64,28 @@ nohup java -jar dubbo-admin-0.1.jar &
 `http://localhost:8080`
 
 ![dubbo-admin-a](https://volc1612.gitee.io/blog/images/dubbo-admin/dubbo-admin-a.png)
+
+
+### 配置元数据
+
+![dubbo-admin-b](https://volc1612.gitee.io/blog/images/dubbo-admin/dubbo-admin-b.png)
+
+#### 注入bean
+
+```java
+import org.apache.dubbo.config.MetadataReportConfig;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+public class DubboConfig {
+
+    @Bean
+    public MetadataReportConfig metadataReportConfig() {
+        MetadataReportConfig metadataReportConfig = new MetadataReportConfig();
+        metadataReportConfig.setAddress("zookeeper://192.168.25.11:2181");
+        return metadataReportConfig;
+    }
+}
+
+```
