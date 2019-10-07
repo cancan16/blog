@@ -92,3 +92,19 @@ public class DubboConfig {
 ```
 
 ![dubbo-admin-c](https://volc1612.gitee.io/blog/images/dubbo-admin/dubbo-admin-c.png)
+
+
+### Dubbo Admin的日常使用
+
+**简介：dubbo admin的使用**
+
+- 使用dubbo admin查看消费组和提供组节点
+- 使用dubbo admin完成后台接口测试
+- 使用dubbo admin设置请求权重
+- 使用dubbo admin添加黑名单
+- dubbo负载均衡策略
+  - 轮询调度算法Round Robin Scheduling
+    - 轮询调度算法的原理是每一次把来自用户的请求轮流分配给内部中的服务器，从1开始，直到N(内部服务器个数)，然后重新开始循环。算法的优点是其简洁性，它无需记录当前所有连接的状态，所以它是一种无状态调度。  
+  - 最少活跃调用数 LeastActive LoadBalance
+    - 相同活跃数的随机，活跃数指调用前后计数差。
+    - 使慢的提供者收到更少请求，因为越慢的提供者的调用前后计数差会越大
