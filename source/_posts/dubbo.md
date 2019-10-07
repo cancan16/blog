@@ -8,6 +8,8 @@ tags: [dubbo]
 
 <img src="https://dubbo.apache.org/img/dubbo_gray.png"/>
 
+![dubbo-e](https://volc1612.gitee.io/blog/images/dubbo/dubbo-e.png)
+
 ### 什么是Dubbo
 
 Dubbo是由阿里开源，后来加入了 Apache 。正式由于 Dubbo 的出现，才使得越来越多的公司开始使用以及接受分布式架构。是⼀个⾼性能，轻量级，基于Java的RPC框架。Dubbo提供三个关键功能，包括基
@@ -55,3 +57,35 @@ RPC（Remote Procedure Call）—远程过程调用，它是一种通过网络�
 * 服务调用链路生成——随着系统的发展，服务越来越多，服务间依赖关系变得错踪复杂，甚至分不清哪个应用要在哪个应用之前启动，架构师都不能完整的描述应用的架构关系。Dubbo 可以为我们解决服务之间互相是如何调用的。
 * 服务访问压力以及时长统计、资源调度和治理——基于访问压力实时管理集群容量，提高集群利用率。
 * 服务降级——某个服务挂掉之后调用备用服务
+
+### 互联网经典面试题分析之为什么有了Http还要用dubbo
+
+**简介：还原蚂蚁金服Dubbo相关面试题**
+
+* 问题分析流程，面试官所问的这个问题包含的哪些知识点？
+  * dubbo的定义(定位)
+  * rpc相对于http的优势
+
+  ![dubbo-f](https://volc1612.gitee.io/blog/images/dubbo/dubbo-f.jpg)
+
+* 这个问题应该从哪些方面着手去回答
+
+  * 通用定义的http1.1协议的tcp报文包含无用信息，一个POST协议的格式大致如下(数据大小)，而RPC框架在内部调用没有很严格消息体，轻量级的请求格式
+    ```shell
+    HTTP/1.0 200 OK 
+    Content-Type: text/plain
+    Content-Length: 137521
+    Expires: Thu, 05 Dec 2019 16:00:00 GMT
+    Last-Modified: Wed, 5 August 2019 15:55:28 GMT
+    Server: Apache 0.84
+
+    <html>
+      <body>Hello xdclass</body>
+    </html>
+    ```
+
+  * RPC封装了“服务发现”，"负载均衡"，“熔断降级”一类面向服务的高级特性，这些是http做不到的(RPC特色)
+
+  * 从个人使用经验来讲RPC调用还拥有传输安全的优势，防止了Http调用的数据包篡改和流量劫持(个人经验)
+
+* 技巧总结==》不经意之间测漏自己是有相关技术实战经验的开发人员
