@@ -47,6 +47,8 @@ tags: [dubbo]
 </dependency>
 ```
 
+<!-- more -->
+
 #### 修改配置文件
 
 ```yml

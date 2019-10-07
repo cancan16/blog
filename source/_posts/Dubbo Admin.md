@@ -12,6 +12,8 @@ tags: [dubbo]
 git clone https://github.com/apache/dubbo-admin.git
 ```
 
+<!-- more -->
+
 ### 配置zookepper地址
 
 ```powershell
@@ -70,7 +72,7 @@ nohup java -jar dubbo-admin-0.1.jar &
 
 ![dubbo-admin-b](https://volc1612.gitee.io/blog/images/dubbo-admin/dubbo-admin-b.png)
 
-#### 注入bean
+#### `provider`和`consumer`注入bean
 
 ```java
 import org.apache.dubbo.config.MetadataReportConfig;
@@ -87,5 +89,6 @@ public class DubboConfig {
         return metadataReportConfig;
     }
 }
-
 ```
+
+![dubbo-admin-c](https://volc1612.gitee.io/blog/images/dubbo-admin/dubbo-admin-c.png)
