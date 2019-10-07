@@ -6,6 +6,14 @@ categories: LINUX
 tags: [linux]
 ---
 
+### JAVA进程优雅关闭的意义
+
+- 关闭 socket 链接
+- 清理临时文件
+- 发送消息通知给订阅方，告知自己下线
+- 各种资源的释放 如jenkins钩子 ，往git提交代码==》执行了自动化构建==》服务重启 
+
+- 实战spring实战 implements DisposableBean 优雅关闭
 
 <!-- more -->
 
