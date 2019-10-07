@@ -6,6 +6,9 @@ categories: LINUX
 tags: [linux]
 ---
 
+
+<!-- more -->
+
 ### 使用`kill -15 pid`
 
 ```java
