@@ -1,0 +1,78 @@
+---
+title: JMH基准测试
+date: 2019-10-08 20:45:30
+update: 2019-10-08 20:45:30
+categories: JMH
+tags: [JMH]
+---
+
+### 基准测试的意义
+
+* 对业务模型中的重要业务做单独的测试，获取单用户运行时的各项性能指标，为多用户**并发测试**和**综合场景测试**等**性能分析**提供参考依据
+* 举个例子 list.contain ==>set.contain ==> 布隆过滤器
+
+### JMH是什么？
+  
+JMH，即Java Microbenchmark Harness，这是专门用于进行代码的微基准测试的一套工具API，JMH 由 OpenJDK/Oracle 里面那群开发了 Java 编译器的大牛们所开发
+
+### JMH典型使用场景
+
+* 已经找出了热点函数，而需要对热点函数进行进一步的优化时，就可以使用 JMH 对优化的效果进行定量的分析。
+* 想定量地知道某个函数需要执行多长时间，以及执行时间和输入 n 的相关性
+* 一个函数有两种不同实现（例如JSON序列化/反序列化有Jackson和Gson实现），不知道哪种实现性能更好
+
+
+### JMH基准测试的一个helloworld
+
+对比`+=`和`StringBuilder`的性能测试
+
+```java
+import org.openjdk.jmh.annotations.Benchmark;
+import org.openjdk.jmh.runner.Runner;
+import org.openjdk.jmh.runner.RunnerException;
+import org.openjdk.jmh.runner.options.Options;
+import org.openjdk.jmh.runner.options.OptionsBuilder;
+
+public class JMHHelloWorld {
+
+    public static void main(String[] args) throws RunnerException {
+        Options options = new OptionsBuilder().warmupIterations(2).measurementIterations(2)
+                .forks(1).build();
+        new Runner(options).run();
+    }
+
+    @Benchmark
+    public void testStringAdd() {
+        String s = "";
+        for (int i = 0; i < 10; i++) {
+            s += i;
+        }
+    }
+
+    @Benchmark
+    public void testStringBuild() {
+        StringBuilder b = new StringBuilder();
+        for (int i = 0; i < 10; i++) {
+            b.append(i);
+        }
+        b.toString();
+    }
+
+
+}
+
+```
+
+结果：
+
+```
+Benchmark                       Mode  Cnt         Score   Error  Units
+JMHHelloWorld.testStringAdd    thrpt    2  10987354.301          ops/s
+JMHHelloWorld.testStringBuild  thrpt    2  27195429.588          ops/s
+```
+
+`testStringAdd`每秒10987354次，`testStringBuild`每秒27195429次，`StringBuild`性能明显大于`+=`。
+
+### SpringBoot整合JMH基准测试
+
+
