@@ -13,6 +13,8 @@ tags: [JMH]
 
 ![JMH基准测试-a](https://volc1612.gitee.io/blog/images/JMH基准测试/JMH基准测试-a.png)
 
+<!-- more -->
+
 ### JMH是什么？
   
 JMH，即Java Microbenchmark Harness，这是专门用于进行代码的微基准测试的一套工具API，JMH 由 OpenJDK/Oracle 里面那群开发了 Java 编译器的大牛们所开发
