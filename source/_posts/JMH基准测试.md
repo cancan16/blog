@@ -11,6 +11,8 @@ tags: [JMH]
 * 对业务模型中的重要业务做单独的测试，获取单用户运行时的各项性能指标，为多用户**并发测试**和**综合场景测试**等**性能分析**提供参考依据
 * 举个例子 list.contain ==>set.contain ==> 布隆过滤器
 
+![JMH基准测试-a](https://volc1612.gitee.io/blog/images/JMH基准测试/JMH基准测试-a.png)
+
 ### JMH是什么？
   
 JMH，即Java Microbenchmark Harness，这是专门用于进行代码的微基准测试的一套工具API，JMH 由 OpenJDK/Oracle 里面那群开发了 Java 编译器的大牛们所开发
