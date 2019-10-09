@@ -80,3 +80,69 @@ JMHHelloWorld.testStringBuild  thrpt    2  27195429.588          ops/s
 ### SpringBoot整合JMH基准测试
 
 
+```xml
+<dependency>
+    <groupId>org.openjdk.jmh</groupId>
+    <artifactId>jmh-core</artifactId>
+    <version>1.21</version>
+</dependency>
+<dependency>
+    <groupId>org.openjdk.jmh</groupId>
+    <artifactId>jmh-generator-annprocess</artifactId>
+    <version>1.21</version>
+    <scope>provided</scope>
+</dependency>
+```
+
+```java
+import com.xdclass.couponapp.service.CouponService;
+import org.openjdk.jmh.annotations.*;
+import org.openjdk.jmh.runner.Runner;
+import org.openjdk.jmh.runner.RunnerException;
+import org.openjdk.jmh.runner.options.Options;
+import org.openjdk.jmh.runner.options.OptionsBuilder;
+import org.springframework.boot.SpringApplication;
+import org.springframework.context.ConfigurableApplicationContext;
+
+
+/**
+ * @Author: Liu, cancan
+ * @Description: springboot整合JMH基准测试，测试接口性能
+ * @Date: 2019/10/9
+ */
+@State(Scope.Thread)
+public class JMHSpringbootTest {
+    private ConfigurableApplicationContext context;
+    private CouponService couponService;
+    public static void main(String[] args) throws RunnerException {
+        /**
+         * 指定`JMHSpringbootTest`类执行Options操作
+         */
+        Options options = new OptionsBuilder().include(JMHSpringbootTest.class.getName() + ".*")
+                .warmupIterations(2).measurementIterations(2)
+                .forks(1).build();
+        new Runner(options).run();
+    }
+
+    /**
+     * setup初始化容器的时候只执行一次
+     */
+    @Setup(Level.Trial)
+    public void init() {
+        String arg = "";
+        context = SpringApplication.run(CouponAppApplication.class, arg);
+        couponService = context.getBean(CouponService.class);
+    }
+
+
+    /**
+     * benchmark执行多次，此注解代表触发我们所要进行基准测试的方法
+     */
+    @Benchmark
+    public void test() {
+        System.out.println(couponService.getCouponList());
+    }
+
+}
+
+```
