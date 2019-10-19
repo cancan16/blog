@@ -146,3 +146,51 @@ public class JMHSpringbootTest {
 }
 
 ```
+
+### 分析DB查询，loadingCache,currentHashMap性能对比
+
+* 从数据库中获取数据
+
+```java
+public List<TCoupon> loadCoupon(Integer o) {
+    TCouponExample example = new TCouponExample();
+    example.createCriteria().andStatusEqualTo(Constant.USERFUL)
+            .andStartTimeLessThan(new Date()).andEndTimeGreaterThan(new Date());
+    return tCouponMapper.selectByExample(example);
+}
+```
+
+* 从`LoadingCache`本地缓存中获取书
+
+
+```java
+LoadingCache<Integer, List<TCoupon>> couponCache = CacheBuilder.newBuilder()
+            // 过期时间
+            .expireAfterWrite(10, TimeUnit.MINUTES)
+            // 异步刷新时间间隔5秒，往本地缓存loadingcache中写完后，5s后秒刷新缓存
+            .refreshAfterWrite(5, TimeUnit.MINUTES)
+            .build(new CacheLoader<Integer, List<TCoupon>>() {
+                @Override
+                public List<TCoupon> load(Integer o) throws Exception {
+                    System.out.println("每5秒刷新列表到本地缓存");
+                    return loadCoupon(o);
+                }
+            });
+
+public List<TCoupon> getCouponList() {
+    List<TCoupon> tCoupons = Lists.newArrayList();
+    try {
+        tCoupons = couponCache.get(1);
+    } catch (ExecutionException e) {
+        e.printStackTrace();
+    }
+    return tCoupons;
+}
+
+public List<TCoupon> loadCoupon(Integer o) {
+    TCouponExample example = new TCouponExample();
+    example.createCriteria().andStatusEqualTo(Constant.USERFUL)
+            .andStartTimeLessThan(new Date()).andEndTimeGreaterThan(new Date());
+    return tCouponMapper.selectByExample(example);
+}
+```    
