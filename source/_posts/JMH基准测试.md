@@ -193,4 +193,27 @@ public List<TCoupon> loadCoupon(Integer o) {
             .andStartTimeLessThan(new Date()).andEndTimeGreaterThan(new Date());
     return tCouponMapper.selectByExample(example);
 }
-```    
+```
+
+* 从`currentHashMap`中拿数据
+
+```java
+/***
+    * 获取有效时间的可用优惠券列表
+    * @return
+    */
+public List<TCoupon> getCouponList4Map() {
+    return (List<TCoupon>) couponMap.get(1);
+}
+```
+
+#### 测试结果
+
+```
+Benchmark                   Mode  Cnt       Score   Error  Units
+JMHSpringbootTest.test     thrpt    2   94010.347          ops/s
+JMHSpringbootTest.testDB   thrpt    2    5699.791          ops/s
+JMHSpringbootTest.testMap  thrpt    2  103801.969          ops/s
+```
+
+结果来看从`currentHashMap`获取数据性能最高，每秒可达到103801次
