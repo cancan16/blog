@@ -147,6 +147,35 @@ public class JMHSpringbootTest {
 
 ```
 
+### guava cache中LoadingCache基本使用
+
+```java
+public static void main(String[] args) throws ExecutionException {
+    LoadingCache<Integer, List<String>> couponCache = CacheBuilder.newBuilder()
+            // 过期时间
+            .expireAfterWrite(10, TimeUnit.MINUTES)
+            // 异步刷新时间间隔5秒，更新本地缓存
+            .refreshAfterWrite(5, TimeUnit.MINUTES)
+            // 构建时自动执行build
+            .build(new CacheLoader<Integer, List<String>>() {
+                @Override
+                public List<String> load(Integer o) throws Exception {
+                    System.out.println("每5秒刷新列表到本地缓存");
+                    return loadCouponTemp(o);
+                }
+
+                private List<String> loadCouponTemp(Integer o) {
+                    List<String> list = new ArrayList();
+                    list.add("123");
+                    return list;
+                }
+            });
+
+    List<String> tCoupons = couponCache.get(1);
+    System.out.println(tCoupons);
+}
+```    
+
 ### 分析DB查询，loadingCache,currentHashMap性能对比
 
 * 从数据库中获取数据
