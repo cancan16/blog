@@ -265,7 +265,7 @@ public void updateUser(User user){
 
 使用 TransactionAspectSupport.currentTransactionStatus().setRollbackOnly() 语句进行手动回滚。
 
-````
+```
 @Transactional(rollbackFor=MyException.class,noRollbackFor=RuntimeException.class)
 public void updateUser(User user){
     try{
@@ -277,7 +277,38 @@ public void updateUser(User user){
 }
 ```
 
+### `Async`和`Transactional`同时使用失效解决方法
 
+```java
+@Resource
+private TestAsync testAsync;
 
+// 事务生效
+@Transactional
+public void test() throws InterruptedException {
+    Mall mall = new Mall();
+    mall.setRealStatus(0);
+    mallMapper.insert(mall);
+    testAsync.addUnit();
+    int a = 1 / 0;
+}
+```
+
+```java
+// 异步和事务同时生效
+@Async
+@Transactional
+public void addUnit() throws InterruptedException {
+    TimeUnit.SECONDS.sleep(10);
+    Unit unit = new Unit();
+    unit.setName("test");
+    unit.setUnitCode(UuidUtil.generateShortUuid());
+    unit.setEnumType(UuidUtil.generateShortUuid());
+    unit.setCreateTime(new Date());
+    unit.setUpdateTime(unit.getCreateTime());
+    unitMapper.insertUseGeneratedKeys(unit);
+    int a = 1 / 0;
+}
+```   
 
 

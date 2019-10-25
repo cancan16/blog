@@ -323,3 +323,17 @@ $ git gc --prune=now
 $ git remote prune origin
 ```
 删除项目中origin目录
+
+### sourcetree切换分支时报错
+
+Please move or remove them before you switch branches
+
+解决方法
+
+``` sh
+# 查看暂存文件
+git status
+
+# 删除
+git clean -dfx
+```
