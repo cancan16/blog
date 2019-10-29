@@ -147,7 +147,8 @@ public class JMHSpringbootTest {
 
 ```
 
-### guava cache中LoadingCache基本使用
+### guava cache内存缓存中LoadingCache基本使用
+
 
 ```java
 public static void main(String[] args) throws ExecutionException {
@@ -156,7 +157,7 @@ public static void main(String[] args) throws ExecutionException {
             .expireAfterWrite(10, TimeUnit.MINUTES)
             // 异步刷新时间间隔5秒，更新本地缓存
             .refreshAfterWrite(5, TimeUnit.MINUTES)
-            // 构建时自动执行build
+            // 当从缓存中没有获取到数据时，会执行该方法构建时自动执行build
             .build(new CacheLoader<Integer, List<String>>() {
                 @Override
                 public List<String> load(Integer o) throws Exception {
@@ -171,10 +172,15 @@ public static void main(String[] args) throws ExecutionException {
                 }
             });
 
+    List<String> list = new ArrayList<>();
+    list.add("String");
+    Map<Integer, List<String>> cacheDao = new HashMap<>();
+    cacheDao.put(0, list);
+    couponCache.putAll(cacheDao);
     List<String> tCoupons = couponCache.get(1);
     System.out.println(tCoupons);
 }
-```    
+```
 
 ### 分析DB查询，loadingCache,currentHashMap性能对比
 
