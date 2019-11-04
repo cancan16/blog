@@ -1,7 +1,7 @@
 ---
 title: Redis
 date: 2017-06-02 12:59:16
-update: 2018-07-10 12:59:16
+update: 2019-11-04 12:59:16
 categories: Redis
 tags: [redis]
 ---
