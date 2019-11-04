@@ -8377,6 +8377,30 @@ Aa = 110, Ab = 0
 A1
 ```
 
+
+### 蚂蚁金服面试题之服务器性能指标
+
+**简介：Linux服务性能指标讲解**
+
+* 为什么要观察服务器性能指标
+
+
+
+![interview-question-a](https://volc1612.gitee.io/blog/images/interview-question/interview-question-a.png)
+
+* load average
+  * 为什么会有三个数字呢？它们的意思分别是1分钟、5分钟、15分钟内系统的平均负荷。
+  * 当CPU完全空闲的时候，平均负荷为0,值越低系统负荷越低
+  * 值跟CPU核数相关，比如8核CPU，最高负载为8.0
+  * grep -c 'model name' /proc/cpuinfo"命令，直接返回CPU的总核心数
+
+* mem
+  * 展示了当前内存的状态，total是总的内存大小，userd是已使用的，free是剩余的，buffers是目录缓存
+* Task
+  * 展示了目前的进程总数及所处状态，要注意zombie，表示僵尸进程，不为0则表示有进程出现问题
+* Cpu
+* * 展示了当前CPU的状态，us表示用户进程占用CPU比例，sy表示内核进程占用CPU比例，id表示空闲CPU百分比，wa表示IO等待所占用的CPU时间的百分比。**wa占用超过30%则表示IO压力很大**。
+
 ### spring security工作原理
 
 ### @Autowired什么时候注入对象
