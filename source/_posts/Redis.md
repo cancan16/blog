@@ -656,3 +656,121 @@ redis 127.0.0.1:6379> > ZRANGEBYSCORE runoob 0 1000
 2) "rabitmq"
 3) "redis"
 ```
+
+
+### linux编译安装redis时的坑
+
+#### 一定要指定配置文件启动redis
+
+```sh
+[root@localhost etc]# ./redis-server /usr/local/src/redis4/redis-4.0.6/redis.conf
+```
+
+### redis开机启动服务
+
+#### 创建启动服务脚本
+
+复制`redis`安装目录下`utils/redis_init_script`文件到`/etc/init.d`中
+
+#### 修改配置启动服务脚本redis_init_script
+
+```sh
+cd /etc/init.d
+```
+修改内容如下
+
+##### 新增启动权限设置
+
+```
+# chkconfig: 2345 80 90
+```
+
+##### 修改配置一下配置项
+
+`EXEC`
+`CLIEXEC`
+`CONF`
+
+
+将`$EXEC $CONF`改成`$EXEC $CONF &`
+
+
+完整脚本如下
+
+```sh
+#!/bin/sh
+#
+# Simple Redis init.d script conceived to work on Linux systems
+# chkconfig: 2345 80 90
+# as it does use of the /proc filesystem.
+
+REDISPORT=6379
+EXEC=/usr/local/src/redis4/redis-4.0.6/src/redis-server
+CLIEXEC=/usr/local/src/redis4/redis-4.0.6/src/redis-cli
+
+PIDFILE=/var/run/redis_${REDISPORT}.pid
+CONF="/usr/local/src/redis4/redis-4.0.6/redis.conf"
+
+case "$1" in
+    start)
+        if [ -f $PIDFILE ]
+        then
+            echo "$PIDFILE exists, process is already running or crashed"
+        else
+            echo "Starting Redis server..."
+            $EXEC $CONF &
+        fi
+    ;;
+    stop)
+        if [ ! -f $PIDFILE ]
+        then
+            echo "$PIDFILE does not exist, process is not running"
+        else
+            PID=$(cat $PIDFILE)
+            echo "Stopping ..."
+            $CLIEXEC -p $REDISPORT shutdown
+            while [ -x /proc/${PID} ]
+            do
+                echo "Waiting for Redis to shutdown ..."
+                sleep 1
+            done
+            echo "Redis stopped"
+        fi
+    ;;
+    *)
+        echo "Please use start or stop as first argument"
+    ;;
+esac
+```
+
+
+#### 服务添加到chkconfig
+
+```sh
+[root@localhost init.d]# chkconfig --add redis_init_script
+```
+
+#### 给启动脚本添加权限
+
+```sh
+[root@localhost init.d]# chmod +x /etc/init.d/redis_init_script
+```
+
+#### 测试启动脚本是否生效
+
+```sh
+[root@localhost init.d]# service redis_init_script start
+[root@localhost init.d]# service redis_init_script stop
+```
+
+#### 添加启动脚本到chkconfig管理
+
+```sh
+[root@localhost init.d]# chkconfig redis_init_script on
+```
+
+重启服务器
+
+```sh
+[root@localhost init.d]# reboot
+```
