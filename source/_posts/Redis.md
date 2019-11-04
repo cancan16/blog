@@ -774,3 +774,17 @@ esac
 ```sh
 [root@localhost init.d]# reboot
 ```
+
+### redis之sortset数据类型
+
+- ./redis-cli -h 127.0.0.1 -p  6379
+- zadd ——在key对应的zset中添加一个元素
+- zrange——获取key对应的zset中指定范围的元素，-1表示获取所有元素
+- zrem——删除key对应的zset中的一个元素
+- zrangebyscore——返回有序集key中，指定分数范围的元素列表,排行榜中运用
+- zrank——返回key对应的zset中指定member的排名。其中member按score值递增(从小到大）；
+         排名以0为底，也就是说，score值最小的成员排名为0,排行榜中运用      
+- zadd ==》zrem
+-    set是通过hashmap存储，key对应set的元素，value是空对象
+     sortset是怎么存储并实现排序的呢，hashmap存储，还加了一层跳跃表
+     跳跃表：相当于双向链表，在其基础上添加前往比当前元素大的跳转链接 
