@@ -92,3 +92,30 @@ pom新增插件
 </plugin>
 ```			
 
+### linux centos安装maven
+
+```sh
+[root@linuxprobe ~]# sudo wget http://repos.fedorapeople.org/repos/dchen/apache-maven/epel-apache-maven.repo -O /etc/yum.repos.d/epel-apache-maven.repo
+[root@linuxprobe ~]# yum install apache-maven -y
+```
+
+#### 修改配置文件
+
+```sh
+[root@linuxprobe ~]# cd /usr/share/apache-maven/conf
+```
+```xml
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd">
+<localRepository>/usr/share/apache-maven/repository</localRepository>
+ <mirrors>  
+  <mirror>
+        <id>nexus-aliyun</id>
+        <mirrorOf>central</mirrorOf>
+        <name>Nexus aliyun</name>
+        <url>http://maven.aliyun.com/nexus/content/groups/public/</url> 
+    </mirror>
+ </mirrors>  
+</settings>
+```
