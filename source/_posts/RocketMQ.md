@@ -23,6 +23,8 @@ tags: [RocketMQ]
   cd distribution/target/apache-rocketmq
   ```
 
+<!-- more -->  
+
   
 
 * 最新版本部署存在问题：
