@@ -16,12 +16,12 @@ tags: [RocketMQ]
 
 * 快速开始 <http://rocketmq.apache.org/docs/quick-start/> 下载安装包：<http://mirror.bit.edu.cn/apache/rocketmq/4.4.0/rocketmq-all-4.4.0-source-release.zip>
 
-  ```
-  unzip rocketmq-all-4.4.0-source-release.zip
-  cd rocketmq-all-4.4.0/
-  mvn -Prelease-all -DskipTests clean install -U
-  cd distribution/target/apache-rocketmq
-  ```
+```
+unzip rocketmq-all-4.4.0-source-release.zip
+cd rocketmq-all-4.4.0/
+mvn -Prelease-all -DskipTests clean install -U
+cd distribution/target/apache-rocketmq
+```
 
 <!-- more -->  
 
@@ -32,18 +32,18 @@ tags: [RocketMQ]
   * Please set the JAVA_HOME variable in your environment, We need java(x64)
   * 解决：本地需要配置 JAVA_HOME 使用命令 vim ~/.bash_profile
 
-  ```
-  JAVA_HOME="/Library/Java/JavaVirtualMachines/jdk1.8.0_171.jdk/Con
-  export JAVA_HOME
-  CLASS_PATH="$JAVA_HOME/lib"
-  PATH=".$PATH:$JAVA_HOME/bin"
-  ```
+```
+JAVA_HOME="/Library/Java/JavaVirtualMachines/jdk1.8.0_171.jdk/Con
+export JAVA_HOME
+CLASS_PATH="$JAVA_HOME/lib"
+PATH=".$PATH:$JAVA_HOME/bin"
+```
 
   * 启动nameServer
 
-- ```
-  nohup sh bin/mqnamesrv &
-  ```
+```
+nohup sh bin/mqnamesrv &
+```
 
 * 启动时会遇到内存不够用的错误，这时需要改变JVM分配给rocketmq的内存
 
@@ -57,27 +57,28 @@ JAVA_OPT="${JAVA_OPT} -server -Xms4g -Xmx4g -Xmn2g -XX:MetaspaceSize=128m -XX:Ma
 
 - 启动broker (-n指定nameserver地址，nameserver服务端口为9876, broker默认端口 10911)
 
-  ```
-  # nohup sh bin/mqbroker -n 192.168.25.11:9876 &
-  nohup sh bin/mqbroker -n localhost:9876 &
-  ```
+```
+# nohup sh bin/mqbroker -n 192.168.25.11:9876 &
+nohup sh bin/mqbroker -n localhost:9876 &
+```
 
   
 
 - 关闭nameserver broker执行的命令
 
-  ```
-  sh bin/mqshutdown broker
-  ```
+```
+sh bin/mqshutdown broker
+```
 
-  ```
-  sh bin/mqshutdown namesrv
-  ```
+```
+sh bin/mqshutdown namesrv
+```
 
 ### springboot集成rocketmq
 
 
 #### 引入依赖
+
 
 ```xml
 <dependency>
@@ -85,7 +86,8 @@ JAVA_OPT="${JAVA_OPT} -server -Xms4g -Xmx4g -Xmn2g -XX:MetaspaceSize=128m -XX:Ma
     <artifactId>rocketmq-client</artifactId>
     <version>4.3.0</version>
 </dependency>
-```        
+```
+
 
 #### 配置rocketmq地址
 
@@ -129,6 +131,5 @@ public class ProducerConfigure {
         log.info("start rocketmq producer success!");
         return producer;
     }
-
 }
 ```
