@@ -19,13 +19,11 @@ tags: [RocketMQ]
 ```
 unzip rocketmq-all-4.4.0-source-release.zip
 cd rocketmq-all-4.4.0/
-mvn -Prelease-all -DskipTests clean install -U
+mvn --settings /usr/share/apache-maven/conf/settings.xml -Prelease-all -DskipTests clean install -U
 cd distribution/target/apache-rocketmq
 ```
 
 <!-- more -->  
-
-  
 
 * 最新版本部署存在问题：
 
@@ -58,11 +56,24 @@ JAVA_OPT="${JAVA_OPT} -server -Xms4g -Xmx4g -Xmn2g -XX:MetaspaceSize=128m -XX:Ma
 - 启动broker (-n指定nameserver地址，nameserver服务端口为9876, broker默认端口 10911)
 
 ```
-# nohup sh bin/mqbroker -n 192.168.25.11:9876 &
+# nohup sh bin/mqbroker -n 192.168.25.11:9876 autoCreateTopicEnable=true &
 nohup sh bin/mqbroker -n localhost:9876 &
 ```
 
-  
+* 查看Topic列表信息
+
+```sh
+sh bin/mqadmin topicList -n 192.168.25.11:9876
+```
+
+报错
+
+```
+OpenJDK 64-Bit Server VM warning: ignoring option PermSize=128m; support was removed in 8.0
+OpenJDK 64-Bit Server VM warning: ignoring option MaxPermSize=128m; support was removed in 8.0
+org.apache.rocketmq.tools.command.SubCommandException: TopicListSubCommand command failed
+
+```
 
 - 关闭nameserver broker执行的命令
 
