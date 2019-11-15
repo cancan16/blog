@@ -75,6 +75,8 @@ org.apache.rocketmq.tools.command.SubCommandException: TopicListSubCommand comma
 
 ```
 
+https://www.twblogs.net/a/5d267b1bbd9eee1e5c8443c1/zh-cn
+
 - 关闭nameserver broker执行的命令
 
 ```
