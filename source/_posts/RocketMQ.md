@@ -66,16 +66,38 @@ nohup sh bin/mqbroker -n localhost:9876 &
 sh bin/mqadmin topicList -n 192.168.25.11:9876
 ```
 
-报错
+ * 报错
 
 ```
 OpenJDK 64-Bit Server VM warning: ignoring option PermSize=128m; support was removed in 8.0
 OpenJDK 64-Bit Server VM warning: ignoring option MaxPermSize=128m; support was removed in 8.0
 org.apache.rocketmq.tools.command.SubCommandException: TopicListSubCommand command failed
-
 ```
 
-https://www.twblogs.net/a/5d267b1bbd9eee1e5c8443c1/zh-cn
+ * 解决方法
+
+修改`apache-rocketmq/bin/tools.sh`文件
+在${JAVA_HOME}/jre/lib/ext后加上ext文件夹的绝对路径
+例如：
+
+```sh
+JAVA_OPT="${JAVA_OPT} -Djava.ext.dirs=${BASE_DIR}/lib:${JAVA_HOME}/jre/lib/ext::/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.232.b09-0.el7_7.x86_64/jre/lib/ext"
+```
+
+ * 重新查看
+
+```
+[root@localhost apache-rocketmq]# sh bin/mqadmin topicList -n 192.168.25.11:9876
+OpenJDK 64-Bit Server VM warning: ignoring option PermSize=128m; support was removed in 8.0
+OpenJDK 64-Bit Server VM warning: ignoring option MaxPermSize=128m; support was removed in 8.0
+RMQ_SYS_TRANS_HALF_TOPIC
+BenchmarkTest
+OFFSET_MOVED_EVENT
+TBW102
+localhost.localdomain
+SELF_TEST_TOPIC
+DefaultCluster
+```
 
 - 关闭nameserver broker执行的命令
 
