@@ -206,3 +206,15 @@ public void test(String info) throws Exception {
 2019-11-16 22:32:55.557  INFO 5900 --- [blicExecutor_12] c.x.shop.controller.TestController       : 传输成功
 2019-11-16 22:32:55.557  INFO 5900 --- [blicExecutor_12] c.x.shop.controller.TestController       : {"messageQueue":{"brokerName":"PC-201908041232","queueId":831,"topic":"BenchmarkTest"},"msgId":"C0A8026E170C18B4AAC2521608020004","offsetMsgId":"C0A8190100002A9F00000000000003D9","queueOffset":0,"regionId":"DefaultRegion","sendStatus":"SEND_OK","traceOn":true}
 ```
+
+
+### 问题
+
+虚拟机安装rocketmq，可以查看到topic有哪些，不管是不是自定义topic，发送消息报错
+
+`tx-mq-TOPIC`为自定义topic
+
+```
+org.apache.rocketmq.client.exception.MQClientException: Send [1] times, still failed, cost [3238]ms, Topic: tx-mq-TOPIC, BrokersSent: [localhost.localdomain]
+See http://rocketmq.apache.org/docs/faq/ for further details.
+```
