@@ -47,7 +47,7 @@ nohup sh bin/mqnamesrv &
 
 ```sh
 start mqnamesrv.cmd
-```   
+```
 
 * 启动时会遇到内存不够用的错误，这时需要改变JVM分配给rocketmq的内存
 
