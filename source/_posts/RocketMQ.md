@@ -42,6 +42,12 @@ PATH=".$PATH:$JAVA_HOME/bin"
 ```
 nohup sh bin/mqnamesrv &
 ```
+ 
+   * win环境启动
+
+```sh
+start mqnamesrv.cmd
+```   
 
 * 启动时会遇到内存不够用的错误，这时需要改变JVM分配给rocketmq的内存
 
@@ -57,12 +63,19 @@ JAVA_OPT="${JAVA_OPT} -server -Xms4g -Xmx4g -Xmn2g -XX:MetaspaceSize=128m -XX:Ma
 
 ```
 # nohup sh bin/mqbroker -n 192.168.25.11:9876 autoCreateTopicEnable=true &
-nohup sh bin/mqbroker -n localhost:9876 &
+nohup sh bin/mqbroker -n localhost:9876 autoCreateTopicEnable=true &
+```
+
+ * win环境下启动
+
+```sh
+start mqbroker.cmd -n localhost:9876 autoCreateTopicEnable=true
 ```
 
 * 查看Topic列表信息
 
 ```sh
+# start mqadmin.cmd topicList -n localhost:9876
 sh bin/mqadmin topicList -n 192.168.25.11:9876
 ```
 
@@ -167,4 +180,29 @@ public class ProducerConfigure {
         return producer;
     }
 }
+```
+
+```java
+@GetMapping("/test")
+public void test(String info) throws Exception {
+    Message message = new Message("BenchmarkTest", "Tag1", "12345", "rocketmq测试成功".getBytes());
+    // 这里用到了这个mq的异步处理，类似ajax，可以得到发送到mq的情况，并做相应的处理
+    //不过要注意的是这个是异步的
+    producer.send(message, new SendCallback() {
+        @Override
+        public void onSuccess(SendResult sendResult) {
+            log.info("传输成功");
+            log.info(JSON.toJSONString(sendResult));
+        }
+
+        @Override
+        public void onException(Throwable e) {
+            log.error("传输失败", e);
+        }
+    });
+}
+```    
+```
+2019-11-16 22:32:55.557  INFO 5900 --- [blicExecutor_12] c.x.shop.controller.TestController       : 传输成功
+2019-11-16 22:32:55.557  INFO 5900 --- [blicExecutor_12] c.x.shop.controller.TestController       : {"messageQueue":{"brokerName":"PC-201908041232","queueId":831,"topic":"BenchmarkTest"},"msgId":"C0A8026E170C18B4AAC2521608020004","offsetMsgId":"C0A8190100002A9F00000000000003D9","queueOffset":0,"regionId":"DefaultRegion","sendStatus":"SEND_OK","traceOn":true}
 ```
