@@ -871,3 +871,12 @@ java    7165 root   24u  IPv6  47464      0t0  TCP *:eforward (LISTEN)
 root       7165  0.1  1.1 2259728 11640 ?       Sl   23:11   0:01 java -Dzookeeper.log.dir=. -Dzookeeper.root.logger=INFO,CONSOLE -cp /usr/local/zookeeper-3.4.14/bin/../zookeeper-server/target/classes:/usr/local/zookeeper-3.4.14/bin/../build/classes:/usr/local/zookeeper-3.4.14/bin/../zookeeper-server/target/lib/*.jar:/usr/local/zookeeper-3.4.14/bin/../build/lib/*.jar:/usr/local/zookeeper-3.4.14/bin/../lib/slf4j-log4j12-1.7.25.jar:/usr/local/zookeeper-3.4.14/bin/../lib/slf4j-api-1.7.25.jar:/usr/local/zookeeper-3.4.14/bin/../lib/netty-3.10.6.Final.jar:/usr/local/zookeeper-3.4.14/bin/../lib/log4j-1.2.17.jar:/usr/local/zookeeper-3.4.14/bin/../lib/jline-0.9.94.jar:/usr/local/zookeeper-3.4.14/bin/../lib/audience-annotations-0.5.0.jar:/usr/local/zookeeper-3.4.14/bin/../zookeeper-3.4.14.jar:/usr/local/zookeeper-3.4.14/bin/../zookeeper-server/src/main/resources/lib/*.jar:/usr/local/zookeeper-3.4.14/bin/../conf: -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.local.only=false org.apache.zookeeper.server.quorum.QuorumPeerMain /usr/local/zookeeper-3.4.14/bin/../conf/zoo.cfg
 root       9471  0.0  0.0 112708   976 pts/0    R+   23:21   0:00 grep --color=auto 7165
 ```
+### 定位linux服务器问题命令
+
+![linux-a](https://volc1612.gitee.io/blog/images/linux/linux-a.png)
+
+### 查看定位指定字符串nohup.out文件
+
+```sh
+root[ffds]# grep enter 我是谁 nohup.out
+```
