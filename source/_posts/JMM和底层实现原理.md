@@ -180,7 +180,7 @@ volatile读的内存语义如下：当读一个volatile变量时，JMM会把该
 * 当线程获取锁时，JMM会把该线程对应的本地内存置为无效。从而使得被监视器保护的临界区代码必须从主内存中读取共享变量。 
 
 ![JMM和底层实现原理-q](https://volc1612.gitee.io/blog/images/JMM和底层实现原理/JMM和底层实现原理-q.png)
-![JMM和底层实现原理-s](https://volc1612.gitee.io/blog/images/JMM和底层实现原理/JMM和底层实现原理-s.png)
+![JMM和底层实现原理-r](https://volc1612.gitee.io/blog/images/JMM和底层实现原理/JMM和底层实现原理-r.png)
 
 ### final的内存语义
 
