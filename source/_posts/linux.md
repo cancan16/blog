@@ -880,3 +880,26 @@ root       9471  0.0  0.0 112708   976 pts/0    R+   23:21   0:00 grep --color=a
 ```sh
 root[ffds]# grep enter 我是谁 nohup.out
 ```
+
+### 本地使用scp命令上传和下载文件
+
+上传
+
+```sh
+C:\Users\Administrator>scp F:\wk\learn\xdclass-mobile-redis\target\xdclass-mobile-redis-0.0.1-SNAPSHOT.jar root@192.168.25.11:/usr/local/src/project
+root@192.168.25.11's password:
+xdclass-mobile-redis-0.0.1-SNAPSHOT.jar                                               100%   30MB 135.8MB/s   00:00
+C:\Users\Administrator>
+```
+
+下载
+
+```sh
+F:\wk>scp root@192.168.25.11:/usr/local/src/project/xdclass-mobile-redis-0.0.1-SNAPSHOT.jar F:\wk
+root@192.168.25.11's password:
+xdclass-mobile-redis-0.0.1-SNAPSHOT.jar                                               100%   30MB 137.0MB/s   00:00
+
+F:\wk>
+```
+
+
