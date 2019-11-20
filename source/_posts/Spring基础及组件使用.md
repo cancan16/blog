@@ -32,7 +32,7 @@ Spring是一个全面的解决方案，它坚持一个原则：不从新造轮�
 
 ![Spring基础及组件使用-a](https://volc1612.gitee.io/blog/images/Spring基础及组件使用/Spring基础及组件使用-a.png)
 
-#### 体验Spring的bean管理
+#### 体验Spring的bean注入
 
 ```java
 import com.enjoy.cap1.Person;
@@ -73,4 +73,208 @@ public class MainTest2 {
 ```
 Person [name=james, age=20]
 abcPerson
+```
+
+#### 使用`ComponentScan`注解自定义bean注入
+
+```java
+import com.enjoy.cap1.Person;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.ComponentScan.Filter;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.FilterType;
+
+/**
+ * @Description FilterType.CUSTOM, 自定义扫描过滤哪些bean输入到spring容器中，JamesTypeFilter 为自定义过滤方式
+ * @Date 15:42 2019/11/20
+ */
+@Configuration
+//@Controller  @Service  @Respostry  @Component
+@ComponentScan(value = "com.enjoy.cap2", includeFilters = {
+        @Filter(type = FilterType.CUSTOM, classes = {JamesTypeFilter.class})
+}, useDefaultFilters = false)
+public class Cap2MainConfig {
+    //给容器中注册一个bean, 类型为返回值的类型,
+    @Bean
+    public Person person01() {
+        return new Person("james", 20);
+    }
+}
+```
+
+```java
+import org.springframework.core.io.Resource;
+import org.springframework.core.type.AnnotationMetadata;
+import org.springframework.core.type.ClassMetadata;
+import org.springframework.core.type.classreading.MetadataReader;
+import org.springframework.core.type.classreading.MetadataReaderFactory;
+import org.springframework.core.type.filter.TypeFilter;
+
+import java.io.IOException;
+
+public class JamesTypeFilter implements TypeFilter {
+    private ClassMetadata classMetadata;
+
+    /*
+     * MetadataReader:读取到当前正在扫描类的信息
+     * MetadataReaderFactory:可以获取到其他任何类信息
+     */
+
+    @Override
+    public boolean match(MetadataReader metadataReader, MetadataReaderFactory metadataReaderFactory)
+            throws IOException {
+        //获取当前类注解的信息
+        AnnotationMetadata annotationMetadata = metadataReader.getAnnotationMetadata();
+        //获取当前正在扫描的类信息
+        classMetadata = metadataReader.getClassMetadata();
+        //获取当前类资源(类的路径)
+        Resource resource = metadataReader.getResource();
+
+        String className = classMetadata.getClassName();
+        System.out.println("----->" + className);
+        if (className.contains("service")) {// 当类包含order字符, 则匹配成功,返回true
+            return true;
+        }
+        return false;
+    }
+}
+```
+
+测试类：
+
+```java
+import com.enjoy.cap2.config.Cap2MainConfig;
+import org.junit.Test;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+public class Cap2Test {
+    @Test
+    public void test01() {
+        AnnotationConfigApplicationContext app = new AnnotationConfigApplicationContext(Cap2MainConfig.class);
+        String[] names = app.getBeanDefinitionNames();
+        for (String name : names) {
+            System.out.println(name);
+        }
+    }
+}
+```
+
+结果：
+
+```
+org.springframework.context.annotation.internalConfigurationAnnotationProcessor
+org.springframework.context.annotation.internalAutowiredAnnotationProcessor
+org.springframework.context.annotation.internalRequiredAnnotationProcessor
+org.springframework.context.annotation.internalCommonAnnotationProcessor
+org.springframework.context.event.internalEventListenerProcessor
+org.springframework.context.event.internalEventListenerFactory
+cap2MainConfig
+orderService
+person01
+```
+
+### @Scope注解
+
+SpringIOC容器中单实例和多实例的区别：
+单实例： 在使用对象时创建，并放到IOC容器中。
+多实例： 创建IOC容器时，就会创建对象放到IOC容器中。
+
+#### 验证单实例和多实例
+
+```java
+import com.enjoy.cap1.Person;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+public class Cap3MainConfig {
+    //给容器中注册一个bean, 类型为返回值的类型, 默认是单实例
+    /*
+     * prototype:多实例: IOC容器启动的时候,IOC容器启动并不会去调用方法创建对象, 而是每次获取的时候才会调用方法创建对象
+     * singleton:单实例(默认):IOC容器启动的时候会调用方法创建对象并放到IOC容器中,以后每次获取的就是直接从容器中拿(大Map.get)的同一个bean
+     * request: 主要针对web应用, 递交一次请求创建一个实例
+     * session:同一个session创建一个实例
+     */
+    //@Scope("prototype")
+    @Bean
+    public Person person() {
+        return new Person("james", 20);
+    }
+}
+```
+
+验证
+```java
+import com.enjoy.cap3.config.Cap3MainConfig;
+import org.junit.Test;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+
+public class Cap3Test {
+    @Test
+    public void test01() {
+        AnnotationConfigApplicationContext app = new AnnotationConfigApplicationContext(Cap3MainConfig.class);
+
+
+        String[] names = app.getBeanDefinitionNames();
+
+        for (String name : names) {
+            System.out.println(name);
+        }
+        //从容器中分别取两次person实例, 看是否为同一个bean
+        Object bean1 = app.getBean("person");
+        Object bean2 = app.getBean("person");
+        // 比较两个对象的内存地址
+        System.out.println(bean1 == bean2);
+        //结论:bean1就是bean2,同一个对象
+    }
+}
+```
+
+### @Lazy注解
+
+```java
+import com.enjoy.cap1.Person;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
+
+@Configuration
+public class Cap4MainConfig {
+    //给容器中注册一个bean, 类型为返回值的类型, 默认是单实例
+    /*
+     * 懒加载: 主要针对单实例bean:默认在容器启动的时候创建对象，
+     * 容器启动时候不创建对象, 仅当第一次使用(获取)bean的时候才创建被初始化
+     */
+    @Lazy
+    @Bean
+    public Person person() {
+        System.out.println("给容器中添加person.......");
+        return new Person("james", 20);
+    }
+}
+
+```
+
+验证`Lazy`是否执行了person()方法
+
+```java
+import com.enjoy.cap4.config.Cap4MainConfig;
+import org.junit.Test;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+
+public class Cap4Test {
+    @Test
+    public void test01() {
+        AnnotationConfigApplicationContext app = new AnnotationConfigApplicationContext(Cap4MainConfig.class);
+        System.out.println("IOC容器创建完成........");
+        app.getBean("person");//执行获取的时候才创建并初始化bean
+    }
+}
+```
+
+结果：
+
+```
+IOC容器创建完成........
+给容器中添加person.......
 ```
