@@ -17,6 +17,8 @@ tags: [spring]
 
 Spring是一个全面的解决方案，它坚持一个原则：不从新造轮子。已经有较好解决方案的领域，Spring绝不重复性实现，比如：对象持久化和OR映射，Spring只对现有的JDBC，Hibernate等技术提供支持，使之更容易使用，而不做重复的实现。Spring框架有很多特性，这些特性由7个定义良好的模块构成。
 
+<!-- more -->
+
 ### Spring体系结构
 
 1、 Spring Core：即，Spring核心，它是框架最基础的部分，提供IOC和依赖注入特性
