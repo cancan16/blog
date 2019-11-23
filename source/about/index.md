@@ -6,7 +6,7 @@ type: about
 tags: [知识图谱]
 ---
 
-<div class="note primary"><a href = "https://volc1612.gitee.io/blog/images/知识点图谱/并发编程.bmp">并发编程</a></div>
+<div class="note primary"><a href = "https://volc1612.gitee.io/blog/images/知识点图谱/并发编程.png">并发编程</a></div>
 
-<div class="note primary"><a href = "https://volc1612.gitee.io/blog/images/知识点图谱/redis.png">Redis</a></div>
+<div class="note primary"><a href = "https://volc1612.gitee.io/blog/images/知识点图谱/Redis.png">Redis</a></div>
 
