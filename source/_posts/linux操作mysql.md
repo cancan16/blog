@@ -1098,3 +1098,13 @@ mysql -h[ip] -p[port] -u[username] -p[password]
 ```bash
 [root@izbp1d9e2n6iw6mvtx07jmz ~]# mysql -h127.0.0.1 -p3306 -uroot -proot
 ```
+
+### yum安装mysql设置mysql服务开机启动
+
+在`/etc/rc.local`文件中添加`service  mysqld start`启动命令
+
+```
+this script will be executed during boot.
+touch /var/lock/subsys/local
+service  mysqld star
+```
