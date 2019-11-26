@@ -6,9 +6,12 @@ categories: Redis
 tags: [redis]
 ---
 
-<iframe height="230" width="260" src="https://www.ximalaya.com/thirdparty/player/sound/player.html?id=173837050&type=red" frameborder=0 allowfullscreen></iframe>
+<div style="text-align: center"><iframe height="230" width="260" src="https://www.ximalaya.com/thirdparty/player/sound/player.html?id=173837050&type=red" frameborder=0 allowfullscreen></iframe></div>
+
 
 <img style="width: 60%;height:60%" src="https://volc1612.gitee.io/blog/images/redis%E9%AB%98%E5%B9%B6%E5%8F%91%E9%AB%98%E5%8F%AF%E7%94%A8/blackLab.jpg" />
+
+<!-- more -->
 
 ### 分布式锁
 
