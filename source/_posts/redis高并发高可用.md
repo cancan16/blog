@@ -101,6 +101,8 @@ tcp共有11中状态
 
 ### 模拟不同服务获取锁
 
+`setnx`和`setex`获取锁操作
+
 ```java
 import com.xdclass.mobile.xdclassmobileredis.RedisService;
 import org.slf4j.Logger;
@@ -202,3 +204,34 @@ public class LockNxExJob {
     }
 }
 ```
+
+### `setnx`和`setex`分布式锁从入坑到放弃
+
+![redis分布式锁遇到的问题和思考](https://volc1612.gitee.io/blog/images/redis高并发高可用/redis分布式锁遇到的问题和思考.jpg)
+
+*  Redis分布锁思考，图解分布式锁setnx、setex的缺陷
+
+  * 从Redis宕机讲解分布式锁执行的异常场景流程
+
+  * 从Server服务宕机讲解分布式锁执行的异常场景流程
+
+    
+
+* 实战演练Server服务宕机情况
+
+  
+
+  * 先kill调集群里面的其他节点的java进程，
+
+  *  在执行job的时候将进程kill掉
+
+  *      通过ps -ef|grep java看到进程的pid
+
+  * 重启服务，看服务是否每次都获取锁失败    
+
+
+
+* 一步步分析解决问题方案
+
+  * 怎么一次性执行过一条命令而不会出现问题，采用Lua脚本
+  * Redis从2.6之后支持setnx、setex连用
