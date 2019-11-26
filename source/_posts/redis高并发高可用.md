@@ -6,6 +6,8 @@ categories: Redis
 tags: [redis]
 ---
 
+![dog](https://volc1612.gitee.io/blog/images/redis高并发高可用/dog.jfif)
+
 ### 分布式锁
 
 * 分布式锁是什么
