@@ -234,4 +234,4 @@ public class LockNxExJob {
 * 一步步分析解决问题方案
 
   * 怎么一次性执行过一条命令而不会出现问题，采用Lua脚本
-  * Redis从2.6之后支持setnx、setex连用
+  * Redis从`2.6`之后支持setnx、setex连用
