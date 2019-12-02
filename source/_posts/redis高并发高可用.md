@@ -242,3 +242,103 @@ public class LockNxExJob {
 
   * 怎么一次性执行过一条命令而不会出现问题，采用Lua脚本
   * Redis从`2.6`之后支持setnx、setex连用
+
+
+###  Lua脚本讲解之Redis分布式锁
+
+**Lua脚本setnx、setex命令连用**
+
+*  Lua简介
+  * 从 Redis 2.6.0 版本开始，通过内置的 Lua 解释器，可以使用 EVAL 命令对 Lua 脚本进行求值。
+  * Redis 使用单个 Lua 解释器去运行所有脚本，并且， Redis 也保证脚本会以原子性(atomic)的方式执行：当某个脚本正在运行的时候，不会有其他脚本或 Redis 命令被执行。这和使用 MULTI / EXEC 包围的事务很类似。在其他别的客户端看来，脚本的效果(effect)要么是不可见的(not visible)，要么就是已完成的(already completed)。
+* Lua脚本配置流程
+  *  1、在resource目录下面新增一个后缀名为.lua结尾的文件
+  * 2、编写lua脚本
+  * 3、传入lua脚本的key和arg
+  * 4、调用redisTemplate.execute方法执行脚本
+* Lua脚本结合RedisTempalte实战演练
+* Lua脚本其他工作场景剖析和演练
+* lua eval http://doc.redisfans.com/script/eval.html
+
+### `RedisConnection`实现分布式锁
+
+![RedisConnection实现分布式锁](https://volc1612.gitee.io/blog/images/redis高并发高可用/RedisConnection实现分布式锁.png)
+
+**简介：RedisConnection实现分布锁的方式，采用redisTemplate操作redisConnection
+           实现setnx和setex两个命令连用**
+
+- redisTemplate本身有没通过valueOperation实现分布式锁
+
+  * 问题探索：
+             Spring Data Redis提供了与Java客户端包的集成服务，比如Jedis, JRedis等 
+             通过getNativeConnection的方式可以解决问题吗？
+
+  
+
+- Spring Data Redis提供了与Java客户端包的集成服务，比如Jedis, JRedis等 
+
+  * 代码演示
+
+  * ```java
+    /**
+            * 重写redisTemplate的set方法
+            * <p>
+            * 命令 SET resource-name anystring NX EX max-lock-time 是一种在 Redis 中实现锁的简单方法。
+            * <p>
+            * 客户端执行以上的命令：
+            * <p>
+            * 如果服务器返回 OK ，那么这个客户端获得锁。
+            * 如果服务器返回 NIL ，那么客户端获取锁失败，可以在稍后再重试。
+            *
+            * @param key     锁的Key
+            * @param value   锁里面的值
+            * @param seconds 过去时间（秒）
+            * @return
+         */
+          private String set(final String key, final String value, final long seconds) {
+            Assert.isTrue(!StringUtils.isEmpty(key), "key不能为空");
+            return redisTemplate.execute(new RedisCallback<String>() {
+                @Override
+                public String doInRedis(RedisConnection connection) throws DataAccessException {
+                    Object nativeConnection = connection.getNativeConnection();
+                    String result = null;
+                    if (nativeConnection instanceof JedisCommands) {
+                        result = ((JedisCommands) nativeConnection).set(key, value, NX, EX, seconds);
+                    }
+    
+                    if (!StringUtils.isEmpty(lockKeyLog) && !StringUtils.isEmpty(result)) {
+                        logger.info("获取锁{}的时间：{}", lockKeyLog, System.currentTimeMillis());
+                    }
+    
+                    return result;
+                }
+            });
+          }
+    ```
+
+    
+
+- 为什么新版本的spring-data-redis会报class not can not be case错误
+            
+
+```
+io.lettuce.core.RedisAsyncCommandsImpl cannot be cast to redis.clients.jedis.JedisCommands
+```
+
+  
+
+- 探索spring-data-redis升级
+
+  * 官网api分析
+             https://docs.spring.io/spring-data/redis/docs/1.5.0.RELEASE/api/
+             https://docs.spring.io/spring-data/redis/docs/2.0.13.RELEASE/api/
+
+  * 源码改造
+
+```java
+public Boolean doInRedis(RedisConnection connection) throws DataAccessException {
+        RedisConnection redisConnection =             redisTemplate.getConnectionFactory().getConnection();
+        return redisConnection.set(key.getBytes(), getHostIp().getBytes(), Expiration.seconds(expire), RedisStringCommands.SetOption.ifAbsent());
+}
+
+```
