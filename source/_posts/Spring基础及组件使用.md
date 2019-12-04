@@ -281,3 +281,68 @@ IOC容器创建完成........
 给容器中添加person.......
 ```
 
+### @Conditional条件注册bean
+
+当操作系统为WINDOWS时,注册Lison实例; 当操作系统为LINUX时, 注册James实例
+
+`FactoryBean`和`BeanFactory`的区别
+Java实例化bean时，通过`FactoryBean`注入到IOC容器中，通过`BeanFactory`从 IOC容器中获取实例化的bean。
+
+```java
+import com.enjoy.cap1.Person;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Conditional;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+public class Cap5MainConfig {
+    @Bean("person")
+    public Person person() {
+        System.out.println("给容器中添加person.......");
+        return new Person("person", 20);
+    }
+
+    @Conditional(WinCondition.class)
+    @Bean("lison")
+    public Person lison() {
+        System.out.println("给容器中添加lison.......");
+        return new Person("Lison", 58);
+    }
+
+    @Conditional(LinCondition.class)
+    @Bean("james")//bean在容器中的ID为james, IOC容器MAP,  map.put("id",value)
+    public Person james() {
+        System.out.println("给容器中添加james.......");
+        return new Person("james", 20);
+    }
+}
+```
+
+```java
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.context.annotation.Condition;
+import org.springframework.context.annotation.ConditionContext;
+import org.springframework.core.env.Environment;
+import org.springframework.core.type.AnnotatedTypeMetadata;
+
+public class LinCondition implements Condition {
+    /*
+     *ConditionContext: 判断条件可以使用的上下文(环境)
+     *AnnotatedTypeMetadata: 注解的信息
+     *
+     */
+    @Override
+    public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
+        // TODO 是否为WINDOW系统
+        //能获取到IOC容器正在使用的beanFactory
+        ConfigurableListableBeanFactory beanFactory = context.getBeanFactory();
+        //获取当前环境变量(包括我们操作系统是WIN还是LINUX??)
+        Environment environment = context.getEnvironment();
+        String os_name = environment.getProperty("os.name");
+        if (os_name.contains("linux")) {
+            return true;
+        }
+        return false;
+    }
+}
+```
