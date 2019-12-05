@@ -342,3 +342,80 @@ public Boolean doInRedis(RedisConnection connection) throws DataAccessException 
 }
 
 ```
+
+### 解锁存在的问题和解决方法
+
+解锁的流程分析
+当某个锁需要持有的时间⼩于锁超时时间时会出现两个进程同时执⾏任务的情况， 这时候如果进
+程没限制只有占有这把锁的⼈才能解锁的原则就会出现， A解了B的锁。
+采⽤lua脚本做解锁流程优化讲解
+
+```lua
+local lockKey = KEYS[1]
+local lockValue = KEYS[2]
+
+-- get key
+local result_1 = redis.call('get', lockKey)
+if result_1 == lockValue
+then
+    local result_2 = redis.call('del', lockKey)
+    return result_2
+else
+    return false
+end
+```
+
+```java
+@Scheduled(cron = "0/10 * * * * *")
+public void lockJob() {
+
+    String lock = LOCK_PREFIX + "JedisNxExJob";
+    boolean lockRet = false;
+    try {
+        lockRet = this.setLock(lock, 600);
+
+        //获取锁失败
+        if (!lockRet) {
+            String value = (String) redisService.getValue(lock);
+            //打印当前占用锁的服务器IP
+            logger.info("jedisLockJob get lock fail,lock belong to:{}", value);
+            return;
+        } else {
+            //获取锁成功
+            logger.info("jedisLockJob start  lock lockNxExJob success");
+            Thread.sleep(5000);
+        }
+    } catch (Exception e) {
+        logger.error("jedisLockJob lock error", e);
+
+    } finally {
+        if (lockRet) {
+            logger.info("jedisLockJob release lock success");
+            releaseLock(lock, getHostIp());
+        }
+    }
+}
+```
+
+```java
+private DefaultRedisScript<Boolean> lockScript;
+/**
+* 释放锁操作
+*
+* @param key
+* @param value
+* @return
+*/
+private boolean releaseLock(String key, String value) {
+    lockScript = new DefaultRedisScript<>();
+    lockScript.setScriptSource(
+            new ResourceScriptSource(new ClassPathResource("unlock.lua")));
+    lockScript.setResultType(Boolean.class);
+    // 封装参数
+    List<Object> keyList = new ArrayList<>();
+    keyList.add(key);
+    keyList.add(value);
+    Boolean result = redisTemplate.execute(lockScript, keyList);
+    return result;
+}
+```    
