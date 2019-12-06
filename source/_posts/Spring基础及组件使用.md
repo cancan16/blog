@@ -524,9 +524,149 @@ public class Cap6MainConfig {
 }
 ```
 
-### springbean的证明周期
+### springbean的声明周期-初始化和销毁
 
 Bean的生命周期指Bean创建-->初始化-->销毁 的过程
 
 * 对于单实例的bean, 可以正常调用初始化和销毁方法
 * 对于多实例的bean, 容器只负责初始化, 但不会管理bean, 容器关闭时不会调用销毁方法
+
+#### 指定bean的初始化和销毁方法
+
+```java
+public class Bike {
+    public Bike() {
+        System.out.println("Bike constructor..............");
+    }
+
+    public void init() {
+        System.out.println("Bike .....init.....");
+    }
+
+    public void destory() {
+        System.out.println("Bike.....destory");
+    }
+}
+```
+
+```java
+import com.enjoy.cap1.Person;
+import com.enjoy.cap7.bean.Bike;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+public class Cap7MainConfigOfLifeCycle {
+    /**
+     * @Date 17:22 2019/12/5
+     * @Description 指定初始化方法和销毁方法
+     * @Return com.enjoy.cap7.bean.Bike
+     * @Param []
+     */
+    @Bean(initMethod = "init", destroyMethod = "destory")
+    public Bike bike() {
+        return new Bike();
+    }
+}
+```
+
+测试
+
+```java
+import com.enjoy.cap7.config.Cap7MainConfigOfLifeCycle;
+import org.junit.Test;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+
+public class Cap7Test {
+    @Test
+    public void test01() {
+        AnnotationConfigApplicationContext app = new AnnotationConfigApplicationContext(Cap7MainConfigOfLifeCycle.class);
+        System.out.println("IOC容器创建完成........");
+        app.close();
+    }
+}
+```
+
+```
+Bike constructor..............
+Bike .....init.....
+IOC容器创建完成........
+十二月 06, 2019 2:59:56 下午 org.springframework.context.support.AbstractApplicationContext doClose
+信息: Closing org.springframework.context.annotation.AnnotationConfigApplicationContext@5c0369c4: startup date [Fri Dec 06 14:59:55 CST 2019]; root of context hierarchy
+Bike.....destory
+```
+
+#### 实现InitializingBean接口和DisposableBean接口实现bean的初始化和销毁
+
+```java
+import org.springframework.beans.factory.DisposableBean;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.stereotype.Component;
+
+@Component
+public class Train implements InitializingBean, DisposableBean {
+
+    public Train() {
+        System.out.println("Train......constructor............");
+    }
+
+    // 当我们bean销毁时,调用此方法
+    @Override
+    public void destroy() throws Exception {
+        System.out.println("Train......destory......");
+        //logger.error
+    }
+
+    /**
+     * @Date 15:17 2019/12/6
+     * @Description 所有属性设置好之后, 会调这个方法, 相当于初始化方法
+     * @Return void
+     * @Param []
+     */
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        System.out.println("Train.......afterPropertiesSet()...");
+    }
+}
+```
+
+#### 使用JSR250规则定义的(java规范)两个注解来实现`@PostConstruct` `@PreDestroy`
+
+@PostConstruct: 在Bean创建完成,且属于赋值完成后进行初始化,属于JDK规范的注解
+@PreDestroy: 在bean将被移除之前进行通知, 在容器销毁之前进行清理工作
+
+
+```java
+import org.springframework.stereotype.Component;
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+
+@Component
+public class Jeep {
+    public Jeep() {
+        System.out.println("Jeep.....constructor........");
+    }
+
+    @PostConstruct
+    public void init() {
+        System.out.println("Jeep.....@PostConstruct........");
+    }
+
+    @PreDestroy
+    public void destory() {
+        System.out.println("Jeep.....@PreDestroy......");
+    }
+}
+```
+
+#### 使用BeanPostProcessors控制bean的声明周期
+
+实现BeanPostProcessors的两个接口即可
+1,  postProcessBeforeInitialization()
+2，postProcessAfterInitialization()
+
+
+
+
+
