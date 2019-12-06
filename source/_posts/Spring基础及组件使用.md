@@ -666,7 +666,80 @@ public class Jeep {
 1,  postProcessBeforeInitialization()
 2，postProcessAfterInitialization()
 
+```java
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.config.BeanPostProcessor;
+import org.springframework.stereotype.Component;
 
+@Component
+public class JamesBeanPostProcessor implements BeanPostProcessor {
+    @Override
+    public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
+        //返回一个的对象(传过来的对象)
+        //在初始化方法调用之前进行后置处理工作,
+        //什么时候调用它: init-method=init之前调用
+        System.out.println("postProcessBeforeInitialization...." + beanName + "..." + bean);
+        return bean;
+    }
 
+    @Override
+    public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
+        System.out.println("postProcessAfterInitialization...." + beanName + "..." + bean);
+        return bean;
+    }
+}
+```
+
+```java
+public class Bike {
+    public Bike() {
+        System.out.println("Bike constructor..............");
+    }
+
+    public void init() {
+        System.out.println("Bike .....init.....");
+    }
+
+    public void destory() {
+        System.out.println("Bike.....destory");
+    }
+}
+```
+
+```java
+import com.enjoy.cap7.bean.Bike;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+
+@ComponentScan("com.enjoy.cap7.bean")
+@Configuration
+public class Cap7MainConfigOfLifeCycle {
+    /**
+     * @Date 17:22 2019/12/5
+     * @Description 指定初始化方法和销毁方法
+     * @Return com.enjoy.cap7.bean.Bike
+     * @Param []
+     */
+    @Bean(initMethod = "init", destroyMethod = "destory")
+    public Bike bike() {
+        return new Bike();
+    }
+}
+```
+
+结果
+```
+Bike constructor..............
+postProcessBeforeInitialization....bike...com.enjoy.cap7.bean.Bike@25d250c6
+Bike .....init.....
+postProcessAfterInitialization....bike...com.enjoy.cap7.bean.Bike@25d250c6
+IOC容器创建完成........
+十二月 06, 2019 3:34:17 下午 org.springframework.context.support.AbstractApplicationContext doClose
+信息: Closing org.springframework.context.annotation.AnnotationConfigApplicationContext@5c0369c4: startup date [Fri Dec 06 15:34:16 CST 2019]; root of context hierarchy
+Bike.....destory
+```
+
+可以看出重写BeanPostProcessor后，所有的初始化方法之前会调用`postProcessBeforeInitialization`，初始化之后会调用`postProcessAfterInitialization`
 
 
