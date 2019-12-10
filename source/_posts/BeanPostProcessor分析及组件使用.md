@@ -155,6 +155,66 @@ public class Bird {
 
 @Primary修饰的类或方法，在其他bean装配时，都会优先装配使用@Primary修饰的bean。如果@Autowired和@Qualifier连用则@Primary失效，即优先使用装配@Qualifier指定的IDbean。
 
+#### 自动装配源码
+
+*源码`org.springframework.beans.factory.support.DefaultListableBeanFactory#doResolveDependency`*
+
+```java
+protected Map<String, Object> findAutowireCandidates(
+			@Nullable String beanName, Class<?> requiredType, DependencyDescriptor descriptor) {
+
+		String[] candidateNames = BeanFactoryUtils.beanNamesForTypeIncludingAncestors(
+				this, requiredType, true, descriptor.isEager());
+		Map<String, Object> result = new LinkedHashMap<>(candidateNames.length);
+		for (Class<?> autowiringType : this.resolvableDependencies.keySet()) {
+			if (autowiringType.isAssignableFrom(requiredType)) {
+				Object autowiringValue = this.resolvableDependencies.get(autowiringType);
+				autowiringValue = AutowireUtils.resolveAutowiringValue(autowiringValue, requiredType);
+				if (requiredType.isInstance(autowiringValue)) {
+					result.put(ObjectUtils.identityToString(autowiringValue), autowiringValue);
+					break;
+				}
+			}
+		}
+		for (String candidate : candidateNames) {
+			if (!isSelfReference(beanName, candidate) && isAutowireCandidate(candidate, descriptor)) {
+				addCandidateEntry(result, candidate, descriptor, requiredType);
+			}
+		}
+		if (result.isEmpty() && !indicatesMultipleBeans(requiredType)) {
+			// Consider fallback matches if the first pass failed to find anything...
+			DependencyDescriptor fallbackDescriptor = descriptor.forFallbackMatch();
+			for (String candidate : candidateNames) {
+				if (!isSelfReference(beanName, candidate) && isAutowireCandidate(candidate, fallbackDescriptor)) {
+					addCandidateEntry(result, candidate, descriptor, requiredType);
+				}
+			}
+			if (result.isEmpty()) {
+				// Consider self references as a final pass...
+				// but in the case of a dependency collection, not the very same bean itself.
+				for (String candidate : candidateNames) {
+					if (isSelfReference(beanName, candidate) &&
+							(!(descriptor instanceof MultiElementDescriptor) || !beanName.equals(candidate)) &&
+							isAutowireCandidate(candidate, fallbackDescriptor)) {
+						addCandidateEntry(result, candidate, descriptor, requiredType);
+					}
+				}
+			}
+		}
+		return result;
+	}
+```
+
+```java
+@Autowired
+private OrderService orderService1
+```
+```java
+@Primary // 该注解避免了找不到idbean的错误
+@Bean("orderService2")
+```
+
+当装配OrderService时，需要相同的OrderService类型的bean对象，但是他们的id值没有orderService1就会报错。这时可以在bean上使用@Primary注解，那么在装配OrderService类型时，不需要匹配到id为orderService1的bean，从而避免了报错。
 
 
 #### @Resource和@Autowired的区别
@@ -174,7 +234,7 @@ public class Bird {
     <artifactId>javax.inject</artifactId>
     <version>1</version>
 </dependency>
-```        
+```
 
 
 
