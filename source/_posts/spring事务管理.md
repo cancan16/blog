@@ -2,7 +2,7 @@
 title: spring事务管理
 date: 2018-04-22 16:19:27
 update: 2018-04-22 16:19:27
-categories: TRANSACTION
+categories: Spring
 tags: [transaction]
 ---
 

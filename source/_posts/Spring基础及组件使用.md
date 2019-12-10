@@ -3,7 +3,7 @@ title: Spring基础及组件使用
 date: 2019-11-20 12:39:36
 update: 2019-11-20 12:39:36
 categories: Spring
-tags: [spring]
+tags: [spring注解]
 ---
 
 ### Spring发展历程
