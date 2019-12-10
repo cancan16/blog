@@ -7,10 +7,11 @@ tags: [BeanPostProcessor处理器]
 ---
 
 
-<div style="text-align: center"><iframe height="230" width="260" src="https://www.ximalaya.com/thirdparty/player/sound/player.html?id=173837050&type=red" frameborder=0 allowfullscreen></iframe></div>
+<iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width=330 height=86 src="//music.163.com/outchain/player?type=2&id=1374056689&auto=0&height=66"></iframe>
 
+<img style="width: 60%;height:60%" src="https://volc1612.gitee.io/blog/images/BeanPostProcessor分析及组件使用/dog.jpg"/>
 
-<img style="width: 60%;height:60%" src="https://volc1612.gitee.io/blog/images/redis%E9%AB%98%E5%B9%B6%E5%8F%91%E9%AB%98%E5%8F%AF%E7%94%A8/blackLab.jpg" />
+<!-- more -->
 
 ### bean初始化前增强的方法`applyBeanPostProcessorsBeforeInitialization`
 
