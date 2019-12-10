@@ -6,6 +6,11 @@ categories: Spring
 tags: [spring注解]
 ---
 
+<div style="text-align: center"><iframe height="230" width="260" src="https://www.ximalaya.com/thirdparty/player/sound/player.html?id=173837050&type=red" frameborder=0 allowfullscreen></iframe></div>
+
+
+<img style="width: 60%;height:60%" src="https://volc1612.gitee.io/blog/images/redis%E9%AB%98%E5%B9%B6%E5%8F%91%E9%AB%98%E5%8F%AF%E7%94%A8/blackLab.jpg" />
+
 ### Spring发展历程
 
 2003年2月Spring框架正式称为一道开源项目，Spring致力于J2EE应用的各种解决方案，而不仅仅专注于某一层解决方案。可以说Spring是企业应用开发的“一站式”选择， Spring贯穿于表现层、业务层、持久层，然而Spring并不想取代那些已经有的框架，而是以高度的开放性，与这些已有的框架进行整合。
