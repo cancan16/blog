@@ -236,7 +236,104 @@ private OrderService orderService1
 </dependency>
 ```
 
+### @Autowired使用方式
 
+1. 成员变量
+
+```java
+@Autowired
+private Moon moon;
+```
+
+2. 构造
+
+```java
+@Autowired
+public Sun(Moon moon) {
+    this.moon = moon;
+    System.out.println("..Constructor................");
+}
+```
+
+3. set方法
+
+```java
+@Autowired
+public void setMoon(Moon moon) {
+    this.moon = moon;
+}
+```    
+
+4. 构造方法传参
+
+```java
+public Sun(@Autowired Moon moon) {
+    this.moon = moon;
+    System.out.println("..Constructor................");
+}
+```  
+
+### Aware相关接口
+
+ApplicationContextAware接口: 获取IOC容器
+BeanNameAware接口: 获取Bean信息
+EmbeddedValueResolverAware接口: 解析器(表达式及相关脚本解析)
+
+```java
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.BeanNameAware;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.EmbeddedValueResolverAware;
+import org.springframework.stereotype.Component;
+import org.springframework.util.StringValueResolver;
+
+//实现 BeanNameAware 与 ApplicationContextAware接口
+
+@Component
+public class Light implements ApplicationContextAware, BeanNameAware, EmbeddedValueResolverAware {
+    private ApplicationContext applicationContext;
+
+    @Override
+    public void setBeanName(String name) {
+        System.out.println("当前bean的名字:" + name);
+    }
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        System.out.println("传入的IOC容器: " + applicationContext);
+        this.applicationContext = applicationContext;
+    }
+
+    @Override
+    public void setEmbeddedValueResolver(StringValueResolver resolver) {
+        String result = resolver.resolveStringValue("你好${os.name}, 计算#{3*8}");
+        System.out.println("解析的字符串为---" + result);
+    }
+}
+
+测试类
+
+```java
+import com.enjoy.cap9.config.Cap9MainConfig;
+import org.junit.Test;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+
+public class Cap9Test {
+    @Test
+    public void test01() {
+        AnnotationConfigApplicationContext app = new AnnotationConfigApplicationContext(Cap9MainConfig.class);
+        app.close();
+    }
+}
+```
+
+**总结**
+
+```
+把Spring底层的组件可以注入到自定义的bean中,ApplicationContextAware是利用ApplicationContextAwareProcessor来处理的, 其它XXXAware也类似, 都有相关的Processor来处理, XXXAware---->功能使用了XXXProcessor来处理的;
+比如: ApplicaitonContextAware--->ApplicationContextProcessor后置处理器来处理的
+```
 
 
 
