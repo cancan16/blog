@@ -213,3 +213,19 @@ BeanFactoryAware：能把beanFacotry bean工厂传进来
   
   					2.2.2）、doCreateBean(beanName, mbdToUse, args);真正的去创建一个bean实例；和单实例bean创建流程一样；
 
+**回顾bean创建过程**
+Bean创建流程回顾:
+reresh() --> registerBeanPostProcessors-->getBean()--->doGetBean()-->createBean(beanName, mbd, args)--->bean创建--->bean初始化--->后置处理器工作--->
+
+**回顾业务bean的创建代理对象过程**
+
+主要判断当前类是否需要增强, 如果需要增强, 则动态代理创建增强代理对象
+单实例caculator创建--->createBean()-->resolveBeforeInstantiation()-->
+applyBeanPostProcessorsBeforeInstantiation--->postProcessBeforeInstantiation()--->
+new Caculator()创建对象--->进入1701行:applyBeanPostProcessorsAfterInitialization(wrappedBean, beanName)--->调用postProcessAfterInstantiation()--->
+调用getAdvicesAndAdvisorsForBean()获取当前bean的通知方法--->
+得到由CGLIB增强后的的caculator-->
+当执行目标方法时,CGLIB代理对象就会调用之前保存好的切面通知
+
+### AOP调用流程
+
