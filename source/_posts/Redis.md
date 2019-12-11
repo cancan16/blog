@@ -789,6 +789,12 @@ esac
      sortset是怎么存储并实现排序的呢，hashmap存储，还加了一层跳跃表
      跳跃表：相当于双向链表，在其基础上添加前往比当前元素大的跳转链接	 
 
+### 开某个redis节点
+
+```sh
+[root@localhost redis-4.0.6]# src/redis-server redis-cluster/6379/redis.conf
+```
+
 ### 关闭redis某一个节点
 
 ```sh
