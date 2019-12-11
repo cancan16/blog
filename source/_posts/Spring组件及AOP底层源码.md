@@ -142,3 +142,22 @@ public class Cap10Test {
 除法正常返回......运行结果是:{}
 1
 ```
+
+### AnnotationAwareAspectJAutoProxyCreator核心类过程分析
+
+![AnnotationAwareAspectJAutoProxyCreator引用层次](https://volc1612.gitee.io/blog/images/Spring组件及AOP底层源码/AnnotationAwareAspectJAutoProxyCreator引用层次.png)
+
+`org.springframework.aop.aspectj.annotation.AnnotationAwareAspectJAutoProxyCreator`这个类贯穿了整AOP功能。
+
+AnnotationAwareAspectJAutoProxyCreator：
+  	AnnotationAwareAspectJAutoProxyCreator
+  	   ->AspectJAwareAdvisorAutoProxyCreator
+  		  ->AbstractAdvisorAutoProxyCreator
+  			 ->AbstractAutoProxyCreator
+  			   implements SmartInstantiationAwareBeanPostProcessor, BeanFactoryAware
+**重点关注后置处理器（在bean初始化完成前后做事情）、自动装配BeanFactory**
+
+SmartInstantiationAwareBeanPostProcessor: bean的后置处理器
+BeanFactoryAware：能把beanFacotry bean工厂传进来
+通过分析以上的bean继承关系我们发现,   具有BeanPostProcessor特点, 也有Aware接口的特点, 实现了BeanFactoryAware 接口。
+
