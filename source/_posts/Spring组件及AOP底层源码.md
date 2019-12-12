@@ -167,7 +167,7 @@ BeanFactoryAware：能把beanFacotry bean工厂传进来
 * 1）、register()传入配置类，准备创建ioc容器
 * 2）、注册配置类，调用refresh（）刷新创建容器；
 * 3）、registerBeanPostProcessors(beanFactory);注册bean的后置处理器来方便拦截bean的创建(主要是分析创建AnnotationAwareAspectJAutoProxyCreator)；
- 	* 1）、 先获取ioc容器已经定义了的需要创建对象的所有BeanPostProcessor
+ 	* 1）、先获取ioc容器已经定义了的需要创建对象的所有BeanPostProcessor
  	* 2）、给容器中加别的BeanPostProcessor
  	* 3）、优先注册实现了PriorityOrdered接口的BeanPostProcessor；
  	* 4）、再给容器中注册实现了Ordered接口的BeanPostProcessor；
