@@ -10,7 +10,13 @@ tags: [aop]
 
 <img style="width: 80%;height:80%" src="https://volc1612.gitee.io/blog/images/Spring组件及AOP底层源码/dog.jpeg" />
 
+
 <!-- more -->
+
+**思维导图**
+
+![Spring组件及AOP底层源码](https://volc1612.gitee.io/blog/images/Spring组件及AOP底层源码/spring-aop源码分析.png)
+
 
 ### AOP
 
