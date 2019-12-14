@@ -795,3 +795,18 @@ repl_backlog_histlen:30909
 
 ##### Sentinel是如何工作的
 
+* 主观下线概念：
+
+  - 概念主观下线（Subjectively Down， 简称 SDOWN）指的是单个 Sentinel 实例对服务器做出的下线判断
+
+  - 主管下线特点：
+
+    * 如果一个服务器没有在 master-down-after-milliseconds 选项所指定的时间内， 对向它发送 PING 命令的 Sentinel 返回一个有效回复（valid reply）， 那么 Sentinel 就会将这个服务器标记为主观下线
+
+    * 服务器对 PING 命令的有效回复可以是以下三种回复的其中一种：
+
+        ```shell
+        返回 +PONG 。
+        返回 -LOADING 错误。
+        返回 -MASTERDOWN 错误。
+        ```
