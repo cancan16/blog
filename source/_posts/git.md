@@ -337,3 +337,21 @@ git status
 # 删除
 git clean -dfx
 ```
+
+
+### 分支管理
+
+
+![分支管理](https://volc1612.gitee.io/blog/images/git/分支管理.png)
+
+**功能分支合并到release分支冲突解决**
+
+Bob 完成了他的编码工作，同时向 release/fb 分支发起了一个 pull request。
+因为发布分支已经合并了登录的代码，这时代码冲突发生了。解决冲突和合并代码是 reviewer 的责任。在这样的情况下，作为技术 Leader 就需要解决冲突和合并代码了。
+现在 John 也已经完成了他的开发，同时也想把代码合并到发布分支。但 John 非常擅长于解决代码冲突。他将 release/fb 上最新的代码合并到他自己的功能分支 feature/newsfeed （通过 git pull 或 git merge 命令）。同时他解决了所有存在的冲突，现在 feature/newsfeed 已经有了所有发布分支 release/fb 的代码。
+最后 John 创建了一个 pull request，由于 John 已经解决了所有问题，所以本次 pull request 不会再有冲突了。
+
+因此通常有两种方式来解决代码冲突：
+
+* pull request 的 reviewer 需要解决所有的代码冲突。
+* 开发人员需要确保将发布分支的最新代码合并到功能分支，并且解决所有的冲突
