@@ -382,3 +382,35 @@ Bob 完成了他的编码工作，同时向 release/fb 分支发起了一个 pul
 1-2-3-6-7-8
 ........ |4-5|
 会出来一个8，这个8的提交就是把4-5合进来的提交。
+
+
+### sourcetree演示`merge`和`rebase`的区别
+
+#### sourcetree客户端使用`rebase`
+
+1. 切换到rebase-one分支；
+2. 选择master分支右击，选择`将当前变更变基到master`，点解确定；
+3. 解决冲突；
+4. 点击拉取->继续变基，如图；
+![变基操作](https://volc1612.gitee.io/blog/images/git/变基操作.png)
+5. 再次点击拉取
+![变基拉取](https://volc1612.gitee.io/blog/images/git/变基拉取.png)
+6. 解决冲突；
+7. 提交
+![变基提交](https://volc1612.gitee.io/blog/images/git/变基提交.png)
+8. 推送
+![变基推送](https://volc1612.gitee.io/blog/images/git/变基推送.png)
+
+
+场景：
+
+* 两个功能分支`one`和`two`
+* `two`分支发布了功能，并合并到了`master`分支；
+* `one`分支需要从`master`分支同步`two`功能分支的代码，需要解决冲突；
+* `one`分支再发布自己的功能代码，合并到`master`上；
+
+![合并对比](https://volc1612.gitee.io/blog/images/git/合并对比.png)
+
+
+merge合并merge-one到master分支后，不会保留merge-one分支合并到master分支的记录
+rebase是保留的
