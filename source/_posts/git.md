@@ -355,3 +355,30 @@ Bob 完成了他的编码工作，同时向 release/fb 分支发起了一个 pul
 
 * pull request 的 reviewer 需要解决所有的代码冲突。
 * 开发人员需要确保将发布分支的最新代码合并到功能分支，并且解决所有的冲突
+
+#### git rebase
+
+`rebase`会把你当前分支的 commit 放到公共分支的最后面,所以叫变基。就好像你从公共分支又重新拉出来这个分支一样。
+举例:如果你从 master 拉了个feature分支出来,然后你提交了几个 commit,这个时候刚好有人把他开发的东西合并到 master 了,这个时候 master 就比你拉分支的时候多了几个 commit,如果这个时候你 rebase master 的话，就会把你当前的几个 commit，放到那个人 commit 的后面。
+
+`merge`会把公共分支和你当前的commit 合并在一起，形成一个新的 commit 提交。
+
+* 不要在公共分支使用rebase
+* 本地和远端对应同一条分支,优先使用rebase,而不是merge
+
+抛出问题:
+为什么不要再公共分支使用rebase？
+
+比如把`feature/one`分支使用`git rebase`合并到`release`分支，
+因为往后放的这些`commit`都是新的,这样其他从这个公共分支拉出去的人，都需要再 rebase,相当于你 rebase 东西进来，就都是新的 commit 了。
+
+举个例子：
+1-2-3 是现在的分支状态
+这个时候从原来的master ,checkout出来一个prod分支
+然后master提交了4.5，prod提交了6.7
+这个时候master分支状态就是1-2-3-4-5，prod状态变成1-2-3-6-7
+如果在prod上用rebase master ,prod分支状态就成了1-2-3-4-5-6-7
+如果是merge
+1-2-3-6-7-8
+........ |4-5|
+会出来一个8，这个8的提交就是把4-5合进来的提交。
