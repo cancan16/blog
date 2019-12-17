@@ -10,7 +10,10 @@ tags: [transactional]
 
 <img style="width: 80%;height:80%" src="https://volc1612.gitee.io/blog/images/Spring声明式事务底层源码分析/dog.jpg" />
 
+![spring声明式事务源码](https://volc1612.gitee.io/blog/images/Spring声明式事务底层源码分析/spring声明式事务源码.png)
+
 <!-- more -->
+
 
 * 1）、@EnableTransactionManagement
  			利用TransactionManagementConfigurationSelector给容器中会导入组件
