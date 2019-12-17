@@ -8,7 +8,7 @@ tags: [transactional]
 
 <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width=280 height=86 src="//music.163.com/outchain/player?type=2&id=186622&auto=0&height=66"></iframe>
 
-<img style="width: 80%;height:80%" src="https://volc1612.gitee.io/blog/images/Spring声明式事务底层源码分析/dog.jpeg" />
+<img style="width: 80%;height:80%" src="https://volc1612.gitee.io/blog/images/Spring声明式事务底层源码分析/dog.jpg" />
 
 <!-- more -->
 
