@@ -85,7 +85,10 @@ JamesBeanFactoryPostProcessor.....调到了BeanFactoryPostProcessor.postProcessB
 Moon constructor........
 ```
 
-总结业务`bean`在创建时，先定义到`BeanFactory`中，然后执行`bean`后置处理器，最后创建实例交给`IOC`容器管理。
+**总结**
+
+业务`bean`在创建时，先把业务bean定义到`BeanFactory`中，然后执行`bean`后置处理器，最后创建实例交给`IOC`容器管理。
+在`beanFactory`标准初始化之后调用，来制定和修改`beanFactory`中的内容。
 
 ### BeanDefinitionRegistryPostProcessor: bean定义后置处理器
 
@@ -176,22 +179,32 @@ Moon constructor........
 ### spring容器的refresh方法
 
 * spring容器的refresh()[创建刷新]
-* 1，prepareRefresh()：刷新前的预处理
-	* 1）initPropertySources()：初始化一些属性设置；子类自定义个性化的属性设置方法
-	* 2）getEnvironment().validateRequiredProperties()：检验属性的合法性等
-	* 3）this.earlyApplicationEvents = new LinkedHashSet<>();保存容器中的一些早期的事件
+    * 1，prepareRefresh()：刷新前的预处理
+        * 1）initPropertySources()：初始化一些属性设置；子类自定义个性化的属性设置方法
+        * 2）getEnvironment().validateRequiredProperties()：检验属性的合法性等
+        * 3）this.earlyApplicationEvents = new LinkedHashSet<>();保存容器中的一些早期的事件
 
-* 2，obtainFreshBeanFactory()：获取beanFactory实例
-	* 1）refreshBeanFactory();刷新或创建beanFactory
-	* 2）getBeanFactory()：将刚生成的beanFactory返回
+    * 2，obtainFreshBeanFactory()：获取beanFactory实例
+        * 1）refreshBeanFactory();刷新或创建beanFactory
+        * 2）getBeanFactory()：将刚生成的beanFactory返回（空的beanFactory）
 
-* 3，prepareBeanFactory(beanFactory)：beanFactory预准备工作，（以上创建的beanFactory好多属性没有值，只有一些默认的值）
-	* beanFactory.setBeanClassLoader(getClassLoader());设置BeanFactory的类加载器
-	* beanFactory.setBeanExpressionResolver：支持相关的表达式语言的解析
-	* ignoreDependencyInterface：设置忽略的自动装配接口 EnvironmentAware  EmbeddedValueResolverAware
-	* beanFactory.registerResolvableDependency：注册可以解析的自动装配：我们能直接在任何组件中自动注入  BeanFactory  ApplicationContext
-	* beanFactory.addBeanPostProcessor(new ApplicationListenerDetector(this));添加监听检测的处理器
-    * if (!beanFactory.containsLocalBean(ENVIRONMENT_BEAN_NAME))：注册环境变量相关bean
+    * 3，prepareBeanFactory(beanFactory)：beanFactory预准备工作，（以上创建的beanFactory好多属性没有值，只有一些默认的值）
+        * beanFactory.setBeanClassLoader(getClassLoader());设置BeanFactory的类加载器
+        * beanFactory.setBeanExpressionResolver：支持相关的表达式语言的解析
+        * ignoreDependencyInterface：设置忽略的自动装配接口 EnvironmentAware  EmbeddedValueResolverAware
+        * beanFactory.registerResolvableDependency：注册可以解析的自动装配：我们能直接在任何组件中自动注入  BeanFactory  ApplicationContext
+        * beanFactory.addBeanPostProcessor(new ApplicationListenerDetector(this));添加监听检测的处理器
+        * if (!beanFactory.containsLocalBean(ENVIRONMENT_BEAN_NAME))：注册环境变量相关bean
+    * 4， postProcessBeanFactory(beanFactory);BeanFactory准备工作完成后进行的后置处理器工作；
+        * 1， 通过子类重写这个方法来在BeanFactory创建并预准备完成以后进一步的设置；至此BeanFactory创建和预准备完成。
+
+    * 5， invokeBeanFactoryPostProcessors(beanFactory)执行BeanFactoryPostProcessor后置处理器方法。
+        * 自定义实现两个接口BeanFactoryPostProcessor，BeanDefinitionRegistryPostProcessor;
+        * 先执行`BeanDefinitionRegistryPostProcessor`
+            * 优先执行实现了`PriorityOrdered`的处理器；
+            * 获取处理器bean对象；
+
+
 
 
 
