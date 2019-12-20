@@ -369,3 +369,26 @@ redis:
 </dependency>
 ```
 
+* 启用redis节点，并配置`sentinel.conf`节点外网IP
+
+```sh
+protected-mode no
+
+sentinel monitor mymaster 192.168.25.11 6381 1
+
+sentinel known-slave mymaster 127.0.0.1 6380
+sentinel known-slave mymaster 192.168.25.11 6379
+sentinel known-slave mymaster 127.0.0.1 6379
+sentinel known-slave mymaster 192.168.25.11 6380
+```
+
+* 启动项目测试，查看各节点是否主从复制数据
+
+```java
+@RequestMapping("/redis/setAndGet")
+@ResponseBody
+public String setAndGetValue(String name, String value) {
+    redisTemplate.opsForValue().set(name, value);
+    return (String) redisTemplate.opsForValue().get(name);
+}
+```
