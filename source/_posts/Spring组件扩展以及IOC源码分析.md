@@ -178,31 +178,42 @@ Moon constructor........
 
 ### spring容器的refresh方法
 
-* spring容器的refresh()[创建刷新]
-    * 1，prepareRefresh()：刷新前的预处理
-        * 1）initPropertySources()：初始化一些属性设置；子类自定义个性化的属性设置方法
-        * 2）getEnvironment().validateRequiredProperties()：检验属性的合法性等
-        * 3）this.earlyApplicationEvents = new LinkedHashSet<>();保存容器中的一些早期的事件
+* `spring`容器的`refresh()`[创建刷新]
+    * 1，`prepareRefresh()`：刷新前的预处理；
+        * 1）`initPropertySources()`：初始化一些属性设置；子类自定义个性化的属性设置方法；
+        * 2）`getEnvironment().validateRequiredProperties()`：检验属性的合法性等；
+        * 3）`this.earlyApplicationEvents = new LinkedHashSet<>()`保存容器中的一些早期的事件；
 
-    * 2，obtainFreshBeanFactory()：获取beanFactory实例
-        * 1）refreshBeanFactory();刷新或创建beanFactory
-        * 2）getBeanFactory()：将刚生成的beanFactory返回（空的beanFactory）
+    * 2，`obtainFreshBeanFactory()`：获取`beanFactory`实例；
+        * 1）`refreshBeanFactory()`刷新或创建`beanFactory`；
+        * 2）`getBeanFactory()`：将刚生成的`beanFactory`返回（空的`beanFactory`）；
 
-    * 3，prepareBeanFactory(beanFactory)：beanFactory预准备工作，（以上创建的beanFactory好多属性没有值，只有一些默认的值）
-        * beanFactory.setBeanClassLoader(getClassLoader());设置BeanFactory的类加载器
-        * beanFactory.setBeanExpressionResolver：支持相关的表达式语言的解析
-        * ignoreDependencyInterface：设置忽略的自动装配接口 EnvironmentAware  EmbeddedValueResolverAware
-        * beanFactory.registerResolvableDependency：注册可以解析的自动装配：我们能直接在任何组件中自动注入  BeanFactory  ApplicationContext
-        * beanFactory.addBeanPostProcessor(new ApplicationListenerDetector(this));添加监听检测的处理器
-        * if (!beanFactory.containsLocalBean(ENVIRONMENT_BEAN_NAME))：注册环境变量相关bean
-    * 4， postProcessBeanFactory(beanFactory);BeanFactory准备工作完成后进行的后置处理器工作；
-        * 1， 通过子类重写这个方法来在BeanFactory创建并预准备完成以后进一步的设置；至此BeanFactory创建和预准备完成。
+    * 3，`prepareBeanFactory(beanFactory)`：`beanFactory`预准备工作，（以上创建的`beanFactory`好多属性没有值，只有一些默认的值）；
+        * `beanFactory.setBeanClassLoader(getClassLoader())`设置`BeanFactory`的类加载器；
+        * `beanFactory.setBeanExpressionResolver`：支持相关的表达式语言的解析；
+        * `ignoreDependencyInterface`：设置忽略的自动装配接口 `EnvironmentAware`  `EmbeddedValueResolverAware`；
+        * `beanFactory.registerResolvableDependency`：注册可以解析的自动装配：我们能直接在任何组件中自动注入  `BeanFactory`  `ApplicationContext`；
+        * `beanFactory.addBeanPostProcessor(new ApplicationListenerDetector(this))`添加监听检测的处理器；
+        * `if (!beanFactory.containsLocalBean(ENVIRONMENT_BEAN_NAME))`：注册环境变量相关`bean`；
+    * 4，`postProcessBeanFactory(beanFactory)` `BeanFactory`准备工作完成后进行的后置处理器工作；
+        * 1， 通过子类重写这个方法来在`BeanFactory`创建并预准备完成以后进一步的设置；至此`BeanFactory`创建和预准备完成；
 
-    * 5， invokeBeanFactoryPostProcessors(beanFactory)执行BeanFactoryPostProcessor后置处理器方法。
-        * 自定义实现两个接口BeanFactoryPostProcessor，BeanDefinitionRegistryPostProcessor;
-        * 先执行`BeanDefinitionRegistryPostProcessor`
+    * 5，`invokeBeanFactoryPostProcessors(beanFactory)`执行`BeanFactoryPostProcessor`后置处理器方法；
+        * 自定义实现两个接口`BeanFactoryPostProcessor`，`BeanDefinitionRegistryPostProcessor`;
+        * 先执行`BeanDefinitionRegistryPostProcessor`；
             * 优先执行实现了`PriorityOrdered`的处理器；
-            * 获取处理器bean对象；
+            * 获取处理器`bean`对象；
+    * 6，`initMessageSource()`标签国际化资源，初始化`messgeresource`组件（国际化功能：消息解析，消息绑定）；
+        * `if (beanFactory.containsLocalBean(MESSAGE_SOURCE_BEAN_NAME))`判断容器中是否有`messageSource`的`ID`，类型是`MessageSource`组件；
+        * `new DelegatingMessageSource()`如果没有`MessageSource`组件就会创建并注册到`IOC`容器中；
+        * `registerSingleton(MESSAGE_SOURCE_BEAN_NAME, this.messageSource)`注册`MessageSource`组件；
+    * 7，`initApplicationEventMulticaster()`初始化事件派发器；
+        * `getBeanFactory()`获取`beanFactory`；
+        * `if (beanFactory.containsLocalBean(APPLICATION_EVENT_MULTICASTER_BEAN_NAME))`判断有没有`applicationEventMulticaster`对象；
+        * `new SimpleApplicationEventMulticaster(beanFactory)`创建事件派发器；
+        * `registerSingleton(APPLICATION_EVENT_MULTICASTER_BEAN_NAME, this.applicationEventMulticaster)`注册到容器中；
+    * 8，`onRefresh()`留给子容器（子类）：子类可以重写这个方法，在容器刷新的时候自定义逻辑；
+
 
 
 
