@@ -213,6 +213,29 @@ Moon constructor........
         * `new SimpleApplicationEventMulticaster(beanFactory)`创建事件派发器；
         * `registerSingleton(APPLICATION_EVENT_MULTICASTER_BEAN_NAME, this.applicationEventMulticaster)`注册到容器中；
     * 8，`onRefresh()`留给子容器（子类）：子类可以重写这个方法，在容器刷新的时候自定义逻辑；
+    * 9，`registerListeners()`给容器中将所有项目里的ApplicationListener注册进来；
+        * `getApplicationEventMulticaster().multicastEvent(earlyEvent)`事件派发；
+    * 10，`finishBeanFactoryInitialization(beanFactory)`给容器中将所有项目中单实例`bean`(非懒加载)初始化；
+        * `beanFactory.preInstantiateSingletons()`单实例bean(非懒加载)初始化；
+            * `getMergedLocalBeanDefinition(beanName)`获取bean的定义信息，依次进行创建和初始化；
+                * `getBean(beanName)`；
+                    * `doGetBean(name, null, null, false)`；
+                        * `getSingleton(beanName)`先获取`map`缓存中保存的实例`bean`；
+                        * `markBeanAsCreated(beanName)`标记当前`bean`已经被创建了；
+                            * `this.alreadyCreated.add(beanName)`进行标记；
+                        * `mbd.getDependsOn()`获取当前`bean`依赖的其他`bean`，如果存在就从容器中获取依赖的`bean`；
+                        * `createBean(beanName, mbd, args)`；
+                            * `resolveBeforeInstantiation(beanName, mbdToUse)`让`BeanPostProcessor`尝试返回一个代理对象；
+                            * `doCreateBean(beanName, mbdToUse, args)`；
+                                * `createBeanInstance(beanName, mbd, args)`创建`bean`实例返回`bean`包装类型；
+                                * `populateBean(beanName, mbd, instanceWrapper)``bean`属性赋值；
+                                    * `if (bp instanceof InstantiationAwareBeanPostProcessor)`后置处理器的处理；
+                                    * `postProcessAfterInstantiation(bw.getWrappedInstance(), beanName)`调用后置处理器对`bean`进行定制处理；
+                                    * `applyPropertyValues(beanName, mbd, bw, pvs)`对`bean`设置值；
+                                * `initializeBean(beanName, exposedObject, mbd)`前后处理器执行的地方，`aop`动态代理增强入口；
+                                    * `applyBeanPostProcessorsBeforeInitialization(wrappedBean, beanName)`bean初始化前置处理器；
+                                    * `applyBeanPostProcessorsAfterInitialization(wrappedBean, beanName)`bean初始化后置处理器；
+    * 11，`finishRefresh()`结束容器刷新；
 
 
 
