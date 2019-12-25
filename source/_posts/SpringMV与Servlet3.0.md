@@ -54,7 +54,13 @@ public class JamesServlet extends HttpServlet {
 
 ### ServletContainerInitializer初始化web容器
 
+* 使用IDEA创建一个java Enterprise项目
 
+JDK：1.8
+JAVA EE vesion：java EE8
+Application server：tomcat7
+
+![demo结构](https://volc1612.gitee.io/blog/images/springmvc与servlet3.0/demo结构.png)
 
 * 由`servlet`官方提供文档可知，初始化`web`容器需要创建`javax.servlet.ServletContainerInitializer`文件
 
@@ -140,6 +146,7 @@ public class OrderListener implements ServletContextListener {
     }
 }
 ```
+
 * 创建`web`容器
 
 ```java
@@ -361,3 +368,6 @@ public class OrderController {
 ```
 
 * 重启`tomcat`，进行测试`http://localhost:8080/springmvcanno/buy`
+
+### servlet3.0异步请求分析
+
