@@ -371,3 +371,65 @@ public class OrderController {
 
 ### servlet3.0异步请求分析
 
+* 创建一个`servlet`支持异步处理
+
+```java
+import javax.servlet.AsyncContext;
+import javax.servlet.ServletException;
+import javax.servlet.ServletResponse;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+
+@WebServlet(value = "/asyncOrder", asyncSupported = true)
+public class OrderAsyncServlet extends HttpServlet {
+    //支持异步处理asyncSupported = true
+    //重写doget方法
+    @Override
+    protected void doGet(final HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        //151个……
+        System.out.println("主线程开始……" + Thread.currentThread() + "start....." + System.currentTimeMillis());
+        final AsyncContext startAsync = req.startAsync();
+
+        startAsync.start(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    System.out.println("副线程开始……" + Thread.currentThread() + "start....." + System.currentTimeMillis());
+
+                    buyCards();
+                    startAsync.complete();
+                    AsyncContext asyncContext = req.getAsyncContext();
+                    ServletResponse response = asyncContext.getResponse();
+                    response.getWriter().write("order sucesful....");
+                    System.out.println("副线程结束……" + Thread.currentThread() + "end....." + System.currentTimeMillis());
+
+                } catch (InterruptedException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        System.out.println("主线程结束……" + Thread.currentThread() + "end....." + System.currentTimeMillis());
+        //主线程的资源断开……
+    }
+
+    public void buyCards() throws InterruptedException {
+        System.out.println(Thread.currentThread() + ".............");
+        Thread.sleep(5000);//模拟业务操作
+    }
+}
+```
+
+```
+主线程开始……Thread[http-bio-8080-exec-7,5,main]start.....1577263536958
+主线程结束……Thread[http-bio-8080-exec-7,5,main]end.....1577263536965
+副线程开始……Thread[http-bio-8080-exec-9,5,main]start.....1577263536965
+Thread[http-bio-8080-exec-9,5,main].............
+```
