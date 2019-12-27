@@ -59,6 +59,7 @@ public class JamesServlet extends HttpServlet {
 JDK：1.8
 JAVA EE vesion：java EE8
 Application server：tomcat7
+Additional Libraries and Frameworks: web application
 
 ![demo结构](https://volc1612.gitee.io/blog/images/springmvc与servlet3.0/demo结构.png)
 
@@ -433,3 +434,11 @@ public class OrderAsyncServlet extends HttpServlet {
 副线程开始……Thread[http-bio-8080-exec-9,5,main]start.....1577263536965
 Thread[http-bio-8080-exec-9,5,main].............
 ```
+
+**总结**
+
+* @WebServlet注解
+* AsyncContext开启异步
+* 不管是同步`servlet`处理请求还是异步`servlet`处理请求，浏览器都会等待异步处理完成后才能响应，并不会因为主线程结束才会响应给浏览器。
+
+
