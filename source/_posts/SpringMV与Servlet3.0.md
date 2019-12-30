@@ -562,12 +562,57 @@ Thread[http-bio-8080-exec-10,5,main]----afterCompletion-------------/springmvc_a
 * `springmvc`再次把请求转发给`servlet`容器，并获取`Callable`结果，响应给浏览器；
 * `The Callable produces a result and Spring MVC dispatches the request back to the Servlet container to resume processing`（`Callable`生成一个结果，`Spring MVC`将请求发送回`Servlet`容器以恢复处理）
 
-#### 模拟异步出业务
+#### 模拟异步处理业务
 
 ![异步图解](https://volc1612.gitee.io/blog/images/springmvc与servlet3.0/异步图解.png)
 
 * 一个线程接口请求一个线程返回请求
 
+```java
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.context.request.async.DeferredResult;
+
+import java.util.UUID;
+import java.util.concurrent.Callable;
+
+
+@Controller
+public class AsyncOrderController {
+
+    /**
+     * 模拟接收请求的线程
+     * 10000： 队列元素生存10秒
+     * 1. 其实相当于我们说的tomcat的线程1，来处理用户请求，并将请求的操作放到Queue队列里，
+     * 2. 当队列中的deferredResult有值时，并且从deferredResult放入队列到deferredResult有值，没有超过10秒时，会立即返回deferredResult的值
+     * 可以理解为`deferredResult`一直在阻塞，监听有没有设置值，如果有设置值就返回，没有就等待，直到超时
+     * 3. 当deferredResult没有值或超过了队列元素的生存时间，则会返回create fail...
+     */
+    @ResponseBody
+    @RequestMapping("/createOrder")
+    public DeferredResult<Object> createOrder() {
+        DeferredResult<Object> deferredResult = new DeferredResult<Object>((long) 10000, "create fail...");
+        JamesDeferredQueue.save(deferredResult);
+        return deferredResult;
+    }
+
+    /**
+     * 模拟新的线程进行处理业务响应的值
+     *
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping("/get")
+    public String get() {
+        //创建订单（按真实操作应该是从订单服务取，这里直接返回）
+        String order = UUID.randomUUID().toString();//模拟从订单服务获取的订单信息（免调接口）
+        DeferredResult<Object> deferredResult = JamesDeferredQueue.get();
+        deferredResult.setResult(order);
+        return order;
+    }
+}
+```
 
 
 
