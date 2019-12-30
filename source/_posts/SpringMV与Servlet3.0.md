@@ -287,6 +287,40 @@ public class JamesWebAppInitializer extends AbstractAnnotationConfigDispatcherSe
 }
 ```
 
+* 拦截器
+
+```java
+import org.springframework.web.servlet.HandlerInterceptor;
+import org.springframework.web.servlet.ModelAndView;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+public class JamesInterceptor implements HandlerInterceptor {
+    //在目标方法运行之间执行
+    @Override
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
+            throws Exception {
+        System.out.println(Thread.currentThread() + "----preHandle-------------" + request.getRequestURI());
+        return true;
+    }
+
+    //在目标方法执行之后执行
+    @Override
+    public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler,
+                           ModelAndView modelAndView) throws Exception {
+        System.out.println(Thread.currentThread() + "----postHandle-------------" + request.getRequestURI());
+    }
+
+    //页面响应之后执行
+    @Override
+    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex)
+            throws Exception {
+        System.out.println(Thread.currentThread() + "----afterCompletion-------------" + request.getRequestURI());
+    }
+}
+```
+
 * 新建两个配置类`JamesRootConfig`和`JamesAppConfig`，形成父子容器的效果
 
 ```java
@@ -440,5 +474,100 @@ Thread[http-bio-8080-exec-9,5,main].............
 * @WebServlet注解
 * AsyncContext开启异步
 * 不管是同步`servlet`处理请求还是异步`servlet`处理请求，浏览器都会等待异步处理完成后才能响应，并不会因为主线程结束才会响应给浏览器。
+
+
+#### servlet异步处理原理
+
+![异步处理原理](https://volc1612.gitee.io/blog/images/springmvc与servlet3.0/异步处理原理.png)
+
+* 有图可见`servlet`响应是子线程相关的，和`tomcat`主线程并无关系
+* `tomcat`主线线程接收请求，并把处理方式交给子线程
+
+
+### springmvc异步处理
+
+```java
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import java.util.concurrent.Callable;
+
+
+@Controller
+public class AsyncOrderController {
+
+//    //其实相当于我们说的tomcat的线程1，来处理用户请求，并将请求的操作放到Queue队列里
+//    @ResponseBody
+//    @RequestMapping("/createOrder")
+//    public DeferredResult<Object> createOrder() {
+//
+//
+//        DeferredResult<Object> deferredResult = new DeferredResult<>((long) 10000, "create fail...");
+//
+//        JamesDeferredQueue.save(deferredResult);
+//
+//        return deferredResult;
+//    }
+//
+//    ////其实相当于我们说的tomcat的线程N，来处理用户请求，并将请求的操作放到Queue队列里
+//    @ResponseBody
+//    @RequestMapping("/create")
+//    public String create() {
+//        //创建订单（按真实操作应该是从订单服务取，这里直接返回）
+//        String order = UUID.randomUUID().toString();//模拟从订单服务获取的订单信息（免调接口）
+//        DeferredResult<Object> deferredResult = JamesDeferredQueue.get();
+//        deferredResult.setResult(order);
+//        return "create success, orderId == " + order;
+//    }
+
+    @ResponseBody
+    @RequestMapping("/order01")
+    public Callable<String> order01() {
+        System.out.println("主线程开始..." + Thread.currentThread() + "==>" + System.currentTimeMillis());
+
+        Callable<String> callable = new Callable<String>() {
+            @Override
+            public String call() throws Exception {
+                System.out.println("副线程开始..." + Thread.currentThread() + "==>" + System.currentTimeMillis());
+                Thread.sleep(2000);
+                System.out.println("副线程开始..." + Thread.currentThread() + "==>" + System.currentTimeMillis());
+                return "order buy successful........";
+            }
+        };
+        System.out.println("主线程结束..." + Thread.currentThread() + "==>" + System.currentTimeMillis());
+        return callable;
+    }
+}
+```
+
+结果浏览器停止2秒返回`order buy successful........`，并在控制台打印出结果
+
+```
+Thread[http-bio-8080-exec-8,5,main]----preHandle-------------/springmvc_anno_war_exploded/order01
+主线程开始...Thread[http-bio-8080-exec-8,5,main]==>1577676355466
+主线程结束...Thread[http-bio-8080-exec-8,5,main]==>1577676355466
+副线程开始...Thread[MvcAsync2,5,main]==>1577676355469
+副线程开始...Thread[MvcAsync2,5,main]==>1577676357469
+Thread[http-bio-8080-exec-10,5,main]----preHandle-------------/springmvc_anno_war_exploded/order01
+Thread[http-bio-8080-exec-10,5,main]----postHandle-------------/springmvc_anno_war_exploded/order01
+Thread[http-bio-8080-exec-10,5,main]----afterCompletion-------------/springmvc_anno_war_exploded/order01
+```
+
+`springmvc`官网文档： `https://docs.spring.io/spring/docs/5.0.0.RELEASE/spring-framework-reference/web.html#mvc` `1.3.4`说明
+
+由此可见，`springmvc`的异步处理过程
+
+* `springmvc`接收请求把请求交给`Servlet`容器处理，并异步处理业务`Callable`生成一个结果，但是结果并未响应；
+* `springmvc`再次把请求转发给`servlet`容器，并获取`Callable`结果，响应给浏览器；
+* `The Callable produces a result and Spring MVC dispatches the request back to the Servlet container to resume processing`（`Callable`生成一个结果，`Spring MVC`将请求发送回`Servlet`容器以恢复处理）
+
+#### 模拟异步出业务
+
+![异步图解](https://volc1612.gitee.io/blog/images/springmvc与servlet3.0/异步图解.png)
+
+* 一个线程接口请求一个线程返回请求
+
+
 
 
