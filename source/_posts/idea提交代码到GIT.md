@@ -1,5 +1,5 @@
 ---
-title: idea提交代码到GIT
+title: IDEA
 date: 2017-12-03 15:58:38
 update: 2017-12-03 15:58:38
 categories: git
@@ -51,3 +51,7 @@ git status
 #### idea配置类或方法注释模板
 
 ![annotation_a](https://volc1612.gitee.io/blog/images/idea/annotation_a.png)
+
+### IDEA集成tomcat控制台中文乱码解决
+
+`Help-->Edit Custom VM Options...`中进行添加  `-Dfile.encoding=UTF-8`，重启`IDEA`
