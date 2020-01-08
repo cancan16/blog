@@ -8177,6 +8177,7 @@ private void writeObject0(Object obj, boolean unshared)
 2. 客户端根据MD5和个数进行多线程下载
 3. 合并文件，删除临时文件
 4. 验证文件准确性，验证第一个和最后一个分片即可
+5. 优化使用内存映射读取大文件
 
 ```java
 public class SplitFileParam {
