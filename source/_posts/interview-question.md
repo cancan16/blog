@@ -8173,7 +8173,437 @@ private void writeObject0(Object obj, boolean unshared)
 
 ### java高效解析大文件方案
 
-参考： http://www.importnew.com/14512.html
+1. 服务端进行文件分隔生成MD5临时文件
+2. 客户端根据MD5和个数进行多线程下载
+3. 合并文件，删除临时文件
+4. 验证文件准确性，验证第一个和最后一个分片即可
+
+```java
+public class SplitFileParam {
+    public static String file = "C:\\Users\\Admin\\Desktop\\test/1.jpg"; //文件的路径
+    public static String outfile = "C:\\Users\\Admin\\Desktop\\out/out.jpg"; //文件的路径
+    public static int count = 10;   //将文件切割成多少份
+}
+```
+
+```java
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+
+
+public class SplitFile {
+
+    public static void main(String[] args) {
+        getSplitFile();
+        merge(SplitFileParam.outfile, SplitFileParam.file, 10);
+    }
+
+    /**
+     * 文件分割方法
+     */
+    public static void getSplitFile() {
+        // 要处理的文件的全路径包括文件名称和后缀
+        String file = SplitFileParam.file;
+        // 分片次数
+        int count = SplitFileParam.count;
+        RandomAccessFile raf = null;
+        try {
+            // 获取目标文件 预分配文件所占的空间 在磁盘中创建一个指定大小的文件r是只读
+            raf = new RandomAccessFile(new File(file), "r");
+            // 文件的总长度
+            long length = raf.length();
+            // 每个切片长度
+            long maxSize = length / count;
+            // 初始化开始切片偏移量脚标
+            long offSet = 0L;
+
+            /**
+             * 1. 文件切片
+             * 2. 处理最后一片
+             */
+            for (int i = 0; i < count - 1; i++) { //最后一片单独处理
+                long begin = offSet;
+                long end = (i + 1) * maxSize;
+                offSet = getWrite(file, i, begin, end);
+            }
+            if (length - offSet > 0) {
+                getWrite(file, count - 1, offSet, length);
+            }
+        } catch (FileNotFoundException e) {
+            System.out.println("没有找到文件");
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                raf.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    /**
+     * 指定文件每一份的边界，写入不同文件中
+     *
+     * @param file  源文件
+     * @param index 源文件的顺序标识
+     * @param begin 开始指针的位置
+     * @param end   结束指针的位置
+     * @return long
+     */
+    public static long getWrite(String file, int index, long begin, long end) {
+        String a = file.split(".jpg")[0];
+        long endPointer = 0L;
+        try {
+            // 声明文件切割后的文件磁盘
+            RandomAccessFile in = new RandomAccessFile(new File(file), "r");
+            // 生成一个空的临时文件，该文件就是切片,可读，可写的文件并且后缀名为.tmp的二进制文件
+            RandomAccessFile out = new RandomAccessFile(new File(a + "_" + index + ".tmp"), "rw");
+
+            // 每次向文件写入大小1024字节 == 1K
+            byte[] b = new byte[1024];
+            int n;
+            // 更新扫描脚标，从指定位置读取文件字节流
+            in.seek(begin);
+            // 判断文件流读取的边界
+            while (in.getFilePointer() <= end && (n = in.read(b)) != -1) {
+                /**
+                 * write(): 将n(1024)个字节从指定b数组写入到此文件，并从偏移量0处开始，就是把b数组中1024个元素的每一个元素写入到文件中，每次写入1K
+                 */
+                out.write(b, 0, n);
+            }
+            // 定义当前读取文件的指针
+            endPointer = in.getFilePointer();
+            // 关闭输入流
+            in.close();
+            //关闭输出流
+            out.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return endPointer;
+    }
+
+    /**
+     * 文件合并
+     *
+     * @param file      指定合并文件
+     * @param tempFile  分割前的文件名
+     * @param tempCount 文件个数
+     */
+    public static void merge(String file, String tempFile, int tempCount) {
+        String a = tempFile.split(".jpg")[0];
+        RandomAccessFile raf = null;
+        try {
+            // 声明随机读取文件RandomAccessFile
+            raf = new RandomAccessFile(new File(file), "rw");
+            // 开始合并文件，对应切片的二进制文件
+            for (int i = 0; i < tempCount; i++) {
+                //读取切片文件
+                RandomAccessFile reader = new RandomAccessFile(new File(a + "_" + i + ".tmp"), "r");
+                byte[] b = new byte[1024];
+                int n = 0;
+                // 先读后写
+                while ((n = reader.read(b)) != -1) {//读
+                    raf.write(b, 0, n);//写
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                raf.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+}
+```
+
+```java
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
+
+/**
+ * Md5校验工具类
+ */
+public class MD5Util2 {
+
+    private static final char[] hexDigits = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+            'a', 'b', 'c', 'd', 'e', 'f'};
+
+    public static void main(String[] args) {
+        //此处我测试的是我本机jdk源码文件的MD5值
+        String filePath = "C:\\Users\\Admin\\Desktop\\test\\1_1.tmp";
+        String filePath_temp = "C:\\Users\\Admin\\Desktop\\test\\1_0 - 副本.tmp";
+        String md5Hashcode2 = MD5Util2.getFileMD5(new File(filePath));
+        String md5Hashcode2_temp = MD5Util2.getFileMD5(new File(filePath_temp));
+        System.out.println("MD5Util2计算文件md5值为：" + md5Hashcode2);
+        System.out.println("MD5Util2计算文件md5值为：" + md5Hashcode2_temp);
+    }
+
+    /**
+     * Get MD5 of a file (lower case)
+     *
+     * @return empty string if I/O error when get MD5
+     */
+    public static String getFileMD5(File file) {
+
+        FileInputStream in = null;
+        try {
+            in = new FileInputStream(file);
+            FileChannel ch = in.getChannel();
+            return MD5(ch.map(FileChannel.MapMode.READ_ONLY, 0, file.length()));
+        } catch (FileNotFoundException e) {
+            return "";
+        } catch (IOException e) {
+            return "";
+        } finally {
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException e) {
+                    // 关闭流产生的错误一般都可以忽略
+                }
+            }
+        }
+
+    }
+
+    /**
+     * MD5校验字符串
+     *
+     * @param s String to be MD5
+     * @return 'null' if cannot get MessageDigest
+     */
+
+    private static String getStringMD5(String s) {
+        MessageDigest mdInst;
+        try {
+            // 获得MD5摘要算法的 MessageDigest 对象
+            mdInst = MessageDigest.getInstance("MD5");
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+            return "";
+        }
+
+        byte[] btInput = s.getBytes();
+        // 使用指定的字节更新摘要
+        mdInst.update(btInput);
+        // 获得密文
+        byte[] md = mdInst.digest();
+        // 把密文转换成十六进制的字符串形式
+        int length = md.length;
+        char str[] = new char[length * 2];
+        int k = 0;
+        for (byte b : md) {
+            str[k++] = hexDigits[b >>> 4 & 0xf];
+            str[k++] = hexDigits[b & 0xf];
+        }
+        return new String(str);
+    }
+
+
+    @SuppressWarnings("unused")
+    private static String getSubStr(String str, int subNu, char replace) {
+        int length = str.length();
+        if (length > subNu) {
+            str = str.substring(length - subNu, length);
+        } else if (length < subNu) {
+            // NOTE: padding字符填充在字符串的右侧，和服务器的算法是一致的
+            str += createPaddingString(subNu - length, replace);
+        }
+        return str;
+    }
+
+
+    private static String createPaddingString(int n, char pad) {
+        if (n <= 0) {
+            return "";
+        }
+
+        char[] paddingArray = new char[n];
+        Arrays.fill(paddingArray, pad);
+        return new String(paddingArray);
+    }
+
+    /**
+     * 计算MD5校验
+     *
+     * @param buffer
+     * @return 空串，如果无法获得 MessageDigest实例
+     */
+
+    private static String MD5(ByteBuffer buffer) {
+        String s = "";
+        try {
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            md.update(buffer);
+            byte tmp[] = md.digest(); // MD5 的计算结果是一个 128 位的长整数，
+            // 用字节表示就是 16 个字节
+            char str[] = new char[16 * 2]; // 每个字节用 16 进制表示的话，使用两个字符，
+            // 所以表示成 16 进制需要 32 个字符
+            int k = 0; // 表示转换结果中对应的字符位置
+            for (int i = 0; i < 16; i++) { // 从第一个字节开始，对 MD5 的每一个字节
+                // 转换成 16 进制字符的转换
+                byte byte0 = tmp[i]; // 取第 i 个字节
+                str[k++] = hexDigits[byte0 >>> 4 & 0xf]; // 取字节中高 4 位的数字转换, >>>,
+                // 逻辑右移，将符号位一起右移
+                str[k++] = hexDigits[byte0 & 0xf]; // 取字节中低 4 位的数字转换
+            }
+            s = new String(str); // 换后的结果转换为字符串
+
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+        return s;
+    }
+
+}
+```
+
+#### 为什么使用缓冲区要比不使用缓冲区效率高
+
+* IO传统读取数据，指定缓冲区
+
+```java
+/** 
+* 传统IO读取数据,不指定缓冲区大小
+*/  
+public static void readFile1(String path) { 
+    long start = System.currentTimeMillis();//开始时间
+    File file = new File(path);  
+    if (file.isFile()) {  
+        BufferedReader bufferedReader = null;  
+        FileReader fileReader = null;  
+        try {  
+            fileReader = new FileReader(file);  
+            bufferedReader = new BufferedReader(fileReader);  
+            String line = bufferedReader.readLine();  
+            System.out.println("========================== 传统IO读取数据，使用虚拟机堆内存 ==========================");  
+            while (line != null) { //按行读数据
+                System.out.println(line);  
+                line = bufferedReader.readLine();  
+            }  
+        } catch (FileNotFoundException e) {  
+            e.printStackTrace();  
+        } catch (IOException e) {  
+            e.printStackTrace();  
+        } finally {  
+            //最后一定要关闭
+            try {  
+                fileReader.close();  
+                bufferedReader.close();  
+            } catch (IOException e) {  
+                e.printStackTrace();  
+            }  
+            long end = System.currentTimeMillis();//结束时间
+            System.out.println("传统IO读取数据，不指定缓冲区大小，总共耗时："+(end - start)+"ms");
+        }  
+
+    }  
+}
+```
+
+* IO传统读取数据，指定缓冲区
+
+```java
+/** 
+* 传统IO读取数据,指定缓冲区大小
+*/  
+public static void readFile2(String path) throws FileNotFoundException {
+    long start = System.currentTimeMillis();//开始时间
+    int bufSize = 1024 * 1024 * 5;//5M缓冲区
+    File fin = new File(path); // 文件大小200M
+    FileChannel fcin = new RandomAccessFile(fin, "r").getChannel();
+    // 缓冲区
+    ByteBuffer rBuffer = ByteBuffer.allocate(bufSize);						
+    String enterStr = "\n";
+    long len = 0L;
+    try {
+        byte[] bs = new byte[bufSize];
+        String tempString = null;
+        while (fcin.read(rBuffer) != -1) {//每次读5M到缓冲区
+            int rSize = rBuffer.position();
+            rBuffer.rewind();
+            rBuffer.get(bs);//将缓冲区数据读到数组中
+            rBuffer.clear();//清除缓冲
+            tempString = new String(bs, 0, rSize);
+            int fromIndex = 0;//缓冲区起始
+            int endIndex = 0;//缓冲区结束
+            //按行读缓冲区数据
+            while ((endIndex = tempString.indexOf(enterStr, fromIndex)) != -1) {
+                String line = tempString.substring(fromIndex, endIndex);//转换一行			
+                System.out.print(line);					 
+                fromIndex = endIndex + 1;
+            }
+        }
+        long end = System.currentTimeMillis();//结束时间
+        System.out.println("传统IO读取数据,指定缓冲区大小，总共耗时："+(end - start)+"ms");
+
+    } catch (IOException e) {
+        e.printStackTrace();
+    }
+}
+```
+
+* NIO 内存映射读大文件
+
+```java
+/**
+* NIO 内存映射读大文件
+*/
+public static void readFile3(String path) {
+    long start = System.currentTimeMillis();//开始时间
+    long fileLength = 0;  
+    final int BUFFER_SIZE = 0x300000;// 3M的缓冲  
+        File file = new File(path);  
+        fileLength = file.length();  
+        try {  
+            MappedByteBuffer inputBuffer = new RandomAccessFile(file, "r").getChannel().map(FileChannel.MapMode.READ_ONLY, 0, fileLength);// 读取大文件  
+
+            byte[] dst = new byte[BUFFER_SIZE];// 每次读出3M的内容  
+
+            for (int offset = 0; offset < fileLength; offset += BUFFER_SIZE) {  
+                if (fileLength - offset >= BUFFER_SIZE) {  
+                    for (int i = 0; i < BUFFER_SIZE; i++)  
+                        dst[i] = inputBuffer.get(offset + i);  
+                } else {  
+                    for (int i = 0; i < fileLength - offset; i++)  
+                        dst[i] = inputBuffer.get(offset + i);  
+                }  
+                // 将得到的3M内容给Scanner，这里的XXX是指Scanner解析的分隔符  
+                Scanner scan = new Scanner(new ByteArrayInputStream(dst)).useDelimiter(" ");  
+                while (scan.hasNext()) {  
+                    // 这里为对读取文本解析的方法  
+                    System.out.print(scan.next() + " ");  
+                }  
+                scan.close();  
+            }  
+            System.out.println();
+            long end = System.currentTimeMillis();//结束时间
+            System.out.println("NIO 内存映射读大文件，总共耗时："+(end - start)+"ms");
+        } catch (Exception e) {  
+            e.printStackTrace();  
+        }  
+}
+```
+
+
+#### read()底层操作步骤
+
+
 
 ### java中几种线程池的介绍
 
