@@ -9092,9 +9092,54 @@ public class Zi2 extends Fu2 {
 * Cpu
 * * 展示了当前CPU的状态，us表示用户进程占用CPU比例，sy表示内核进程占用CPU比例，id表示空闲CPU百分比，wa表示IO等待所占用的CPU时间的百分比。**wa占用超过30%则表示IO压力很大**。
 
+### 事务隔离级别
+
+TRANSACTION_READ_UNCOMMITTED 说明在提交前一个事务可以看到另一个事务的变化。这样脏读、不可重复的读和虚读都是允许的。
+TRANSACTION_READ_COMMITTED 说明读取未提交的数据是不允许的。这个级别仍然允许不可重复的读和虚读产生。
+TRANSACTION_REPEATABLE_READ 说明事务保证能够再次读取相同的数据而不会失败，但虚读仍然会出现。
+TRANSACTION_SERIALIZABLE 是最高的事务级别，它防止脏读、不可重复的读和虚读。
+
+![事务隔离级别](https://volc1612.gitee.io/blog/images/interview-question/事务隔离级别.png)
+
+Mysql默认的事务隔离级别为: REPEATABLE READ
+
+### synchronized和lock区别
+
+1. synchronize同步代码执行完成或遇到异常锁会自动释放，lock必须手动unlock()解锁，一般在finally块中释放锁
+2. synchronize代码简洁，lock更便捷控制锁，可中断获取锁，超时获取锁，尝试获取锁。
+
+### 显示锁Lock常用方法
+
+lock()
+unlock()
+tryLock(50, TimeUnit) 指定时间内获取锁
+lockInterruptibly()
+
+### lock()和lockInterruptibly()区别
+
+`lock`与`lockInterruptibly`比较区别在于：
+`lock`优先考虑获取锁，待获取锁成功后，才响应中断。
+`lockInterruptibly`优先考虑响应中断，而不是响应锁的普通获取或重入获取。
+
+### springmvc servletdispatcher实现原理(源码)
+
+### 三次握手四次分手客户端和服务器状态
+
+### redis单线程，怎么实现的高并发
+
+官方提供的数据是可以达到100000+的QPS（每秒内查询次数）
+实现高并发原因有三
+1. redis是基于内存的，内存的读写速度非常快；
+2. redis是单线程的，省去了很多上下文切换线程的时间；
+3. redis使用多路复用技术，可以处理并发的连接。非阻塞IO 内部实现采用epoll，采用了epoll+自己实现的简单的事件框架。epoll中的读、写、关闭、连接都转化成了事件，然后利用epoll的多路复用特性，绝不在io上浪费一点时间。多路-指的是多个socket连接，复用-指的是复用一个线程。多路复用主要有三种技术：select，poll，epoll。epoll是最新的也是目前最好的多路复用技术。
+
+因为Redis是基于内存的操作，CPU不是Redis的瓶颈，Redis的瓶颈最有可能是机器内存的大小或者网络带宽。既然单线程容易实现，而且CPU不会成为瓶颈，那就顺理成章地采用单线程的方案了。
+
 ### spring security工作原理
 
 ### @Autowired什么时候注入对象
+
+
 
 ### 关闭线程关闭线程池
 
