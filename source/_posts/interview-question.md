@@ -8476,7 +8476,16 @@ public class MD5Util2 {
 
 #### 为什么使用缓冲区要比不使用缓冲区效率高
 
-* IO传统读取数据，指定缓冲区
+在传统的文件IO操作中，我们都是调用操作系统提供的底层标准IO系统调用函数 read()、write() ，此时调用此函数的进程（在JAVA中即java进程）由当前的用户态切换到内核态，然后OS的内核代码负责将相应的文件数据读取到内核的IO缓冲区，然后再把数据从内核IO缓冲区拷贝到进程的私有地址空间中去，这样便完成了一次IO操作。这么做是为了减少磁盘的IO操作，为了提高性能而考虑的，因为我们的程序访问一般都带有局部性，也就是所谓的局部性原理，在这里主要是指的空间局部性，即我们访问了文件的某一段数据，那么接下去很可能还会访问接下去的一段数据，由于磁盘IO操作的速度比直接访问内存慢了好几个数量级，所以OS根据局部性原理会在一次 read()系统调用过程中预读更多的文件数据缓存在内核IO缓冲区中，当继续访问的文件数据在缓冲区中时便直接拷贝数据到进程私有空间，避免了再次的低 效率磁盘IO操作。其过程如下
+
+![传统read-write](https://volc1612.gitee.io/blog/images/interview-question/传统read-write.png)
+
+内存映射文件和之前说的 标准IO操作最大的不同之处就在于它虽然最终也是要从磁盘读取数据，但是它并不需要将数据读取到OS内核缓冲区，而是直接将进程的用户私有地址空间中的一 部分区域与文件对象建立起映射关系，就好像直接从内存中读、写文件一样，速度当然快了。
+
+![NIO-read-write](https://volc1612.gitee.io/blog/images/interview-question/NIO-read-write.png)
+
+
+* IO传统读取数据
 
 ```java
 /** 
@@ -8517,12 +8526,9 @@ public static void readFile1(String path) {
 }
 ```
 
-* IO传统读取数据，指定缓冲区
+* NIO传统读取数据，指定缓冲区
 
 ```java
-/** 
-* 传统IO读取数据,指定缓冲区大小
-*/  
 public static void readFile2(String path) throws FileNotFoundException {
     long start = System.currentTimeMillis();//开始时间
     int bufSize = 1024 * 1024 * 5;//5M缓冲区
@@ -8601,9 +8607,173 @@ public static void readFile3(String path) {
 }
 ```
 
+#### 
 
-#### read()底层操作步骤
+```java
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.RandomAccessFile;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
+ 
+public class IOStudy {
+ 
+	public static void main(String[] args) {
+		test1();//BufferedWriter（BufferedReader）
+		test2();//BufferedOutputStream（BufferedInputStream）
+		test3();//ByteBuffer(write&read)
+		test4();//MappedByteBuffer（write&read）
+	}
+ 
+	public static void test1() {
+		BufferedWriter bw = null;
+		BufferedReader br = null;
+		long time;
+		try {
+			time = System.currentTimeMillis();
+			bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(".//data//test1.txt"), "utf-8"));
+			for(int i = 0; i < 5000000; i++) {
+				bw.write("Java is one of the best computer languages!\n");
+			}
+			bw.flush();
+			System.out.println("BufferedWriter: " + (System.currentTimeMillis() - time) + "ms");
+			
+			time = System.currentTimeMillis();
+			br = new BufferedReader(new InputStreamReader(new FileInputStream(".//data//test1.txt"), "utf-8"));
+			
+			//要慢一点605ms，但是使用比较方便
+//			String inputline = br.readLine();
+//			while(inputline != null) {
+//				inputline = br.readLine();
+//			}
+			//要快一点
+			char[] data = new char[5000000 * 44];
+			br.read(data);
+			System.out.println("BufferedReader: " + (System.currentTimeMillis() - time) + "ms");
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if(bw != null)	bw.close();
+				if(br != null)	br.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	public static void test2() {
+		BufferedOutputStream bos = null;
+		BufferedInputStream bis = null;
+		long time;
+		try {
+			time = System.currentTimeMillis();
+			bos = new BufferedOutputStream(new FileOutputStream(".//data//test2.txt"));
+			for(int i = 0; i < 5000000; i++) {
+				bos.write("Java is one of the best computer languages!\n".getBytes());
+			}
+			bos.flush();
+			System.out.println("BufferedOutputStream: " + (System.currentTimeMillis() - time) + "ms");
+			
+			time = System.currentTimeMillis();
+			bis = new BufferedInputStream(new FileInputStream(".//data//test2.txt"));
+			byte[] data = new byte[5000000 * 44];
+			bis.read(data);
+			System.out.println("BufferedInputStream: " + (System.currentTimeMillis() - time) + "ms");
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if(bos != null)	bos.close();
+				if(bis != null)	bis.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	public static void test3() {
+		FileOutputStream fos = null;
+		FileChannel fc1 = null;
+		FileInputStream fis = null;
+		FileChannel fc2 = null;
+		long time;
+		try {
+			time = System.currentTimeMillis();
+			fos = new FileOutputStream(".//data//test3.txt");
+			fc1 = fos.getChannel();
+			ByteBuffer b = ByteBuffer.wrap("Java is one of the best computer languages!\n".getBytes());
+			for(int i = 0; i < 5000000; i++) {
+				fc1.write(b);
+				b.rewind();
+			}
+			System.out.println("ByteBuffer(write): " + (System.currentTimeMillis() - time) + "ms");
+			time = System.currentTimeMillis();
+			fis = new FileInputStream(".//data//test3.txt");
+			fc2 = fis.getChannel();
+			ByteBuffer data = ByteBuffer.allocate(5000000 * 44);
+			fc2.read(data);
+			System.out.println("ByteBuffer(read): " + (System.currentTimeMillis() - time) + "ms");
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if(fc1 != null)	fc1.close();
+				if(fc2 != null)	fc1.close();
+				if(fos != null) fos.close();
+				if(fis != null) fis.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	public static void test4() {
+		FileChannel fc1 = null;
+		FileChannel fc2 = null;
+		long time;
+		try {
+			time = System.currentTimeMillis();
+			fc1 = new RandomAccessFile(".//data//test4.txt", "rw").getChannel();
+			ByteBuffer b = fc1.map(FileChannel.MapMode.READ_WRITE, 0, 5000000 * 44);
+			for(int i = 0; i < 5000000; i++) {
+				b.put("Java is one of the best computer languages!\n".getBytes());
+			}
+			System.out.println("MappedByteBuffer(write): " + (System.currentTimeMillis() - time) + "ms");
+			
+			time = System.currentTimeMillis();
+			fc2 = new FileInputStream(".//data//test4.txt").getChannel();
+			b = fc2.map(FileChannel.MapMode.READ_ONLY, 0, fc2.size());
+			byte[] data = new byte[5000000 * 44];
+			b.get(data);
+			System.out.println("MappedByteBuffer(read): " + (System.currentTimeMillis() - time) + "ms");
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if(fc1 != null) fc1.close();
+				if(fc2 != null) fc2.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+}
+```
 
+![缓冲区比较](https://volc1612.gitee.io/blog/images/interview-question/缓冲区比较.png)
+
+可以看出来，BufferedWriter的写速度是最快的，MappedByteBuffer的读速度是最快的，但是一般BufferedReader操作方便，并且其速度也不是特别慢。所以一般情况下建议字符串读写用BufferedWriter&BufferedReader；对于全文读速度要求高的话可以用MappedByteBuffer。
 
 
 ### java中几种线程池的介绍
