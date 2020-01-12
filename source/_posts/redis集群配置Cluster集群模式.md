@@ -9,7 +9,7 @@ tags: [redis]
 
 <div style="text-align: center"><iframe height="60" width="260" src="https://www.ximalaya.com/thirdparty/player/sound/player.html?id=238394676&type=red" frameborder=0 allowfullscreen></iframe></div>
 
-<img style="width: 80%;height:80%" src="https://volc1612.gitee.io/blog/images/redis伪集群配置Cluster集群模式/04212011.jpg"/>
+<img style="width: 80%;height:80%" src="https://volc1612.gitee.io/blog/images/redis集群配置Cluster集群模式/04212011.jpg"/>
 
 <!-- more -->
 
@@ -83,7 +83,7 @@ protected-mode no
 
 ### 客户端连接
 
-![redis_a](https://volc1612.gitee.io/blog/images/redis伪集群配置Cluster集群模式/16a02274c25b8b47.png)
+![redis_a](https://volc1612.gitee.io/blog/images/redis集群配置Cluster集群模式/16a02274c25b8b47.png)
 
 ### 安装Ruby
 
@@ -180,13 +180,13 @@ public void testRedisCluster() throws IOException{
 ```
 
 
-![redis_b](https://volc1612.gitee.io/blog/images/redis伪集群配置Cluster集群模式/16a0228a74d43da2.png)
+![redis_b](https://volc1612.gitee.io/blog/images/redis集群配置Cluster集群模式/16a0228a74d43da2.png)
 
 #### 效果
 
 `7000`为主节点`7003`为其从节点，在`7000`节点上添加数据，就会复制到从节点`7003`
 
-![redis集群测试.png](https://volc1612.gitee.io/blog/images/redis伪集群配置Cluster集群模式/redis集群测试.png.png)
+![redis集群测试.png](https://volc1612.gitee.io/blog/images/redis集群配置Cluster集群模式/redis集群测试.png)
 
 ### Cluster集群模式缺点
 
@@ -194,7 +194,7 @@ redis-cluster集群引入了主从模式，一个主节点对应一个或者多�
 
 ### redis集群讲解
 
-![Redis集群特性讲解](https://volc1612.gitee.io/blog/images/redis伪集群配置Cluster集群模式/Redis集群特性讲解.jpg)
+![Redis集群特性讲解](https://volc1612.gitee.io/blog/images/redis集群配置Cluster集群模式/Redis集群特性讲解.jpg)
 
 * 查看redis节点hash分布情况
 
