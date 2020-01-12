@@ -44,7 +44,6 @@ tags: [redis]
 [root@ip-172-31-17-64 redis-3.2.4]# cp redis.conf /usr/local/share/redis/redis_cluster/7005
 ```
 
-
 #### 修改配置文件
 
 
@@ -62,16 +61,24 @@ cluster-enabled yes
 cluster-config-file nodes.conf
 cluster-node-timeout 5000
 appendonly yes
+protected-mode no
 ```
 
 ### 启动redis
+
+#### 把redis-server拷贝到redis_cluster目录下
+
+```sh
+[root@localhost redis-4.0.6]# cp src/redis-server redis_cluster/
+```
 
 分别进入集群目录启动
 
 ```bash
 [root@ip-172-31-17-64 redis_cluster]# cd 7000
 # 启动
-[root@ip-172-31-17-64 7000]# redis-server redis.conf
+[root@ip-172-31-17-64 7000]# ../redis-server redis.conf
+[root@ip-172-31-17-64 7001]# ../redis-server redis.conf
 ```
 
 ### 客户端连接
@@ -178,3 +185,7 @@ public void testRedisCluster() throws IOException{
 ### Cluster集群模式缺点
 
 redis-cluster集群引入了主从模式，一个主节点对应一个或者多个从节点，当主节点宕机的时候，就会启用从节点。当其它主节点ping一个主节点A时，如果半数以上的主节点与A通信超时，那么认为主节点A宕机了。如果主节点A和它的从节点A1都宕机了，那么该集群的A和A1就无法再提供服务了，部分数据无法保存到redis了，集群不可用。
+
+### redis集群讲解
+
+![Redis集群特性讲解](https://volc1612.gitee.io/blog/images/redis伪集群配置Cluster集群模式/Redis集群特性讲解.jpg)
