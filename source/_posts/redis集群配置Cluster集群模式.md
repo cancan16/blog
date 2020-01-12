@@ -1,5 +1,5 @@
 ---
-title: redis伪集群配置Cluster集群模式
+title: redis集群配置Cluster集群模式
 date: 2019-12-23 20:16:46
 update: 2019-12-23 20:16:46
 categories: Redis
@@ -182,6 +182,12 @@ public void testRedisCluster() throws IOException{
 
 ![redis_b](https://volc1612.gitee.io/blog/images/redis伪集群配置Cluster集群模式/16a0228a74d43da2.png)
 
+#### 效果
+
+`7000`为主节点`7003`为其从节点，在`7000`节点上添加数据，就会复制到从节点`7003`
+
+![redis集群测试.png](https://volc1612.gitee.io/blog/images/redis伪集群配置Cluster集群模式/redis集群测试.png.png)
+
 ### Cluster集群模式缺点
 
 redis-cluster集群引入了主从模式，一个主节点对应一个或者多个从节点，当主节点宕机的时候，就会启用从节点。当其它主节点ping一个主节点A时，如果半数以上的主节点与A通信超时，那么认为主节点A宕机了。如果主节点A和它的从节点A1都宕机了，那么该集群的A和A1就无法再提供服务了，部分数据无法保存到redis了，集群不可用。
@@ -189,3 +195,28 @@ redis-cluster集群引入了主从模式，一个主节点对应一个或者多�
 ### redis集群讲解
 
 ![Redis集群特性讲解](https://volc1612.gitee.io/blog/images/redis伪集群配置Cluster集群模式/Redis集群特性讲解.jpg)
+
+* 查看redis节点hash分布情况
+
+```sh
+[root@localhost src]# redis-cli -p 7000 cluster nodes | grep master
+60414eda45a7cc4bd928413a8ff43cedd35120f3 192.168.25.11:7002@17002 master - 0 1578839152721 3 connected 10923-16383
+436e691a2b8c4fcda2866700b94247ce9026fc7b 192.168.25.11:7001@17001 master - 0 1578839151000 2 connected 5461-10922
+d288cf480c552f7aa93f446bb892e1f1fd5637e5 192.168.25.11:7000@17000 myself,master - 0 1578839152000 1 connected 0-5460
+[root@localhost src]# 
+```
+
+#### 手把手测试故障转移
+
+把`7000`主节点手动挂机，其从节点`7003`便会顶替作为主节点
+
+```sh
+[root@localhost src]# redis-cli -p 7000 debug segfault
+Error: Server closed the connection
+[root@localhost src]# redis-cli -p 7001 cluster nodes | grep master
+436e691a2b8c4fcda2866700b94247ce9026fc7b 192.168.25.11:7001@17001 myself,master - 0 1578840065000 2 connected 5461-10922
+60414eda45a7cc4bd928413a8ff43cedd35120f3 192.168.25.11:7002@17002 master - 0 1578840064000 3 connected 10923-16383
+fc09960c6bde2b16777adf23409a6ae976cf17a8 192.168.25.11:7003@17003 master - 0 1578840066049 7 connected 0-5460
+d288cf480c552f7aa93f446bb892e1f1fd5637e5 192.168.25.11:7000@17000 master,fail - 1578840048121 1578840046995 1 disconnected
+[root@localhost src]# 
+```
