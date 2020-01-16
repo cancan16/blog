@@ -252,7 +252,7 @@ error: 'refs/remotes/origin/fix' exists; cannot create 'refs/remotes/origin/fix/
 ```
 
 
-### `sourcetree`clone私有仓库
+### `sourcetree`克隆github私有仓库
 
 #### 生成公钥
 
@@ -298,6 +298,48 @@ Warning: Permanently added 'github.com,13.250.177.223' (RSA) to the list of know
 Hi volc1605! You've successfully authenticated, but GitHub does not provide shell access.
 ```
 
+* 报错
+
+```sh
+$ ssh -T git@github.com
+Connection reset by 13.250.177.223 port 22
+```
+原因可能是公司网络禁用了ssh协议的22端口
+
+* 解决
+
+`C:\Users\Administrator\.ssh`目录下创建`config`文件，内容如下
+
+```
+Host github.com
+User YourEmail@163.com
+Hostname ssh.github.com
+PreferredAuthentications publickey
+IdentityFile ~/.ssh/id_rsa
+Port 443
+```
+
+* 使配置生效
+
+`$ git config --global user.name "用户名"`
+`$ git config --global user.name 配置文件中邮箱`
+
+```sh
+Administrator@PC-202001110933 MINGW64 ~/Desktop
+$ git config --global user.name "volc1605"
+
+Administrator@PC-202001110933 MINGW64 ~/Desktop
+$ git config --global user.email 916215796@qq.com
+
+Administrator@PC-202001110933 MINGW64 ~/Desktop
+$ ssh -T git@github.com
+The authenticity of host '[ssh.github.com]:443 ([192.30.253.122]:443)' can't be established.
+RSA key fingerprint is SHA256:nThbg6kXUpJWGl7E1IGOCspRomTxdCARLviKw6E5SY8.
+Are you sure you want to continue connecting (yes/no)? yes
+Warning: Permanently added '[ssh.github.com]:443,[192.30.253.122]:443' (RSA) to the list of known hosts.
+Hi volc1605! You've successfully authenticated, but GitHub does not provide shell access.
+```
+
 #### sourcetree添加SSH秘钥
 
 选择`SSH`客户端为`OpenSSH`，`SSH`秘钥选择生成的`id_rsa`文件
@@ -306,9 +348,9 @@ Hi volc1605! You've successfully authenticated, but GitHub does not provide shel
 
 #### 添加github账号
 
-![git-j](https://volc1612.gitee.io/blog/images/git/git-j.png)
+![添加账号](https://volc1612.gitee.io/blog/images/git/添加账号.png)
 
-这样就可以clone私有仓库了
+输入密码，这样就可以clone私有仓库了。
 
 ### sourceTree工具撤销回滚合并
 
