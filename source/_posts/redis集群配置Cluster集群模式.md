@@ -220,3 +220,65 @@ fc09960c6bde2b16777adf23409a6ae976cf17a8 192.168.25.11:7003@17003 master - 0 157
 d288cf480c552f7aa93f446bb892e1f1fd5637e5 192.168.25.11:7000@17000 master,fail - 1578840048121 1578840046995 1 disconnected
 [root@localhost src]# 
 ```
+
+
+### Redis集群分片重hash
+
+#### 手动处理solt节点槽重新分片
+
+* 查看槽位分布
+
+```sh
+[root@localhost 7005]# redis-cli -p 7001 cluster nodes | grep master
+fc09960c6bde2b16777adf23409a6ae976cf17a8 192.168.25.11:7003@17003 master - 0 1579219620602 7 connected 0-5460
+bb0b020b3737751cc0daf3416d3cc6361c42bec3 192.168.25.11:7004@17004 master - 0 1579219619277 8 connected 5461-10922
+a5ed549cb48e495977548e93746cbc66b22d3f99 192.168.25.11:7005@17005 master - 0 1579219619072 10 connected 10923-16383
+```
+
+* 移除7000节点100个槽位到7003节点中
+
+```sh
+[root@localhost src]# ./redis-trib.rb reshard 127.0.0.1:7000
+>>> Performing Cluster Check (using node 127.0.0.1:7000)
+S: d288cf480c552f7aa93f446bb892e1f1fd5637e5 127.0.0.1:7000
+   slots: (0 slots) slave
+   replicates fc09960c6bde2b16777adf23409a6ae976cf17a8
+M: bb0b020b3737751cc0daf3416d3cc6361c42bec3 192.168.25.11:7004
+   slots:5461-10922 (5462 slots) master
+   1 additional replica(s)
+S: 60414eda45a7cc4bd928413a8ff43cedd35120f3 192.168.25.11:7002
+   slots: (0 slots) slave
+   replicates a5ed549cb48e495977548e93746cbc66b22d3f99
+S: 436e691a2b8c4fcda2866700b94247ce9026fc7b 192.168.25.11:7001
+   slots: (0 slots) slave
+   replicates bb0b020b3737751cc0daf3416d3cc6361c42bec3
+M: a5ed549cb48e495977548e93746cbc66b22d3f99 192.168.25.11:7005
+   slots:10923-16383 (5461 slots) master
+   1 additional replica(s)
+M: fc09960c6bde2b16777adf23409a6ae976cf17a8 192.168.25.11:7003
+   slots:0-5460 (5461 slots) master
+   1 additional replica(s)
+[OK] All nodes agree about slots configuration.
+>>> Check for open slots...
+>>> Check slots coverage...
+[OK] All 16384 slots covered.
+How many slots do you want to move (from 1 to 16384)? 100
+What is the receiving node ID? fc09960c6bde2b16777adf23409a6ae976cf17a8
+Please enter all the source node IDs.
+  Type 'all' to use all the nodes as source nodes for the hash slots.
+  Type 'done' once you entered all the source nodes IDs.
+Source node #1:all
+...
+Do you want to proceed with the proposed reshard plan (yes/no)? yes
+```
+
+* 查看槽位分布
+
+```sh
+[root@localhost src]# redis-cli -p 7001 cluster nodes | grep master
+fc09960c6bde2b16777adf23409a6ae976cf17a8 192.168.25.11:7003@17003 master - 0 1579219943481 11 connected 0-5511 10923-10971
+bb0b020b3737751cc0daf3416d3cc6361c42bec3 192.168.25.11:7004@17004 master - 0 1579219944000 8 connected 5512-10922
+a5ed549cb48e495977548e93746cbc66b22d3f99 192.168.25.11:7005@17005 master - 0 1579219944490 10 connected 10972-16383
+```
+
+`7003`节点`0-5511`相比之前`0-5460`新增了`51`个槽位，`10923-10971`之间也新增了`49`个槽位。
