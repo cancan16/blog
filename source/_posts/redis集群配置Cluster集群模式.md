@@ -282,3 +282,189 @@ a5ed549cb48e495977548e93746cbc66b22d3f99 192.168.25.11:7005@17005 master - 0 157
 ```
 
 `7003`节点`0-5511`相比之前`0-5460`新增了`51`个槽位，`10923-10971`之间也新增了`49`个槽位。
+
+#### 添加一个新的redis主节点
+
+* 启动7006端口的redis主节点
+
+```sh
+[root@localhost 7006]# ../redis-server redis.conf
+39674:C 07 Feb 20:08:09.943 # oO0OoO0OoO0Oo Redis is starting oO0OoO0OoO0Oo
+39674:C 07 Feb 20:08:09.943 # Redis version=4.0.6, bits=64, commit=00000000, modified=0, pid=39674, just started
+39674:C 07 Feb 20:08:09.943 # Configuration loaded
+[root@localhost 7006]# ps -aux | grep redis
+root      15661  0.1  0.3 151452 10004 ?        Ssl  05:09   1:13 ../redis-server *:7000 [cluster]
+root      15822  0.1  0.4 151452 11952 ?        Ssl  05:09   1:13 ../redis-server *:7001 [cluster]
+root      16219  0.1  0.1 151452  5172 ?        Ssl  05:09   1:13 ../redis-server *:7002 [cluster]
+root      16377  0.1  0.1 151452  3236 ?        Ssl  05:09   1:13 ../redis-server *:7003 [cluster]
+root      16494  0.1  0.2 151452  6316 ?        Ssl  05:09   1:12 ../redis-server *:7004 [cluster]
+root      16596  0.1  0.2 151452  6352 ?        Ssl  05:09   1:12 ../redis-server *:7005 [cluster]
+root      39675  0.0  0.0 147356  2756 ?        Ssl  20:08   0:00 ../redis-server *:7006 [cluster]
+root      39810  0.0  0.0 112708   976 pts/1    R+   20:08   0:00 grep --color=auto redis
+```
+
+* 添加节点
+
+默认是主节点
+
+```sh
+[root@localhost src]# ./redis-trib.rb add-node 127.0.0.1:7006 127.0.0.1:7000
+>>> Adding node 127.0.0.1:7006 to cluster 127.0.0.1:7000
+>>> Performing Cluster Check (using node 127.0.0.1:7000)
+S: d288cf480c552f7aa93f446bb892e1f1fd5637e5 127.0.0.1:7000
+   slots: (0 slots) slave
+   replicates fc09960c6bde2b16777adf23409a6ae976cf17a8
+M: bb0b020b3737751cc0daf3416d3cc6361c42bec3 192.168.25.11:7004
+   slots:5512-10922 (5411 slots) master
+   1 additional replica(s)
+S: 60414eda45a7cc4bd928413a8ff43cedd35120f3 192.168.25.11:7002
+   slots: (0 slots) slave
+   replicates a5ed549cb48e495977548e93746cbc66b22d3f99
+S: 436e691a2b8c4fcda2866700b94247ce9026fc7b 192.168.25.11:7001
+   slots: (0 slots) slave
+   replicates bb0b020b3737751cc0daf3416d3cc6361c42bec3
+M: a5ed549cb48e495977548e93746cbc66b22d3f99 192.168.25.11:7005
+   slots:10972-16383 (5412 slots) master
+   1 additional replica(s)
+M: fc09960c6bde2b16777adf23409a6ae976cf17a8 192.168.25.11:7003
+   slots:0-5511,10923-10971 (5561 slots) master
+   1 additional replica(s)
+[OK] All nodes agree about slots configuration.
+>>> Check for open slots...
+>>> Check slots coverage...
+[OK] All 16384 slots covered.
+>>> Send CLUSTER MEET to node 127.0.0.1:7006 to make it join the cluster.
+[OK] New node added correctly.
+[root@localhost src]# redis-cli -p 7001 cluster nodes | grep master
+75eb46fb6f45a0dbabf253a44737d2597022662f 192.168.25.11:7006@17006 master - 0 1581077553171 0 connected
+fc09960c6bde2b16777adf23409a6ae976cf17a8 192.168.25.11:7003@17003 master - 0 1581077552557 11 connected 0-5511 10923-10971
+bb0b020b3737751cc0daf3416d3cc6361c42bec3 192.168.25.11:7004@17004 master - 0 1581077552000 8 connected 5512-10922
+a5ed549cb48e495977548e93746cbc66b22d3f99 192.168.25.11:7005@17005 master - 0 1581077552155 10 connected 10972-16383
+```
+
+* 为新的主节点分配槽位
+
+将7000节点1000个槽位分配给7006
+
+```sh
+[root@localhost src]# ./redis-trib.rb reshard 127.0.0.1:7000
+>>> Performing Cluster Check (using node 127.0.0.1:7000)
+S: d288cf480c552f7aa93f446bb892e1f1fd5637e5 127.0.0.1:7000
+   slots: (0 slots) slave
+   replicates fc09960c6bde2b16777adf23409a6ae976cf17a8
+M: bb0b020b3737751cc0daf3416d3cc6361c42bec3 192.168.25.11:7004
+   slots:5461-10922 (5462 slots) master
+   1 additional replica(s)
+S: 60414eda45a7cc4bd928413a8ff43cedd35120f3 192.168.25.11:7002
+   slots: (0 slots) slave
+   replicates a5ed549cb48e495977548e93746cbc66b22d3f99
+S: 436e691a2b8c4fcda2866700b94247ce9026fc7b 192.168.25.11:7001
+   slots: (0 slots) slave
+   replicates bb0b020b3737751cc0daf3416d3cc6361c42bec3
+M: a5ed549cb48e495977548e93746cbc66b22d3f99 192.168.25.11:7005
+   slots:10923-16383 (5461 slots) master
+   1 additional replica(s)
+M: fc09960c6bde2b16777adf23409a6ae976cf17a8 192.168.25.11:7003
+   slots:0-5460 (5461 slots) master
+   1 additional replica(s)
+[OK] All nodes agree about slots configuration.
+>>> Check for open slots...
+>>> Check slots coverage...
+[OK] All 16384 slots covered.
+How many slots do you want to move (from 1 to 16384)? 1000
+What is the receiving node ID? fc09960c6bde2b16777adf23409a6ae976cf17a8
+Please enter all the source node IDs.
+  Type 'all' to use all the nodes as source nodes for the hash slots.
+  Type 'done' once you entered all the source nodes IDs.
+Source node #1:all
+...
+Do you want to proceed with the proposed reshard plan (yes/no)? yes
+```
+
+* 再次查看新增节点7006槽位分配
+
+```sh
+[root@localhost src]# redis-cli -p 7001 cluster nodes | grep master
+75eb46fb6f45a0dbabf253a44737d2597022662f 192.168.25.11:7006@17006 master - 0 1581077908000 12 connected 0-339 5512-5841 10972-11301
+fc09960c6bde2b16777adf23409a6ae976cf17a8 192.168.25.11:7003@17003 master - 0 1581077909000 11 connected 340-5511 10923-10971
+bb0b020b3737751cc0daf3416d3cc6361c42bec3 192.168.25.11:7004@17004 master - 0 1581077908000 8 connected 5842-10922
+a5ed549cb48e495977548e93746cbc66b22d3f99 192.168.25.11:7005@17005 master - 0 1581077908584 10 connected 11302-16383
+```
+
+#### 新增从节点7007
+
+* 启动节点7007
+
+* 添加7007作为从节点到集群
+
+```sh
+[root@localhost src]# ./redis-trib.rb add-node --slave 127.0.0.1:7007 127.0.0.1:7001
+>>> Adding node 127.0.0.1:7007 to cluster 127.0.0.1:7001
+>>> Performing Cluster Check (using node 127.0.0.1:7001)
+S: 436e691a2b8c4fcda2866700b94247ce9026fc7b 127.0.0.1:7001
+   slots: (0 slots) slave
+   replicates bb0b020b3737751cc0daf3416d3cc6361c42bec3
+S: d288cf480c552f7aa93f446bb892e1f1fd5637e5 192.168.25.11:7000
+   slots: (0 slots) slave
+   replicates fc09960c6bde2b16777adf23409a6ae976cf17a8
+M: 75eb46fb6f45a0dbabf253a44737d2597022662f 192.168.25.11:7006
+   slots:0-339,5512-5841,10972-11301 (1000 slots) master
+   0 additional replica(s)
+M: fc09960c6bde2b16777adf23409a6ae976cf17a8 192.168.25.11:7003
+   slots:340-5511,10923-10971 (5221 slots) master
+   1 additional replica(s)
+M: bb0b020b3737751cc0daf3416d3cc6361c42bec3 192.168.25.11:7004
+   slots:5842-10922 (5081 slots) master
+   1 additional replica(s)
+M: a5ed549cb48e495977548e93746cbc66b22d3f99 192.168.25.11:7005
+   slots:11302-16383 (5082 slots) master
+   1 additional replica(s)
+S: 60414eda45a7cc4bd928413a8ff43cedd35120f3 192.168.25.11:7002
+   slots: (0 slots) slave
+   replicates a5ed549cb48e495977548e93746cbc66b22d3f99
+[OK] All nodes agree about slots configuration.
+>>> Check for open slots...
+>>> Check slots coverage...
+[OK] All 16384 slots covered.
+Automatically selected master 192.168.25.11:7006
+>>> Send CLUSTER MEET to node 127.0.0.1:7007 to make it join the cluster.
+Waiting for the cluster to join.
+>>> Configure node as replica of 192.168.25.11:7006.
+[OK] New node added correctly.
+[root@localhost src]# redis-cli -p 7001 cluster nodes
+d288cf480c552f7aa93f446bb892e1f1fd5637e5 192.168.25.11:7000@17000 slave fc09960c6bde2b16777adf23409a6ae976cf17a8 0 1581078601500 11 connected
+75eb46fb6f45a0dbabf253a44737d2597022662f 192.168.25.11:7006@17006 master - 0 1581078600485 12 connected 0-339 5512-5841 10972-11301
+fc09960c6bde2b16777adf23409a6ae976cf17a8 192.168.25.11:7003@17003 master - 0 1581078601000 11 connected 340-5511 10923-10971
+436e691a2b8c4fcda2866700b94247ce9026fc7b 127.0.0.1:7001@17001 myself,slave bb0b020b3737751cc0daf3416d3cc6361c42bec3 0 1581078601000 2 connected
+bb0b020b3737751cc0daf3416d3cc6361c42bec3 192.168.25.11:7004@17004 master - 0 1581078601000 8 connected 5842-10922
+0b884df3bf9db628eed12564af571f509fbc2628 127.0.0.1:7007@17007 slave 75eb46fb6f45a0dbabf253a44737d2597022662f 0 1581078602519 12 connected
+a5ed549cb48e495977548e93746cbc66b22d3f99 192.168.25.11:7005@17005 master - 0 1581078602013 10 connected 11302-16383
+60414eda45a7cc4bd928413a8ff43cedd35120f3 192.168.25.11:7002@17002 slave a5ed549cb48e495977548e93746cbc66b22d3f99 0 1581078601000 10 connected
+```
+
+`127.0.0.1:7007@17007 slave 75eb46fb6f45a0dbabf253a44737d2597022662f`: 7007节点作为从节点，它的主节点ID是`75eb46fb6f45a0dbabf253a44737d2597022662f`，也就是默认把7006节点作为它的主节点。
+
+#### 移除一个节点
+
+移除7007节点
+
+```sh
+[root@localhost src]# ./redis-trib.rb del-node 127.0.0.1:7000 0b884df3bf9db628eed12564af571f509fbc2628
+>>> Removing node 0b884df3bf9db628eed12564af571f509fbc2628 from cluster 127.0.0.1:7000
+>>> Sending CLUSTER FORGET messages to the cluster...
+>>> SHUTDOWN the node.
+[root@localhost src]# redis-cli -p 7001 cluster nodes
+d288cf480c552f7aa93f446bb892e1f1fd5637e5 192.168.25.11:7000@17000 slave fc09960c6bde2b16777adf23409a6ae976cf17a8 0 1581079377518 11 connected
+75eb46fb6f45a0dbabf253a44737d2597022662f 192.168.25.11:7006@17006 master - 0 1581079377929 12 connected 0-339 5512-5841 10972-11301
+fc09960c6bde2b16777adf23409a6ae976cf17a8 192.168.25.11:7003@17003 master - 0 1581079377518 11 connected 340-5511 10923-10971
+436e691a2b8c4fcda2866700b94247ce9026fc7b 127.0.0.1:7001@17001 myself,slave bb0b020b3737751cc0daf3416d3cc6361c42bec3 0 1581079376000 2 connected
+bb0b020b3737751cc0daf3416d3cc6361c42bec3 192.168.25.11:7004@17004 master - 0 1581079376594 8 connected 5842-10922
+a5ed549cb48e495977548e93746cbc66b22d3f99 192.168.25.11:7005@17005 master - 0 1581079376000 10 connected 11302-16383
+60414eda45a7cc4bd928413a8ff43cedd35120f3 192.168.25.11:7002@17002 slave a5ed549cb48e495977548e93746cbc66b22d3f99 0 1581079377000 10 connected
+[root@localhost src]# 
+```
+
+* 移除主节点【先确保节点里面没有slot】
+  * 使用同样的方法移除主节点,不过在移除主节点前，需要确保这个主节点是空的. 如果不是空的,需要将这个节点的数据重新分片到其他主节点上.
+  * 替代移除主节点的方法是手动执行故障恢复，被移除的主节点会作为一个从节点存在，不过这种情况下不会减少集群节点的数量，也需要重新分片数据.
+* 移除从节点-直接移除成功
