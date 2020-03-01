@@ -23,7 +23,7 @@ tags: [redis]
   save 900 1
   save 300 10  # 表示300s内有10条写入，就产生快照
   save 60 10000
-  # redis servercron 类似于linux的crontab，默认每隔100毫秒执行一次
+  # redis servercron 类似于linux的crontab，默认每隔100毫秒执行一次，执行持久化任务
   
   # 文件名称
   dbfilename dump.rdb
@@ -50,6 +50,8 @@ tags: [redis]
   * **针对RDB方式的持久化，手动触发可以使用：**
     - save：会阻塞当前Redis服务器，直到持久化完成，线上应该禁止使用。
     - bgsave：该触发方式会fork一个子进程，由子进程负责持久化过程，因此阻塞只会发生在fork子进程的时候
+
+![bgsave过程](https://volc1612.gitee.io/blog/images/redis缓存持久化策略/Redis持久化BGSAVE执行过程.jpg)    
 
 - 而自动触发的场景主要是有以下几点
 
