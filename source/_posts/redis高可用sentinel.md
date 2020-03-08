@@ -145,6 +145,14 @@ repl_backlog_histlen:0
 
 #### 使用sentinel
 
+* 配置redis节点主从关系，并启动节点
+
+从节点配置脚本
+
+```sh
+slaveof <masterip> <masterport>
+```
+
 * 复制`sentinel.conf`到`redis-cluster`
 
 ```sh
@@ -202,7 +210,7 @@ sentinel parallel-syncs mymaster 1
 ```
 从启动日志中可以明确看出6379为主节点，6380和6381为从节点
 
-* 关闭7379主节点,查看sentinel日志
+* 关闭6379主节点,查看sentinel日志
 
 ```sh
 [root@localhost redis-4.0.6]# ./src/redis-cli -p 6379 shutdown
