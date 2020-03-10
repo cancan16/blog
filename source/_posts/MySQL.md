@@ -386,3 +386,17 @@ WHERE
 ```
 
 ![mysql-b](https://volc1612.gitee.io/blog/images/mysql/mysql-b.png)
+
+
+### 根据某字段删除重复记录，只保留最小ID值的那一条数据
+
+```sql
+delete from tb_p_dealer where id in
+(SELECT
+	id 
+FROM
+	tb_p_dealer 
+WHERE
+	id IN ( SELECT id FROM tb_p_dealer WHERE dealer_type = 1 and dealer_source = 0 and dealer_name IN ( SELECT dealer_name FROM tb_p_dealer where dealer_type = 1 and dealer_source = 0  GROUP BY dealer_name HAVING count( dealer_name ) > 1 ) ) 
+	AND id NOT IN ( SELECT min( id ) FROM tb_p_dealer where dealer_type = 1 and dealer_source = 0 GROUP BY dealer_name HAVING count( dealer_name ) > 1 ))
+```	
