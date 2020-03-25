@@ -22,7 +22,7 @@ tags: [transactional]
 	导入两个组件
 	AutoProxyRegistrar组件
 	ProxyTransactionManagementConfiguration组件
-	```	
+	```
  * 2）、AutoProxyRegistrar：
 
 	```
