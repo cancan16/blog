@@ -269,7 +269,7 @@ public Sun(Moon moon) {
 public void setMoon(Moon moon) {
     this.moon = moon;
 }
-```    
+```
 
 4. 构造方法传参
 
@@ -278,7 +278,7 @@ public Sun(@Autowired Moon moon) {
     this.moon = moon;
     System.out.println("..Constructor................");
 }
-```  
+```
 
 ### Aware相关接口
 
@@ -318,6 +318,7 @@ public class Light implements ApplicationContextAware, BeanNameAware, EmbeddedVa
         System.out.println("解析的字符串为---" + result);
     }
 }
+```
 
 测试类
 
