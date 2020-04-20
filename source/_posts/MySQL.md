@@ -399,4 +399,19 @@ FROM
 WHERE
 	id IN ( SELECT id FROM tb_p_dealer WHERE dealer_type = 1 and dealer_source = 0 and dealer_name IN ( SELECT dealer_name FROM tb_p_dealer where dealer_type = 1 and dealer_source = 0  GROUP BY dealer_name HAVING count( dealer_name ) > 1 ) ) 
 	AND id NOT IN ( SELECT min( id ) FROM tb_p_dealer where dealer_type = 1 and dealer_source = 0 GROUP BY dealer_name HAVING count( dealer_name ) > 1 ))
-```	
+```
+
+### 对单张表进行匹配更新数据
+
+
+![需要更新的数据](https://volc1612.gitee.io/blog/images/mysql/需要更新的数据.png)
+
+期望数据
+
+![期望数据](https://volc1612.gitee.io/blog/images/mysql/期望数据.png)
+
+根据`value`字段分组，并更新`enum_type`字段值为每组第一条数据中的的`enum_type`值。
+
+```sql
+update t1 left join (SELECT * FROM tpt WHERE GROUP BY value) t2 on t1.`value`=t2.`value` set t1.enum_type =  t2.enum_type
+```
