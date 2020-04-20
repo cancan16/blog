@@ -6,7 +6,7 @@ categories: MySQL
 tags: [mysql]
 ---
 
-# 部门表dept和员工表empMySQL练习
+### 部门表dept和员工表empMySQL练习
 
 <!-- more -->
 
