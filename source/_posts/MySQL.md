@@ -205,7 +205,7 @@ SELECT DATEDIFF('2013-01-13','2012-10-01') FROM dual; -- 获取两日期之间�
 SELECT TIMESTAMPDIFF(MONTH,'2012-10-01','2013-01-13'); -- 获取两日期月数
 ```
 
-# EXISTS和IN
+### EXISTS和IN
 
 效率差
 ```sql
