@@ -300,3 +300,247 @@ ERROR: Elasticsearch did not exit normally - check the logs at /usr/local/src/es
     副本是分⽚的副本。分⽚有主分⽚(primary Shard)和副本分⽚(replica Shard)之分，当主分片挂机，福分片可代替主分片。
     ⼀个Index数据在物理上被分布在多个主分⽚中，每个主分⽚只存放部分数据。
     每个主分⽚可以有多个副本，叫副本分⽚，是主分⽚的复制。
+
+### ES基于RESTful风格的api来设计的
+
+* 方法
+
+|action| 描述|
+|---|---|
+|HEAD |只获取某个资源的头部信息|
+|GET |获取资源|
+|POST |创建或更新资源|
+|PUT |创建或更新资源|
+|DELETE |删除资源|
+
+* GET /user:列出所有的⽤户
+* POST /user:新建⼀个⽤户
+* PUT /user:更新某个指定⽤户的信息
+* DELETE /user/ID:删除指定⽤户
+
+### 索引的介绍和使用
+
+* 新增
+
+    ```
+    curl -X PUT "localhost:9200/nba"
+    ```
+
+    ```json
+    {
+        "acknowledged": true,
+        "shards_acknowledged": true,
+        "index": "nba"
+    }
+    ```
+
+* 获取
+
+    ```
+    curl -X GET "localhost:9200/nba"
+    ```
+
+    ```json
+    {
+        "nba": {
+            "aliases": {},
+            "mappings": {},
+            "settings": {
+                "index": {
+                    "creation_date": "1589720592678",
+                    "number_of_shards": "1",
+                    "number_of_replicas": "1",
+                    "uuid": "8rfw1l5QQVGsN3psbb5UUA",
+                    "version": {
+                        "created": "7070099"
+                    },
+                    "provided_name": "nba"
+                }
+            }
+        }
+    }
+    ```
+
+* 删除
+
+    ```
+    curl -X DELETE "localhost:9200/nba"
+    ```
+
+    ```json
+    {
+        "acknowledged": true
+    }
+    ```
+
+* 根据多个索引名称批量获取
+
+    ```
+    curl -x GET "localhost:9200/nba,cba"
+    ```
+
+    ```json
+    {
+        "cba": {
+            "aliases": {},
+            "mappings": {},
+            "settings": {
+                "index": {
+                    "creation_date": "1589720765271",
+                    "number_of_shards": "1",
+                    "number_of_replicas": "1",
+                    "uuid": "fY4nCD0qTB-nxcAzkrvQtg",
+                    "version": {
+                        "created": "7070099"
+                    },
+                    "provided_name": "cba"
+                }
+            }
+        },
+        "nba": {
+            "aliases": {},
+            "mappings": {},
+            "settings": {
+                "index": {
+                    "creation_date": "1589720812361",
+                    "number_of_shards": "1",
+                    "number_of_replicas": "1",
+                    "uuid": "tVhjYSMvQWmYIznpx_ejnw",
+                    "version": {
+                        "created": "7070099"
+                    },
+                    "provided_name": "nba"
+                }
+            }
+        }
+    }
+    ```
+* 获取所有索引
+
+    * 方式一
+
+        ```
+        curl -X GET "localhost:9200/_all"
+        ```
+
+        ```json
+        {
+            "cba": {
+                "aliases": {},
+                "mappings": {},
+                "settings": {
+                    "index": {
+                        "creation_date": "1589720765271",
+                        "number_of_shards": "1",
+                        "number_of_replicas": "1",
+                        "uuid": "fY4nCD0qTB-nxcAzkrvQtg",
+                        "version": {
+                            "created": "7070099"
+                        },
+                        "provided_name": "cba"
+                    }
+                }
+            },
+            "nba": {
+                "aliases": {},
+                "mappings": {},
+                "settings": {
+                    "index": {
+                        "creation_date": "1589720812361",
+                        "number_of_shards": "1",
+                        "number_of_replicas": "1",
+                        "uuid": "tVhjYSMvQWmYIznpx_ejnw",
+                        "version": {
+                            "created": "7070099"
+                        },
+                        "provided_name": "nba"
+                    }
+                }
+            }
+        }
+        ```
+
+    * 方式二
+
+        ```
+        curl -X GET "localhost:9200/_cat/indices?v"
+        ```
+
+        ```
+        health status index uuid                   pri rep docs.count docs.deleted store.size pri.store.size
+        yellow open   cba   fY4nCD0qTB-nxcAzkrvQtg   1   1          0            0       208b           208b
+        yellow open   nba   tVhjYSMvQWmYIznpx_ejnw   1   1          0            0       208b           208b
+        ```    
+
+* 判断索引是否存在
+
+    ```
+    # HEAD请求
+    curl -I HEAD "localhost:9200/nba"
+    ```
+
+    ```
+    200 OK
+    ```
+
+    ```
+    404 Not Found
+    ```
+
+* 关闭索引
+
+    ```
+    curl -X POST "localhost:9200/nba/_close"
+    ```
+
+    ```json
+    {
+        "acknowledged": true,
+        "shards_acknowledged": true,
+        "indices": {
+            "nba": {
+                "closed": true
+            }
+        }
+    }
+    ```
+
+    查询字段时`verified_before_close`为`false`
+    
+    ```json
+    {
+        "nba": {
+            "aliases": {},
+            "mappings": {},
+            "settings": {
+                "index": {
+                    "verified_before_close": "true",
+                    "number_of_shards": "1",
+                    "provided_name": "nba",
+                    "creation_date": "1589720812361",
+                    "number_of_replicas": "1",
+                    "uuid": "tVhjYSMvQWmYIznpx_ejnw",
+                    "version": {
+                        "created": "7070099"
+                    }
+                }
+            }
+        }
+    }
+    ```
+
+* 关闭索引
+
+    ```
+    curl -X POST "localhost:9200/nba/_open"
+    ```
+
+    ```json
+    {
+        "acknowledged": true,
+        "shards_acknowledged": true
+    }
+    ```
+
+### 映射的介绍和使用
+
