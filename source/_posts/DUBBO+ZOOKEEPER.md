@@ -37,7 +37,7 @@ tar -xzvf zookeeper-3.4.5.tar.gz
 ```
 	
 	
-![1](https://volc1612.gitee.io/blog/images/DUBBO+ZOOKEEPER/1.png)   
+![1](https://volc1612.gitee.io/blog/images/DUBBO+ZOOKEEPER/1.png)
 
 注意上图的配置中master，slave1分别为主机名，具体的对应的主机可参见之前的Hadoop的安装与配置的博文  
 在上面的配置文件中"server.id=host:port:port"中的第一个port是从机器（follower）连接到主机器（leader）的端口号，第二个port是进行leadership选举的端口号。  
