@@ -34,7 +34,7 @@ tags: [Elasticsearch]
     * 提供展示类似关键
 
         ![es灵活索引](https://volc1612.gitee.io/blog/images/elasticsearch/es灵活索引-a.png)
-    * 输入`总冠军`，用户也行展示带有`冠军`关键字的文章
+    * 输入`总冠军`，用户也希望展示带有`冠军`关键字的文章
         ![es灵活索引](https://volc1612.gitee.io/blog/images/elasticsearch/es灵活索引-b.png)
 
 * 索引的维护
@@ -112,138 +112,149 @@ Java，Groovy，PHP，Ruby，Perl，Python，.NET和Javascript。
 [root@localhost es]# tar -xzf elasticsearch-7.7.0-linux-x86_64.tar.gz
 # 启动
 [root@localhost elasticsearch-7.7.0]# ./bin/elasticsearch
-# 报错不能使用root账号启动
-java.lang.RuntimeException: can not run elasticsearch as root
-	at org.elasticsearch.bootstrap.Bootstrap.initializeNatives(Bootstrap.java:111)
+# 报错
+ERROR: [3] bootstrap checks failed
+[1]: max file descriptors [4096] for elasticsearch process is too low, increase to at least [65535]
+[2]: max virtual memory areas vm.max_map_count [65530] is too low, increase to at least [262144]
+[3]: the default discovery settings are unsuitable for production use; at least one of [discovery.seed_hosts, discovery.seed_providers, cluster.initial_master_nodes] must be configured
+ERROR: Elasticsearch did not exit normally - check the logs at /usr/local/src/es/elasticsearch-7.7.0/logs/elasticsearch.log
+[2020-05-17T16:59:26,942][INFO ][o.e.n.Node               ] [localhost.localdomain] stopping ...
+[2020-05-17T16:59:27,057][INFO ][o.e.n.Node               ] [localhost.localdomain] stopped
+[2020-05-17T16:59:27,058][INFO ][o.e.n.Node               ] [localhost.localdomain] closing ...
+[2020-05-17T16:59:27,089][INFO ][o.e.n.Node               ] [localhost.localdomain] closed
+[2020-05-17T16:59:27,090][INFO ][o.e.x.m.p.NativeController] [localhost.localdomain] Native controller process has stopped - no new native processes can be started
 ```
 
-* 解决不能使用root账号启动的错误
+#### 常见错误
 
-    * 添加用户组和用户并设置密码，设置es安装目录的权限归属
+##### 解决不能使用root账号启动的错误
 
-        ```sh
-        [root@localhost src]# groupadd es
-        [root@localhost src]# useradd es -g es
-        [root@localhost src]# passwd es
-        Changing password for user es.
-        New password: 
-        BAD PASSWORD: The password is shorter than 8 characters
-        Retype new password: 
-        passwd: all authentication tokens updated successfully.
-        [root@localhost src]# cd es
-        [root@localhost es]# pwd
-        /usr/local/src/es
-        # 将/usr/local/src/es目录权限归属于es组中的es用户
-        [root@localhost es]# chown -R es:es /usr/local/src/es
-        ```
-    * 使用es用户启动es
-
-        ```sh
-        [es@localhost bin]$ ./elasticsearch
-        [2020-05-17T16:41:32,617][INFO ][o.e.e.NodeEnvironment    ] [localhost.localdomain] using [1] data paths, mounts [[/ (rootfs)]], net usable_space [2.8gb], net total_space [15.4gb], types [rootfs]
-        [2020-05-17T16:41:32,619][INFO ][o.e.e.NodeEnvironment    ] [localhost.localdomain] heap size [1gb], compressed ordinary object pointers [true]
-        [2020-05-17T16:41:32,719][INFO ][o.e.n.Node               ] [localhost.localdomain] node name [localhost.localdomain], node ID [vS1Lv6gTR66LatxWLN9Vfg], cluster name [elasticsearch]
-        [2020-05-17T16:41:32,724][INFO ][o.e.n.Node               ] [localhost.localdomain] version[7.7.0], pid[12328], build[default/tar/81a1e9eda8e6183f5237786246f6dced26a10eaf/2020-05-12T02:01:37.602180Z], OS[Linux/3.10.0-957.el7.x86_64/amd64], JVM[AdoptOpenJDK/OpenJDK 64-Bit Server VM/14/14+36]
-        [2020-05-17T16:41:32,724][INFO ][o.e.n.Node               ] [localhost.localdomain] JVM home [/usr/local/src/es/elasticsearch-7.7.0/jdk]
-        [2020-05-17T16:41:32,724][INFO ][o.e.n.Node               ] [localhost.localdomain] JVM arguments [-Xshare:auto, -Des.networkaddress.cache.ttl=60, -Des.networkaddress.cache.negative.ttl=10, -XX:+AlwaysPreTouch, -Xss1m, -Djava.awt.headless=true, -Dfile.encoding=UTF-8, -Djna.nosys=true, -XX:-OmitStackTraceInFastThrow, -XX:+ShowCodeDetailsInExceptionMessages, -Dio.netty.noUnsafe=true, -Dio.netty.noKeySetOptimization=true, -Dio.netty.recycler.maxCapacityPerThread=0, -Dio.netty.allocator.numDirectArenas=0, -Dlog4j.shutdownHookEnabled=false, -Dlog4j2.disable.jmx=true, -Djava.locale.providers=SPI,COMPAT, -Xms1g, -Xmx1g, -XX:+UseG1GC, -XX:G1ReservePercent=25, -XX:InitiatingHeapOccupancyPercent=30, -Djava.io.tmpdir=/tmp/elasticsearch-2906376876676420818, -XX:+HeapDumpOnOutOfMemoryError, -XX:HeapDumpPath=data, -XX:ErrorFile=logs/hs_err_pid%p.log, -Xlog:gc*,gc+age=trace,safepoint:file=logs/gc.log:utctime,pid,tags:filecount=32,filesize=64m, -XX:MaxDirectMemorySize=536870912, -Des.path.home=/usr/local/src/es/elasticsearch-7.7.0, -Des.path.conf=/usr/local/src/es/elasticsearch-7.7.0/config, -Des.distribution.flavor=default, -Des.distribution.type=tar, -Des.bundled_jdk=true]
-        [2020-05-17T16:41:37,436][INFO ][o.e.p.PluginsService     ] [localhost.localdomain] loaded module [aggs-matrix-stats]
-        ```
-
-* 外网无法访问es问题
-
-     默认情况下，`Elastic`只允许本机访问，如果需要远程访问，可以修改`Elastic`安装目录的`config/elasticsearch.yml`文件，去掉`network.host`的注释，将它的值改成`0.0.0.0`，然后重新启动 `Elastic`
-
-* 内存大小设置问题
+* 添加用户组和用户并设置密码，设置es安装目录的权限归属
 
     ```sh
-    ERROR: [3] bootstrap checks failed
-    [1]: max file descriptors [4096] for elasticsearch process is too low, increase to at least [65535]
-    [2]: max virtual memory areas vm.max_map_count [65530] is too low, increase to at least [262144]
-    [3]: the default discovery settings are unsuitable for production use; at least one of [discovery.seed_hosts, discovery.seed_providers, cluster.initial_master_nodes] must be configured
-    ERROR: Elasticsearch did not exit normally - check the logs at /usr/local/src/es/elasticsearch-7.7.0/logs/elasticsearch.log
-    [2020-05-17T16:59:26,942][INFO ][o.e.n.Node               ] [localhost.localdomain] stopping ...
-    [2020-05-17T16:59:27,057][INFO ][o.e.n.Node               ] [localhost.localdomain] stopped
-    [2020-05-17T16:59:27,058][INFO ][o.e.n.Node               ] [localhost.localdomain] closing ...
-    [2020-05-17T16:59:27,089][INFO ][o.e.n.Node               ] [localhost.localdomain] closed
-    [2020-05-17T16:59:27,090][INFO ][o.e.x.m.p.NativeController] [localhost.localdomain] Native controller process has stopped - no new native processes can be started
+    [root@localhost src]# groupadd es
+    [root@localhost src]# useradd es -g es
+    [root@localhost src]# passwd es
+    Changing password for user es.
+    New password: 
+    BAD PASSWORD: The password is shorter than 8 characters
+    Retype new password: 
+    passwd: all authentication tokens updated successfully.
+    [root@localhost src]# cd es
+    [root@localhost es]# pwd
+    /usr/local/src/es
+    # 将/usr/local/src/es目录权限归属于es组中的es用户
+    [root@localhost es]# chown -R es:es /usr/local/src/es
     ```
-
-    * 错误一：问题翻译过来就是：`elasticsearch`用户拥有的可创建文件描述的权限太低，至少需要`65536`；
-
-        解决方法：
-        切换到root用户修改`vim /etc/security/limits.conf`，在最后面追加下面内容
-
-        ```
-        * soft nofile 65536
-        * hard nofile 131072
-        * soft nproc 2048
-        * hard nproc 4096
-        ```
-    * 错误二：分配给es服务内存太小   
-
-        解决方法：
-        切换到root账号
-        ```sh
-        [root@localhost bin]# sudo sysctl -w vm.max_map_count=262144
-        vm.max_map_count = 262144
-        ```
-    * 错误三：es推荐使用集群，需要指定主节点配置
-
-        ```yml
-        cluster.name: "docker-cluster"
-        # custom config
-        node.name: "node-1"
-        discovery.seed_hosts: ["127.0.0.1", "[::1]"]
-        cluster.initial_master_nodes: ["node-1"]
-        # 开启跨域访问支持，默认为false
-        http.cors.enabled: true
-        # 跨域访问允许的域名地址，(允许所有域名)以上使用正则
-        http.cors.allow-origin: /.*/ 
-        ```
-
-    * 错误四（没有遇到）：
-        报错原因：这是在因为`Centos7`不支持`SecComp`，而`ES5.2.0`以上默认`bootstrap.system_call_filter`为`true`进行检测，所以导致检测失败，失败后直接导致`ES`不能启动。
-        解决办法：在`elasticsearch.yml`中配置`bootstrap.system_call_filter`为`false`，注意要在`Memory`下面
-
-        ```yml
-        bootstrap.memory_lock: false
-        bootstrap.system_call_filter: false
-        ```
-* 启动
+* 使用es用户启动es
 
     ```sh
     [es@localhost bin]$ ./elasticsearch
-    ....
-    [2020-05-17T17:39:06,658][INFO ][o.e.n.Node               ] [node-1] started
-    [2020-05-17T17:39:07,006][INFO ][o.e.l.LicenseService     ] [node-1] license [4f02f9f0-bf32-430b-bf23-e5b0a8115346] mode [basic] - valid
-    [2020-05-17T17:39:07,006][INFO ][o.e.x.s.s.SecurityStatusChangeListener] [node-1] Active license is now [BASIC]; Security is disabled
-    [2020-05-17T17:39:07,036][INFO ][o.e.g.GatewayService     ] [node-1] recovered [0] indices into cluster_state
+    [2020-05-17T16:41:32,617][INFO ][o.e.e.NodeEnvironment    ] [localhost.localdomain] using [1] data paths, mounts [[/ (rootfs)]], net usable_space [2.8gb], net total_space [15.4gb], types [rootfs]
+    [2020-05-17T16:41:32,619][INFO ][o.e.e.NodeEnvironment    ] [localhost.localdomain] heap size [1gb], compressed ordinary object pointers [true]
+    [2020-05-17T16:41:32,719][INFO ][o.e.n.Node               ] [localhost.localdomain] node name [localhost.localdomain], node ID [vS1Lv6gTR66LatxWLN9Vfg], cluster name [elasticsearch]
+    [2020-05-17T16:41:32,724][INFO ][o.e.n.Node               ] [localhost.localdomain] version[7.7.0], pid[12328], build[default/tar/81a1e9eda8e6183f5237786246f6dced26a10eaf/2020-05-12T02:01:37.602180Z], OS[Linux/3.10.0-957.el7.x86_64/amd64], JVM[AdoptOpenJDK/OpenJDK 64-Bit Server VM/14/14+36]
+    [2020-05-17T16:41:32,724][INFO ][o.e.n.Node               ] [localhost.localdomain] JVM home [/usr/local/src/es/elasticsearch-7.7.0/jdk]
+    [2020-05-17T16:41:32,724][INFO ][o.e.n.Node               ] [localhost.localdomain] JVM arguments [-Xshare:auto, -Des.networkaddress.cache.ttl=60, -Des.networkaddress.cache.negative.ttl=10, -XX:+AlwaysPreTouch, -Xss1m, -Djava.awt.headless=true, -Dfile.encoding=UTF-8, -Djna.nosys=true, -XX:-OmitStackTraceInFastThrow, -XX:+ShowCodeDetailsInExceptionMessages, -Dio.netty.noUnsafe=true, -Dio.netty.noKeySetOptimization=true, -Dio.netty.recycler.maxCapacityPerThread=0, -Dio.netty.allocator.numDirectArenas=0, -Dlog4j.shutdownHookEnabled=false, -Dlog4j2.disable.jmx=true, -Djava.locale.providers=SPI,COMPAT, -Xms1g, -Xmx1g, -XX:+UseG1GC, -XX:G1ReservePercent=25, -XX:InitiatingHeapOccupancyPercent=30, -Djava.io.tmpdir=/tmp/elasticsearch-2906376876676420818, -XX:+HeapDumpOnOutOfMemoryError, -XX:HeapDumpPath=data, -XX:ErrorFile=logs/hs_err_pid%p.log, -Xlog:gc*,gc+age=trace,safepoint:file=logs/gc.log:utctime,pid,tags:filecount=32,filesize=64m, -XX:MaxDirectMemorySize=536870912, -Des.path.home=/usr/local/src/es/elasticsearch-7.7.0, -Des.path.conf=/usr/local/src/es/elasticsearch-7.7.0/config, -Des.distribution.flavor=default, -Des.distribution.type=tar, -Des.bundled_jdk=true]
+    [2020-05-17T16:41:37,436][INFO ][o.e.p.PluginsService     ] [localhost.localdomain] loaded module [aggs-matrix-stats]
     ```
 
-* 访问es
+##### 外网无法访问es问题
 
-    默认情况下，`Elastic`只允许本机访问，如果需要远程访问，可以修改`Elastic`安装目录的`config/elasticsearch.yml`文件，去掉`network.host`的注释，将它的值改成`0.0.0.0`，然后重新启动 `Elastic`
 
-    外网访问：`http://192.168.25.11:9200`
+默认情况下，`Elastic`只允许本机访问，如果需要远程访问，可以修改`Elastic`安装目录的`config/elasticsearch.yml`文件，去掉`network.host`的注释，将它的值改成`0.0.0.0`，然后重新启动 `Elastic`
 
-    ```json
-    {
-    "name" : "node-1",
-    "cluster_name" : "my-application",
-    "cluster_uuid" : "Ha-D_Ls0RMmcu89lbnTcyw",
-    "version" : {
-        "number" : "7.7.0",
-        "build_flavor" : "default",
-        "build_type" : "tar",
-        "build_hash" : "81a1e9eda8e6183f5237786246f6dced26a10eaf",
-        "build_date" : "2020-05-12T02:01:37.602180Z",
-        "build_snapshot" : false,
-        "lucene_version" : "8.5.1",
-        "minimum_wire_compatibility_version" : "6.8.0",
-        "minimum_index_compatibility_version" : "6.0.0-beta1"
-    },
-    "tagline" : "You Know, for Search"
-    }
+##### 启动错误
+
+```sh
+ERROR: [3] bootstrap checks failed
+[1]: max file descriptors [4096] for elasticsearch process is too low, increase to at least [65535]
+[2]: max virtual memory areas vm.max_map_count [65530] is too low, increase to at least [262144]
+[3]: the default discovery settings are unsuitable for production use; at least one of [discovery.seed_hosts, discovery.seed_providers, cluster.initial_master_nodes] must be configured
+ERROR: Elasticsearch did not exit normally - check the logs at /usr/local/src/es/elasticsearch-7.7.0/logs/elasticsearch.log
+[2020-05-17T16:59:26,942][INFO ][o.e.n.Node               ] [localhost.localdomain] stopping ...
+[2020-05-17T16:59:27,057][INFO ][o.e.n.Node               ] [localhost.localdomain] stopped
+[2020-05-17T16:59:27,058][INFO ][o.e.n.Node               ] [localhost.localdomain] closing ...
+[2020-05-17T16:59:27,089][INFO ][o.e.n.Node               ] [localhost.localdomain] closed
+[2020-05-17T16:59:27,090][INFO ][o.e.x.m.p.NativeController] [localhost.localdomain] Native controller process has stopped - no new native processes can be started
+```
+
+* 错误一：问题翻译过来就是：`elasticsearch`用户拥有的可创建文件描述的权限太低，至少需要`65536`；
+
+    解决方法：
+    切换到root用户修改`vim /etc/security/limits.conf`，在最后面追加下面内容
+
     ```
+    * soft nofile 65536
+    * hard nofile 131072
+    * soft nproc 2048
+    * hard nproc 4096
+    ```
+* 错误二：分配给es服务内存太小   
+
+    解决方法：
+    切换到root账号
+    ```sh
+    [root@localhost bin]# sudo sysctl -w vm.max_map_count=262144
+    vm.max_map_count = 262144
+    ```
+* 错误三：es推荐使用集群，需要指定主节点配置
+
+    ```yml
+    cluster.name: "docker-cluster"
+    # custom config
+    node.name: "node-1"
+    discovery.seed_hosts: ["127.0.0.1", "[::1]"]
+    cluster.initial_master_nodes: ["node-1"]
+    # 开启跨域访问支持，默认为false
+    http.cors.enabled: true
+    # 跨域访问允许的域名地址，(允许所有域名)以上使用正则
+    http.cors.allow-origin: /.*/ 
+    ```
+
+* 错误四（没有遇到）：
+    报错原因：这是在因为`Centos7`不支持`SecComp`，而`ES5.2.0`以上默认`bootstrap.system_call_filter`为`true`进行检测，所以导致检测失败，失败后直接导致`ES`不能启动。
+    解决办法：在`elasticsearch.yml`中配置`bootstrap.system_call_filter`为`false`，注意要在`Memory`下面
+
+    ```yml
+    bootstrap.memory_lock: false
+    bootstrap.system_call_filter: false
+    ```
+
+    
+#### 启动
+
+```sh
+[es@localhost bin]$ ./elasticsearch
+....
+[2020-05-17T17:39:06,658][INFO ][o.e.n.Node               ] [node-1] started
+[2020-05-17T17:39:07,006][INFO ][o.e.l.LicenseService     ] [node-1] license [4f02f9f0-bf32-430b-bf23-e5b0a8115346] mode [basic] - valid
+[2020-05-17T17:39:07,006][INFO ][o.e.x.s.s.SecurityStatusChangeListener] [node-1] Active license is now [BASIC]; Security is disabled
+[2020-05-17T17:39:07,036][INFO ][o.e.g.GatewayService     ] [node-1] recovered [0] indices into cluster_state
+```
+
+#### 访问es
+
+外网访问：`http://192.168.25.11:9200`
+
+```json
+{
+"name" : "node-1",
+"cluster_name" : "my-application",
+"cluster_uuid" : "Ha-D_Ls0RMmcu89lbnTcyw",
+"version" : {
+    "number" : "7.7.0",
+    "build_flavor" : "default",
+    "build_type" : "tar",
+    "build_hash" : "81a1e9eda8e6183f5237786246f6dced26a10eaf",
+    "build_date" : "2020-05-12T02:01:37.602180Z",
+    "build_snapshot" : false,
+    "lucene_version" : "8.5.1",
+    "minimum_wire_compatibility_version" : "6.8.0",
+    "minimum_index_compatibility_version" : "6.0.0-beta1"
+},
+"tagline" : "You Know, for Search"
+}
+```
 
 
