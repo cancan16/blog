@@ -544,3 +544,118 @@ ERROR: Elasticsearch did not exit normally - check the logs at /usr/local/src/es
 
 ### 映射的介绍和使用
 
+
+* 获取索引结构
+
+    ```
+    curl -X GET "localhost:9200/nba/_mapping"
+    ```
+
+    ```json
+    {
+        "nba": {
+            "mappings": {}
+        }
+    }
+    ```
+
+* 新增mapping和新增字段
+
+    ```
+    curl -X PUT "localhost:9200/nba/_mapping"
+    ```
+
+    * 参数
+
+        指定数据结构中有哪些字段，和字段类型
+
+        ```json
+        {
+            "properties": {
+                "name": {
+                    "type": "text"
+                },
+                "team_name": {
+                    "type": "text"
+                },
+                "position": {
+                    "type": "keyword"
+                },
+                "play_year": {
+                    "type": "keyword"
+                },
+                "jerse_no": {
+                    "type": "keyword"
+                }
+            }
+        }
+        ```
+    * 响应
+
+        ```json
+        {
+            "acknowledged": true
+        }
+        ```
+
+* 批量获取索引结构
+
+    ```
+    curl -X GET "localhost:9200/nba,cba/_mapping"
+    ```
+
+    ```json
+    {
+        "nba": {
+            "mappings": {}
+        },
+        "cba": {
+            "mappings": {}
+        }
+    }
+    ```
+
+* 批量获取所有
+
+    ```
+    curl -X GET "localhost:9200/_mapping"
+    ```
+
+    ```json
+    {
+        "cba": {
+            "mappings": {}
+        },
+        "nba": {
+            "mappings": {
+                "properties": {
+                    "jerse_no": {
+                        "type": "keyword"
+                    },
+                    "name": {
+                        "type": "text"
+                    },
+                    "play_year": {
+                        "type": "keyword"
+                    },
+                    "position": {
+                        "type": "keyword"
+                    },
+                    "team_name": {
+                        "type": "text"
+                    }
+                }
+            }
+        }
+    }
+    ```
+
+**不能删除索引的mapping的字段，需要重新创建索引**
+
+
+### 文档的增删改查
+
+
+
+
+
