@@ -470,7 +470,7 @@ ERROR: Elasticsearch did not exit normally - check the logs at /usr/local/src/es
         health status index uuid                   pri rep docs.count docs.deleted store.size pri.store.size
         yellow open   cba   fY4nCD0qTB-nxcAzkrvQtg   1   1          0            0       208b           208b
         yellow open   nba   tVhjYSMvQWmYIznpx_ejnw   1   1          0            0       208b           208b
-        ```    
+        ```
 
 * 判断索引是否存在
 
