@@ -475,7 +475,6 @@ ERROR: Elasticsearch did not exit normally - check the logs at /usr/local/src/es
 * 判断索引是否存在
 
     ```
-    # HEAD请求
     curl -I HEAD "localhost:9200/nba"
     ```
 
