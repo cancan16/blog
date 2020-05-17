@@ -257,4 +257,14 @@ ERROR: Elasticsearch did not exit normally - check the logs at /usr/local/src/es
 }
 ```
 
+### es目录结构
+
+
+|类型 |描述| 默认位置| 设置|
+|---|---|---|---|
+|bin |⼆进制脚本包含启动节点的elasticsearch |{path.home}/bin||
+|conf |配置⽂件包含elasticsearch.yml |{path.home}/config| path.conf|
+|data| 在节点上申请的每个index/shard的数据⽂件的位置。可容纳多个位置 |{path.home}/data| path.data|
+|logs| ⽇志⽂件位置 |{path.home}/logs |path.logs|
+|plugins |插件⽂件位置。每个插件将包含在⼀个⼦⽬录中。| {path.home}/plugins |path.plugins|
 
