@@ -268,3 +268,35 @@ ERROR: Elasticsearch did not exit normally - check the logs at /usr/local/src/es
 |logs| ⽇志⽂件位置 |{path.home}/logs |path.logs|
 |plugins |插件⽂件位置。每个插件将包含在⼀个⼦⽬录中。| {path.home}/plugins |path.plugins|
 
+### ES相关概念
+
+* 索引(index)
+
+    ⼀个索引可以理解成⼀个关系型数据库。
+* 类型(type)
+
+    ⼀种type就像⼀类表，⽐如user表，order表。
+    注意：
+    ES 5.x中⼀个index可以有多种type。
+    ES 6.x中⼀个index只能有⼀种type。
+    ES 7.x以后已经移除type这个概念。
+* 映射(mapping)
+
+    mapping定义了每个字段的类型等信息。相当于关系型数据库中的表结构。
+* ⽂档(document)
+
+    ⼀个document相当于关系型数据库中的⼀⾏记录。
+* 字段(field)
+
+    相当于关系型数据库表的字段
+* 集群(cluster)
+
+    集群由⼀个或多个节点组成，⼀个集群有⼀个默认名称"elasticsearch"。
+* 节点(node)
+
+    集群的节点，⼀台机器或者⼀个进程
+* 分⽚和副本(shard)
+
+    副本是分⽚的副本。分⽚有主分⽚(primary Shard)和副本分⽚(replica Shard)之分，当主分片挂机，福分片可代替主分片。
+    ⼀个Index数据在物理上被分布在多个主分⽚中，每个主分⽚只存放部分数据。
+    每个主分⽚可以有多个副本，叫副本分⽚，是主分⽚的复制。
