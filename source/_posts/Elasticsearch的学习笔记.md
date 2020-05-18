@@ -198,6 +198,9 @@ ERROR: Elasticsearch did not exit normally - check the logs at /usr/local/src/es
     [root@localhost bin]# sudo sysctl -w vm.max_map_count=262144
     vm.max_map_count = 262144
     ```
+
+    这种方法修改在服务重启后，需要重新设置，此方法并不是永久生效。
+
 * 错误三：es推荐使用集群，需要指定主节点配置
 
     ```yml
@@ -541,6 +544,188 @@ ERROR: Elasticsearch did not exit normally - check the logs at /usr/local/src/es
     }
     ```
 
+#### 自动创建索引
+
+
+查看是否开启允许自动创建索引配置，当`auto_create_index`为空或为false时，则没有开启自动创建索引
+
+```
+GET http://192.168.25.11:9200/_cluster/settings
+```
+
+```JSON
+{
+    "persistent": {},
+    "transient": {}
+}
+```
+
+* 设置`auto_create_index`为false
+
+    ```
+    PUT localhost:9200/_cluster/settings
+    ```
+
+    请求参数：
+
+    ```json
+    {
+        "persistent": {
+            "action.auto_create_index": "false"
+        }
+    }
+    ```
+
+* 创建不存在索引的doc数据
+
+    ```
+    PUT http://192.168.25.11:9200/nba1/_doc/1
+    ```
+
+    参数：
+
+    ```json
+    {
+        "name": "哈登",
+        "team_name": "⽕箭",
+        "position": "得分后卫",
+        "play_year": "10",
+        "jerse_no": "13"
+    }
+    ```
+
+    因为`auto_create_index`为false，不会创建不存在的索引，新增文档失败
+
+    响应：
+
+    ```json
+    {
+        "error": {
+            "root_cause": [
+                {
+                    "type": "index_not_found_exception",
+                    "reason": "no such index [nba1]",
+                    "resource.type": "index_expression",
+                    "resource.id": "nba1",
+                    "index_uuid": "_na_",
+                    "index": "nba1"
+                }
+            ],
+            "type": "index_not_found_exception",
+            "reason": "no such index [nba1]",
+            "resource.type": "index_expression",
+            "resource.id": "nba1",
+            "index_uuid": "_na_",
+            "index": "nba1"
+        },
+        "status": 404
+    }
+    ```
+
+* auto_create_index设置为true，新增不存在索引的文档，结果显示创建成功
+
+    ```json
+    {
+        "_index": "wnba",
+        "_type": "_doc",
+        "_id": "1",
+        "_version": 1,
+        "result": "created",
+        "_shards": {
+            "total": 2,
+            "successful": 1,
+            "failed": 0
+        },
+        "_seq_no": 0,
+        "_primary_term": 1
+    }
+    ```
+
+    * 查询索引是否已经创建
+
+        ```
+        GET http://192.168.25.11:9200/wnba
+        ```
+
+        响应:
+
+        ```json
+        {
+            "wnba": {
+                "aliases": {},
+                "mappings": {
+                    "properties": {
+                        "jerse_no": {
+                            "type": "text",
+                            "fields": {
+                                "keyword": {
+                                    "type": "keyword",
+                                    "ignore_above": 256
+                                }
+                            }
+                        },
+                        "name": {
+                            "type": "text",
+                            "fields": {
+                                "keyword": {
+                                    "type": "keyword",
+                                    "ignore_above": 256
+                                }
+                            }
+                        },
+                        "play_year": {
+                            "type": "text",
+                            "fields": {
+                                "keyword": {
+                                    "type": "keyword",
+                                    "ignore_above": 256
+                                }
+                            }
+                        },
+                        "position": {
+                            "type": "text",
+                            "fields": {
+                                "keyword": {
+                                    "type": "keyword",
+                                    "ignore_above": 256
+                                }
+                            }
+                        },
+                        "team_name": {
+                            "type": "text",
+                            "fields": {
+                                "keyword": {
+                                    "type": "keyword",
+                                    "ignore_above": 256
+                                }
+                            }
+                        }
+                    }
+                },
+                "settings": {
+                    "index": {
+                        "creation_date": "1589812103115",
+                        "number_of_shards": "1",
+                        "number_of_replicas": "1",
+                        "uuid": "RwlFxVxkR2-XBDYTmCkpcQ",
+                        "version": {
+                            "created": "7070099"
+                        },
+                        "provided_name": "wnba"
+                    }
+                }
+            }
+        }
+        ```
+
+        由此可见，在创建不存在索引的文档数据时，不仅创建了不存的索引，而且根据提交的文档参数，创建mapping
+
+
+
+
+
+
+
 ### 映射的介绍和使用
 
 
@@ -655,6 +840,134 @@ ERROR: Elasticsearch did not exit normally - check the logs at /usr/local/src/es
 ### 文档的增删改查
 
 
+* 指定文档ID新增索引的文档数据
+
+    ```
+    指定文档ID为1
+    PUT localhost:9200/nba/_doc/1
+    ```
+
+    ```json
+    {
+        "_index": "nba",
+        "_type": "_doc",
+        "_id": "1",
+        "_version": 1,
+        "result": "created",
+        "_shards": {
+            "total": 2,
+            "successful": 1,
+            "failed": 0
+        },
+        "_seq_no": 0,
+        "_primary_term": 4
+    }
+    ```
+
+* 不指定文档ID新增索引的文档数据
+
+    在不指定ID时只能使用POST方法，es会自动生成字符串作为ID
+
+    ```
+    POST localhost:9200/nba/_doc
+    ```
+
+    ```json
+    {
+        "_index": "nba",
+        "_type": "_doc",
+        "_id": "UWQcKHIBE_RV24_J1TDb",
+        "_version": 1,
+        "result": "created",
+        "_shards": {
+            "total": 2,
+            "successful": 1,
+            "failed": 0
+        },
+        "_seq_no": 1,
+        "_primary_term": 4
+    }
+    ```
+
+* 指定操作类型文档数据
+
+    避免文档数据被覆盖，可以指定操作类型
+
+    ```
+    PUT localhost:9200/nba/_doc/1?op_type=create
+    ```
+    响应：
+    当文档ID已存在时，会返回创建失败，和当前文档ID的版本
+
+    ```json
+    {
+        "error": {
+            "root_cause": [
+                {
+                    "type": "version_conflict_engine_exception",
+                    "reason": "[1]: version conflict, document already exists (current version [4])",
+                    "index_uuid": "tVhjYSMvQWmYIznpx_ejnw",
+                    "shard": "0",
+                    "index": "nba"
+                }
+            ],
+            "type": "version_conflict_engine_exception",
+            "reason": "[1]: version conflict, document already exists (current version [4])",
+            "index_uuid": "tVhjYSMvQWmYIznpx_ejnw",
+            "shard": "0",
+            "index": "nba"
+        },
+        "status": 409
+    }
+    ```    
 
 
+* 指定DOCID查询数据
 
+    ```
+    指定文档ID为1
+    GET localhost:9200/nba/_doc/1
+    ```
+
+    ```json
+    {
+        "_index": "nba",
+        "_type": "_doc",
+        "_id": "1",
+        "_version": 1,
+        "_seq_no": 0,
+        "_primary_term": 4,
+        "found": true,
+        "_source": {
+            "name": "哈登",
+            "team_name": "⽕箭",
+            "position": "得分后卫",
+            "play_year": "10",
+            "jerse_no": "13"
+        }
+    }
+    ```
+
+* 指定DOCID删除数据
+
+    ```
+    指定文档ID为1
+    DELETE localhost:9200/nba/_doc/1
+    ```
+
+    ```json
+    {
+        "_index": "nba",
+        "_type": "_doc",
+        "_id": "1",
+        "_version": 2,
+        "result": "deleted",
+        "_shards": {
+            "total": 2,
+            "successful": 1,
+            "failed": 0
+        },
+        "_seq_no": 2,
+        "_primary_term": 4
+    }
+    ```
