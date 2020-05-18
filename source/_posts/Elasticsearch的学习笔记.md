@@ -919,7 +919,7 @@ GET http://192.168.25.11:9200/_cluster/settings
         },
         "status": 409
     }
-    ```    
+    ```
 
 
 * 指定DOCID查询数据
