@@ -1193,3 +1193,85 @@ GET http://192.168.25.11:9200/_cluster/settings
             "script": "ctx._source.remove(\"age\")"
         }
         ```
+
+* 根据参数值，更新指定⽂档的字段的值
+
+    ```
+    POST localhost:9200/nba/_update/1
+    ```
+
+    参数：更新文档ID等于1的数据，把字段age的值设为 age += 4； 其中params中字段可以自定义，`ctx._source.age += params.arg`
+
+    ```json
+    {
+        "script": {
+            "source": "ctx._source.age += params.age",
+            "params": {
+                "age": 4
+            }
+        }
+    }
+    ```
+    响应：
+
+    ```json
+    {
+        "_index": "nba",
+        "_type": "_doc",
+        "_id": "1",
+        "_version": 12,
+        "result": "updated",
+        "_shards": {
+            "total": 2,
+            "successful": 1,
+            "failed": 0
+        },
+        "_seq_no": 14,
+        "_primary_term": 4
+    }
+    ```
+
+    * upsert参数含义
+
+        upsert 当指定的⽂档不存在时，upsert参数包含的内容将会被插⼊到索引中，作为⼀个新⽂档；如果指定的⽂档存在，ElasticSearch引擎将会执⾏指定的更新逻辑。
+
+        * 请求
+
+            ID为3的文档不存在
+
+            ```
+            POST http://192.168.25.11:9200/nba/_update/3
+            ```
+        * 请求参数格式
+
+            ```json
+            {
+                "script": {
+                    "source": "ctx._source.allstar += params.allstar",
+                    "params": {
+                        "allstar": 4
+                    }
+                },
+                "upsert": {
+                    "allstar": 1
+                }
+            }
+            ```
+        * 响应
+
+            ```json
+            {
+                "_index": "nba",
+                "_type": "_doc",
+                "_id": "3",
+                "_version": 1,
+                "result": "created",
+                "_shards": {
+                    "total": 2,
+                    "successful": 1,
+                    "failed": 0
+                },
+                "_seq_no": 15,
+                "_primary_term": 4
+            }
+            ```
