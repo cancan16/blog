@@ -971,3 +971,225 @@ GET http://192.168.25.11:9200/_cluster/settings
         "_primary_term": 4
     }
     ```
+
+* 查看多个文档
+
+    * 方式一：不指定索引请求
+
+        ```
+        POST localhost:9200/_mget
+        ```
+
+        参数：指定索引，数据类型，数据ID
+
+        ```json
+        {
+            "docs": [
+                {
+                    "_index": "nba",
+                    "_type": "_doc",
+                    "_id": "1"
+                },
+                {
+                    "_index": "nba",
+                    "_type": "_doc",
+                    "_id": "2"
+                }
+            ]
+        }
+        ```
+
+        响应：
+
+        ```json
+        {
+            "docs": [
+                {
+                    "_index": "nba",
+                    "_type": "_doc",
+                    "_id": "1",
+                    "_version": 4,
+                    "_seq_no": 6,
+                    "_primary_term": 4,
+                    "found": true,
+                    "_source": {
+                        "name": "哈登",
+                        "team_name": "⽕箭",
+                        "position": "得分后卫1",
+                        "play_year": "10",
+                        "jerse_no": "13"
+                    }
+                },
+                {
+                    "_index": "nba",
+                    "_type": "_doc",
+                    "_id": "2",
+                    "found": false
+                }
+            ]
+        }
+        ```
+
+    * 方式二：指定索引请求
+
+        ```
+        POST localhost:9200/nba/_mget
+        ```
+
+        参数：指定数据类型，数据ID
+
+        ```json
+        {
+            "docs": [
+                {
+                    "_type": "_doc",
+                    "_id": "1"
+                },
+                {
+                    "_type": "_doc",
+                    "_id": "2"
+                }
+            ]
+        }
+        ```
+
+        响应：
+
+        ```json
+        {
+            "docs": [
+                {
+                    "_index": "nba",
+                    "_type": "_doc",
+                    "_id": "1",
+                    "_version": 4,
+                    "_seq_no": 6,
+                    "_primary_term": 4,
+                    "found": true,
+                    "_source": {
+                        "name": "哈登",
+                        "team_name": "⽕箭",
+                        "position": "得分后卫1",
+                        "play_year": "10",
+                        "jerse_no": "13"
+                    }
+                },
+                {
+                    "_index": "nba",
+                    "_type": "_doc",
+                    "_id": "2",
+                    "found": false
+                }
+            ]
+        }
+        ```
+
+    * 方式三：指定索引和文档类型请求
+
+        ```
+        POST localhost:9200/nba/_doc/_mget
+        ```
+
+        参数方式一：指定文档数据ID
+
+        ```json
+        {
+            "docs": [
+                {
+                    "_id": "1"
+                },
+                {
+                    "_id": "2"
+                }
+            ]
+        }
+        ```
+
+        参数方式二：数组方式，指定文档数据ID
+
+        ```json
+        {
+            "ids" : ["1", "2"]
+        }
+        ```
+
+        响应：
+
+        ```json
+        {
+            "docs": [
+                {
+                    "_index": "nba",
+                    "_type": "_doc",
+                    "_id": "1",
+                    "_version": 4,
+                    "_seq_no": 6,
+                    "_primary_term": 4,
+                    "found": true,
+                    "_source": {
+                        "name": "哈登",
+                        "team_name": "⽕箭",
+                        "position": "得分后卫1",
+                        "play_year": "10",
+                        "jerse_no": "13"
+                    }
+                },
+                {
+                    "_index": "nba",
+                    "_type": "_doc",
+                    "_id": "2",
+                    "found": false
+                }
+            ]
+        }
+        ```
+
+* 修改文档
+
+    * 根据提供的⽂档⽚段更新数据
+
+        ```
+        POST localhost:9200/nba/_update/1
+        ```
+
+        参数：
+
+        ```json
+        {
+            "doc": {
+                "name": "哈登",
+                "team_name": "⽕箭",
+                "position": "双能卫",
+                "play_year": "10",
+                "jerse_no": "13"
+            }
+        }
+        ```
+    
+    * 向_source字段，增加⼀个字段(向DOC增加一个字段并赋值)
+
+        ```
+        POST localhost:9200/nba/_update/1
+        ```
+
+        参数：语法指定为script，ctx为上下文对象，操作对象是_source，新增age字段值为18
+
+        ```json
+        {
+            "script": "ctx._source.age = 18"
+        }
+        ```
+
+    * 向_source字段，删除⼀个字段(向DOC删除一个字段)
+
+        ```
+        POST localhost:9200/nba/_update/1
+        ```
+
+        参数：语法指定为script，ctx为上下文对象，操作对象是_source，新增age字段值为18
+
+        ```json
+        {
+            "script": "ctx._source.remove(\"age\")"
+        }
+        ```
