@@ -1275,3 +1275,5 @@ GET http://192.168.25.11:9200/_cluster/settings
                 "_primary_term": 4
             }
             ```
+
+###             
