@@ -177,7 +177,7 @@ tags: [Elasticsearch]
             ]
         }
     }
-    ```    
+    ```
 
 #### 全⽂查询（full text）
 
