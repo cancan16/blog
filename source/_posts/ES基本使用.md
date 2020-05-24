@@ -561,7 +561,6 @@ ElasticSearch引擎会先分析查询字符串，将其拆分成多个分词，�
 
     * 不会匹配分开的英语单词
 
-
         ```
         post localhost:9200/nba/_search
         ```
