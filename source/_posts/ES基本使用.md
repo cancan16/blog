@@ -1,14 +1,14 @@
 ---
-title: ES搜索
+title: ES基本使用
 date: 2020-05-24 11:45:30
 update: 2020-05-24 11:45:30
 categories: Elasticsearch
 tags: [Elasticsearch]
 ---
 
-<div style="text-align: center"><iframe height="60" width="260" src="https://www.ximalaya.com/thirdparty/player/sound/player.html?id=285041831&type=red" frameborder=0 allowfullscreen></iframe></div>
+<div style="text-align: center"><iframe height="60" width="260" src="https://www.ximalaya.com/thirdparty/player/sound/player.html?id=179549096&type=red" frameborder=0 allowfullscreen></iframe></div>
 
-<img style="width: 80%;height:80%" src="https://volc1612.gitee.io/blog/images/ES搜索/安吉.jpg"/>
+<img style="width: 80%;height:80%" src="https://volc1612.gitee.io/blog/images/ES基本使用/安吉.jpg"/>
 
 <!-- more -->
 
