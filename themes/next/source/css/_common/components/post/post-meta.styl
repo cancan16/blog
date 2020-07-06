@@ -5,35 +5,45 @@
   font-size: 12px;
   text-align: center;
 
+  .post-category-list {
+    display: inline-block;
+    margin: 0;
+    padding: 3px;
+  }
+  .post-category-list-link { color: $grey-dark; }
+  
   .post-description {
     font-size: 14px;
     margin-top: 2px;
   }
+}
 
-  time {
-    border-bottom: 1px dashed $grey-dark;
-    cursor: help;
-  }
+.post-wordcount {
+  if !hexo-config('post_wordcount.separated_meta') { display: inline-block; }
 }
 
 .post-meta-divider {
   margin: 0 .5em;
 }
 
-.post-meta .post-meta-item + .post-meta-item::before {
-  content: "|";
-  margin: 0 .5em;
-}
-
 .post-meta-item-icon {
   margin-right: 3px;
-  +tablet-mobile() {
+  +tablet() {
+    display: inline-block;
+  }
+  +mobile() {
     display: inline-block;
   }
 }
-
 .post-meta-item-text {
-  +tablet-mobile() {
-    hide();
+  +tablet() {
+    display: none;
   }
+  +mobile() {
+    display: none;
+  }
+}
+
+.posts-expand .post-comments-count {
+  +mobile() { display: none; }
 }

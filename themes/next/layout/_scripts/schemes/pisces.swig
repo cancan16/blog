@@ -1,10 +1,10 @@
 {%
   set scripts = [
-    'affix.js',
-    'schemes/pisces.js'
+    'src/affix.js',
+    'src/schemes/pisces.js'
   ]
 %}
 
 {% for script in scripts %}
-  <script src="{{ url_for(theme.js) }}/{{ script }}?v={{ version }}"></script>
+  <script type="text/javascript" src="{{ url_for(theme.js) }}/{{ script }}?v={{ theme.version }}"></script>
 {% endfor %}
