@@ -203,9 +203,12 @@ ERROR: Elasticsearch did not exit normally - check the logs at /usr/local/src/es
 
     永久生效：
     修改/etc/sysctl.conf
-      加入配置：
+    加入配置：
+
     ```vm.max_map_count=262144```
+
     然后用命令使其永久生效
+
     ```sysctl -p```
 
 * 错误三：es推荐使用集群，需要指定主节点配置
@@ -245,45 +248,47 @@ ERROR: Elasticsearch did not exit normally - check the logs at /usr/local/src/es
 
 ### 开机启动ES
 
-*/etc/init.d*下新建`autostartelastic`文件
+* 启动脚本
 
-内容如下
+    */etc/init.d*下新建`autostartelastic`文件
 
-```sh
-#!/bin/bash
-#
-#chkconfig: 345 63 37
-#description: elasticsearch
-#processname: elasticsearch-7.4.0
+    内容如下
 
-ES_HOME=/usr/local//usr/local/elasticsearch-7.4.0
+    ```sh
+    #!/bin/bash
+    #
+    #chkconfig: 345 63 37
+    #description: elasticsearch
+    #processname: elasticsearch-7.4.0
 
-case $1 in
-  start)
-    su - es -c "$ES_HOME/bin/elasticsearch -d -p pid"
-    echo "elasticsearch is started"
-    ;;
-  stop)
-    pid=`cat $ES_HOME/pid`
-    kill -9 $pid
-    echo "elasticsearch is stopped"
-    ;;
-  restart)
-    pid=`cat $ES_HOME/pid`
-    kill -9 $pid
-    echo "elasticsearch is stopped"
-    sleep 1
-    su - es -c "$ES_HOME/bin/elasticsearch -d -p pid"
-    echo "elasticsearch is started"
-    ;;
-  *)
-    echo "start|stop|restart"
-    ;;  
-esac
-exit 0
-```
+    ES_HOME=/usr/local//usr/local/elasticsearch-7.4.0
 
-*su - es* `es` 为用户名
+    case $1 in
+    start)
+        su - es -c "$ES_HOME/bin/elasticsearch -d -p pid"
+        echo "elasticsearch is started"
+        ;;
+    stop)
+        pid=`cat $ES_HOME/pid`
+        kill -9 $pid
+        echo "elasticsearch is stopped"
+        ;;
+    restart)
+        pid=`cat $ES_HOME/pid`
+        kill -9 $pid
+        echo "elasticsearch is stopped"
+        sleep 1
+        su - es -c "$ES_HOME/bin/elasticsearch -d -p pid"
+        echo "elasticsearch is started"
+        ;;
+    *)
+        echo "start|stop|restart"
+        ;;  
+    esac
+    exit 0
+    ```
+
+    *su - es* `es` 为用户名
 
 * 修改改文件的权限
 
