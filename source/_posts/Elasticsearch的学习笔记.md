@@ -7,7 +7,7 @@ tags: [Elasticsearch]
 ---
 
 <div style="text-align: center"><iframe height="60" width="260" src="https://www.ximalaya.com/thirdparty/player/sound/player.html?id=285041831&type=red" frameborder=0 allowfullscreen></iframe></div>
-
+                            
 <img style="width: 80%;height:80%" src="https://volc1612.gitee.io/blog/images/elasticsearch/布达拉宫.jpg"/>
 
 <!-- more -->
@@ -201,6 +201,13 @@ ERROR: Elasticsearch did not exit normally - check the logs at /usr/local/src/es
 
     这种方法修改在服务重启后，需要重新设置，此方法并不是永久生效。
 
+    永久生效：
+    修改/etc/sysctl.conf
+      加入配置：
+    ```vm.max_map_count=262144```
+    然后用命令使其永久生效
+    ```sysctl -p```
+
 * 错误三：es推荐使用集群，需要指定主节点配置
 
     ```yml
@@ -236,7 +243,75 @@ ERROR: Elasticsearch did not exit normally - check the logs at /usr/local/src/es
 [2020-05-17T17:39:07,036][INFO ][o.e.g.GatewayService     ] [node-1] recovered [0] indices into cluster_state
 ```
 
-#### 访问es
+### 开机启动ES
+
+*/etc/init.d*下新建`autostartelastic`文件
+
+内容如下
+
+```sh
+#!/bin/bash
+#
+#chkconfig: 345 63 37
+#description: elasticsearch
+#processname: elasticsearch-7.4.0
+
+ES_HOME=/usr/local//usr/local/elasticsearch-7.4.0
+
+case $1 in
+  start)
+    su - es -c "$ES_HOME/bin/elasticsearch -d -p pid"
+    echo "elasticsearch is started"
+    ;;
+  stop)
+    pid=`cat $ES_HOME/pid`
+    kill -9 $pid
+    echo "elasticsearch is stopped"
+    ;;
+  restart)
+    pid=`cat $ES_HOME/pid`
+    kill -9 $pid
+    echo "elasticsearch is stopped"
+    sleep 1
+    su - es -c "$ES_HOME/bin/elasticsearch -d -p pid"
+    echo "elasticsearch is started"
+    ;;
+  *)
+    echo "start|stop|restart"
+    ;;  
+esac
+exit 0
+```
+
+*su - es* `es` 为用户名
+
+* 修改改文件的权限
+
+    ```
+    chmod 777 /etc/init.d/autostartelastic
+    ```
+* 添加和删除服务并设置启动方式
+
+    ```
+    chkconfig --add es
+    chkconfig --del es
+    ```
+
+* 服务关闭和启动
+
+    ```
+    service es start    // 启动服务
+    service es stop     // 关闭服务
+    service es restart  // 重启服务
+    ```
+* 设置开机启动
+
+    ```
+    chkconfig es on  // 设置开机启动
+    chkconfig es off // 关闭开机启动
+    ```
+
+## 访问es
 
 外网访问：`http://192.168.25.11:9200`
 
@@ -256,10 +331,10 @@ ERROR: Elasticsearch did not exit normally - check the logs at /usr/local/src/es
     "minimum_wire_compatibility_version" : "6.8.0",
     "minimum_index_compatibility_version" : "6.0.0-beta1"
 },
-"tagline" : "You Know, for Search"
+"tagline" : "You Know, for 
+rch"
 }
 ```
-
 ### es目录结构
 
 
