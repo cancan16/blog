@@ -16,7 +16,7 @@ tags: [VMware]
 
 打开`VMware Fusion`,启动你的虚拟机，并在“设置–网络适配器中”选择“桥接模式网络连接”
 
-![宿主机ip]](https://volc1612.gitee.io/blog/images/设置CentOS虚拟机静态ip/查看宿主机ip.png)
+![宿主机ip](https://volc1612.gitee.io/blog/images/设置CentOS虚拟机静态ip/查看宿主机ip.png)
 
 * 手动给虚拟机`linux`配置一个`IP`，这个`IP`必须要与主机在同一个网段(192.168.1.1-192.168.1.5)中，否则无法桥接通连，配置方法如下：
 
