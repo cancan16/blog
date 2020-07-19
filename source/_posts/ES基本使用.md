@@ -663,4 +663,539 @@ ElasticSearch引擎会先分析查询字符串，将其拆分成多个分词，�
 ### 分词器的介绍和使用
 
 
+* 什么是分词器
+
+    * 将⽤户输⼊的⼀段⽂本，按照⼀定逻辑，分析成多个词语的⼀种⼯具
+    * example: The best 3-points shooter is Curry!
+
+
+* 常用的内置分词器
+
+    * standard analyzer
+    * simple analyzer
+    * whitespace analyzer
+    * stop analyzer
+    * language analyzer
+    * pattern analyzer
+
+
+* `standard analyzer`
+
+    * 标准分析器是默认分词器，如果未指定，则使⽤该分词器。
+    * POST localhost:9200/_analyze
+
+        ```
+        {
+            "analyzer": "standard",
+            "text": "The best 3-points shooter is Curry!"
+        }
+        ```
+
+        响应：
+
+        ```
+        {
+            "tokens": [
+                {
+                    "token": "the",
+                    "start_offset": 0,
+                    "end_offset": 3,
+                    "type": "<ALPHANUM>",
+                    "position": 0
+                },
+                {
+                    "token": "best",
+                    "start_offset": 4,
+                    "end_offset": 8,
+                    "type": "<ALPHANUM>",
+                    "position": 1
+                },
+                {
+                    "token": "3",
+                    "start_offset": 9,
+                    "end_offset": 10,
+                    "type": "<NUM>",
+                    "position": 2
+                },
+                {
+                    "token": "points",
+                    "start_offset": 11,
+                    "end_offset": 17,
+                    "type": "<ALPHANUM>",
+                    "position": 3
+                },
+                {
+                    "token": "shooter",
+                    "start_offset": 18,
+                    "end_offset": 25,
+                    "type": "<ALPHANUM>",
+                    "position": 4
+                },
+                {
+                    "token": "is",
+                    "start_offset": 26,
+                    "end_offset": 28,
+                    "type": "<ALPHANUM>",
+                    "position": 5
+                },
+                {
+                    "token": "curry",
+                    "start_offset": 29,
+                    "end_offset": 34,
+                    "type": "<ALPHANUM>",
+                    "position": 6
+                }
+            ]
+        }
+        ```
+* simple analyzer
+
+    simple 分析器当它遇到只要不是字⺟的字符，就将⽂本解析成term，⽽且所有的term都是⼩写的。只保留字母。
+    POST localhost:9200/_analyze
+
+    ```
+    {
+        "analyzer": "simple",
+        "text": "The best 3-points shooter is Curry!"
+    }
+    ```
+
+    响应：
+    ```
+    {
+        "tokens": [
+            {
+                "token": "the",
+                "start_offset": 0,
+                "end_offset": 3,
+                "type": "word",
+                "position": 0
+            },
+            {
+                "token": "best",
+                "start_offset": 4,
+                "end_offset": 8,
+                "type": "word",
+                "position": 1
+            },
+            {
+                "token": "points",
+                "start_offset": 11,
+                "end_offset": 17,
+                "type": "word",
+                "position": 2
+            },
+            {
+                "token": "shooter",
+                "start_offset": 18,
+                "end_offset": 25,
+                "type": "word",
+                "position": 3
+            },
+            {
+                "token": "is",
+                "start_offset": 26,
+                "end_offset": 28,
+                "type": "word",
+                "position": 4
+            },
+            {
+                "token": "curry",
+                "start_offset": 29,
+                "end_offset": 34,
+                "type": "word",
+                "position": 5
+            }
+        ]
+    }
+    ```
+* `whitespace analyzer`
+    `whitespace`分析器，当它遇到空⽩字符时，就将⽂本解析成`terms`
+    POST localhost:9200/_analyze
+
+    ```
+    {
+    "analyzer": "whitespace",
+    "text": "The best 3-points shooter is Curry!"
+    }
+    ```
+
+    ```
+    {
+        "tokens": [
+            {
+                "token": "The",
+                "start_offset": 0,
+                "end_offset": 3,
+                "type": "word",
+                "position": 0
+            },
+            {
+                "token": "best",
+                "start_offset": 4,
+                "end_offset": 8,
+                "type": "word",
+                "position": 1
+            },
+            {
+                "token": "3-points",
+                "start_offset": 9,
+                "end_offset": 17,
+                "type": "word",
+                "position": 2
+            },
+            {
+                "token": "shooter",
+                "start_offset": 18,
+                "end_offset": 25,
+                "type": "word",
+                "position": 3
+            },
+            {
+                "token": "is",
+                "start_offset": 26,
+                "end_offset": 28,
+                "type": "word",
+                "position": 4
+            },
+            {
+                "token": "Curry!",
+                "start_offset": 29,
+                "end_offset": 35,
+                "type": "word",
+                "position": 5
+            }
+        ]
+    }
+    ```
+
+* `stop analyzer`
+    `stop 分析器` 和 `simple 分析器`很像，唯⼀不同的是，stop 分析器增加了对删除停⽌词的⽀持，默认使⽤了`english`停⽌词
+    `stopwords` 预定义的停⽌词列表，⽐如 (the,a,an,this,of,at)等等
+    POST localhost:9200/_analyze
+
+    ```
+    {
+    "analyzer": "stop",
+    "text": "The best 3-points shooter is Curry!"
+    }
+    ```
+
+    ```
+    {
+        "tokens": [
+            {
+                "token": "best",
+                "start_offset": 4,
+                "end_offset": 8,
+                "type": "word",
+                "position": 1
+            },
+            {
+                "token": "points",
+                "start_offset": 11,
+                "end_offset": 17,
+                "type": "word",
+                "position": 2
+            },
+            {
+                "token": "shooter",
+                "start_offset": 18,
+                "end_offset": 25,
+                "type": "word",
+                "position": 3
+            },
+            {
+                "token": "curry",
+                "start_offset": 29,
+                "end_offset": 34,
+                "type": "word",
+                "position": 5
+            }
+        ]
+    }
+    ```
+
+* language analyzer
+
+    （特定的语⾔的分词器，⽐如说，english，英语分词器),内置语⾔：arabic, armenian,
+    basque, bengali, brazilian, bulgarian, catalan, cjk, czech, danish, dutch, english, finnish,
+    french, galician, german, greek, hindi, hungarian, indonesian, irish, italian, latvian,
+    lithuanian, norwegian, persian, portuguese, romanian, russian, sorani, spanish,
+    swedish, turkish, thai
+    Post localhost:9200/_analyze
+
+    ```
+    {
+    "analyzer": "english",
+    "text": "The best 3-points shooter is Curry!"
+    }
+    ```
+
+    ```
+    {
+        "tokens": [
+            {
+                "token": "best",
+                "start_offset": 4,
+                "end_offset": 8,
+                "type": "<ALPHANUM>",
+                "position": 1
+            },
+            {
+                "token": "3",
+                "start_offset": 9,
+                "end_offset": 10,
+                "type": "<NUM>",
+                "position": 2
+            },
+            {
+                "token": "point",
+                "start_offset": 11,
+                "end_offset": 17,
+                "type": "<ALPHANUM>",
+                "position": 3
+            },
+            {
+                "token": "shooter",
+                "start_offset": 18,
+                "end_offset": 25,
+                "type": "<ALPHANUM>",
+                "position": 4
+            },
+            {
+                "token": "curri",
+                "start_offset": 29,
+                "end_offset": 34,
+                "type": "<ALPHANUM>",
+                "position": 6
+            }
+        ]
+    }
+    ```
+
+*   `pattern analyzer`
+
+    ⽤正则表达式来将⽂本分割成terms，默认的正则表达式是\W+（⾮单词字符）
+    POST localhost:9200/_analyze
+
+    ```
+    {
+    "analyzer": "pattern",
+    "text": "The best 3-points shooter is Curry!"
+    }
+    ```
+
+    ```
+    {
+        "tokens": [
+            {
+                "token": "the",
+                "start_offset": 0,
+                "end_offset": 3,
+                "type": "word",
+                "position": 0
+            },
+            {
+                "token": "best",
+                "start_offset": 4,
+                "end_offset": 8,
+                "type": "word",
+                "position": 1
+            },
+            {
+                "token": "3",
+                "start_offset": 9,
+                "end_offset": 10,
+                "type": "word",
+                "position": 2
+            },
+            {
+                "token": "points",
+                "start_offset": 11,
+                "end_offset": 17,
+                "type": "word",
+                "position": 3
+            },
+            {
+                "token": "shooter",
+                "start_offset": 18,
+                "end_offset": 25,
+                "type": "word",
+                "position": 4
+            },
+            {
+                "token": "is",
+                "start_offset": 26,
+                "end_offset": 28,
+                "type": "word",
+                "position": 5
+            },
+            {
+                "token": "curry",
+                "start_offset": 29,
+                "end_offset": 34,
+                "type": "word",
+                "position": 6
+            }
+        ]
+    }
+    ```
+
+* 添加指定分词器的索引
+
+    * 添加指定分词器的索引
+    
+        PUT localhost:9200/my_index
+
+        ```
+        {
+            "settings": {
+                "analysis": {
+                    "analyzer": {
+                        "my_analyzer": {
+                            "type": "whitespace"
+                        }
+                    }
+                }
+            },
+            "mappings": {
+                "properties": {
+                    "name": {
+                        "type": "text"
+                    },
+                    "team_name": {
+                        "type": "text"
+                    },
+                    "position": {
+                        "type": "text"
+                    },
+                    "play_year": {
+                        "type": "long"
+                    },
+                    "jerse_no": {
+                        "type": "keyword"
+                    },
+                    "title": {
+                        "type": "text",
+                        "analyzer": "my_analyzer"
+                    }
+                }
+            }
+        }
+        ```
+
+    * 向文档中添加数据
+
+        PUT localhost:9200/my_index/_doc/1
+
+        ```
+        {
+            "name": "库⾥",
+            "team_name": "勇⼠",
+            "position": "控球后卫",
+            "play_year": 10,
+            "jerse_no": "30",
+            "title": "The best 3-points shooter is Curry!"
+        }
+        ```
+
+    * 查询指定了分词器的文档数据
+
+        get {{url}}/my_index/_doc/1
+
+        ```
+        {
+            "_index": "my_index",
+            "_type": "_doc",
+            "_id": "1",
+            "_version": 1,
+            "_seq_no": 0,
+            "_primary_term": 1,
+            "found": true,
+            "_source": {
+                "name": "库⾥",
+                "team_name": "勇⼠",
+                "position": "控球后卫",
+                "play_year": 10,
+                "jerse_no": "30",
+                "title": "The best 3-points shooter is Curry!"
+            }
+        }
+        ```
+
+    * 搜索文档
+    
+        POST localhost:9200/my_index/_search
+
+        请求参数-匹配`Curry!`的文档数据
+
+        ```
+        {
+            "query": {
+                "match": {
+                    "title": "Curry!"
+                }
+            }
+        }
+        ```
+
+        响应结果
+
+        ```
+        {
+            "took": 2,
+            "timed_out": false,
+            "_shards": {
+                "total": 1,
+                "successful": 1,
+                "skipped": 0,
+                "failed": 0
+            },
+            "hits": {
+                "total": {
+                    "value": 1,
+                    "relation": "eq"
+                },
+                "max_score": 0.2876821,
+                "hits": [
+                    {
+                        "_index": "my_index",
+                        "_type": "_doc",
+                        "_id": "1",
+                        "_score": 0.2876821,
+                        "_source": {
+                            "name": "库⾥",
+                            "team_name": "勇⼠",
+                            "position": "控球后卫",
+                            "play_year": 10,
+                            "jerse_no": "30",
+                            "title": "The best 3-points shooter is Curry!"
+                        }
+                    }
+                ]
+            }
+        }
+        ```
+
+
+        请求参数-匹配`Curry`的文档数据
+
+        ```
+        {
+            "query": {
+                "match": {
+                    "title": "Curry"
+                }
+            }
+        }
+        ```
+
+        无法搜索到添加的文档，原因是该文档是以空格分词器来分词，分词列表中包含`Curry!`而不包含`Curry`。
+
+        
+
+
+
+
 
