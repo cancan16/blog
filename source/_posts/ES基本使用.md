@@ -1195,7 +1195,325 @@ ElasticSearch引擎会先分析查询字符串，将其拆分成多个分词，�
 
         
 
+### 常见的中文分词器的使用
 
 
+如果⽤默认的分词器`standard`
+
+POST localhost:9200/_analyze】
+
+```
+{
+    "analyzer": "standard",
+    "text": "我是一位出色的java架构师！"
+}
+```
+
+查看分词效果
+
+```
+{
+    "tokens": [
+        {
+            "token": "我",
+            "start_offset": 0,
+            "end_offset": 1,
+            "type": "<IDEOGRAPHIC>",
+            "position": 0
+        },
+        {
+            "token": "是",
+            "start_offset": 1,
+            "end_offset": 2,
+            "type": "<IDEOGRAPHIC>",
+            "position": 1
+        },
+        {
+            "token": "一",
+            "start_offset": 2,
+            "end_offset": 3,
+            "type": "<IDEOGRAPHIC>",
+            "position": 2
+        },
+        {
+            "token": "位",
+            "start_offset": 3,
+            "end_offset": 4,
+            "type": "<IDEOGRAPHIC>",
+            "position": 3
+        },
+        {
+            "token": "出",
+            "start_offset": 4,
+            "end_offset": 5,
+            "type": "<IDEOGRAPHIC>",
+            "position": 4
+        },
+        {
+            "token": "色",
+            "start_offset": 5,
+            "end_offset": 6,
+            "type": "<IDEOGRAPHIC>",
+            "position": 5
+        },
+        {
+            "token": "的",
+            "start_offset": 6,
+            "end_offset": 7,
+            "type": "<IDEOGRAPHIC>",
+            "position": 6
+        },
+        {
+            "token": "java",
+            "start_offset": 7,
+            "end_offset": 11,
+            "type": "<ALPHANUM>",
+            "position": 7
+        },
+        {
+            "token": "架",
+            "start_offset": 11,
+            "end_offset": 12,
+            "type": "<IDEOGRAPHIC>",
+            "position": 8
+        },
+        {
+            "token": "构",
+            "start_offset": 12,
+            "end_offset": 13,
+            "type": "<IDEOGRAPHIC>",
+            "position": 9
+        },
+        {
+            "token": "师",
+            "start_offset": 13,
+            "end_offset": 14,
+            "type": "<IDEOGRAPHIC>",
+            "position": 10
+        }
+    ]
+}
+```
+
+这种分词效果，显然不符合搜索场景，不能按照单个汉子进行分词。
 
 
+#### 常⻅的中文分词器
+
+* `smartCN` ⼀个简单的中⽂或中英⽂混合⽂本的分词器
+* `IK分词器` 更智能更友好的中⽂分词器
+
+
+##### smartCn
+
+* 安装
+
+进入es安装目录的bin目录，执行命令
+
+```
+sh elasticsearch-plugin install analysis-smartcn
+```
+
+安装后重新启动es
+
+POST localhost:9200/_analyze
+
+```
+{
+    "analyzer": "smartcn",
+    "text": "我是一位出色的java架构师！"
+}
+```
+
+响应结果
+
+```
+{
+    "tokens": [
+        {
+            "token": "我",
+            "start_offset": 0,
+            "end_offset": 1,
+            "type": "word",
+            "position": 0
+        },
+        {
+            "token": "是",
+            "start_offset": 1,
+            "end_offset": 2,
+            "type": "word",
+            "position": 1
+        },
+        {
+            "token": "一",
+            "start_offset": 2,
+            "end_offset": 3,
+            "type": "word",
+            "position": 2
+        },
+        {
+            "token": "位",
+            "start_offset": 3,
+            "end_offset": 4,
+            "type": "word",
+            "position": 3
+        },
+        {
+            "token": "出色",
+            "start_offset": 4,
+            "end_offset": 6,
+            "type": "word",
+            "position": 4
+        },
+        {
+            "token": "的",
+            "start_offset": 6,
+            "end_offset": 7,
+            "type": "word",
+            "position": 5
+        },
+        {
+            "token": "java",
+            "start_offset": 7,
+            "end_offset": 11,
+            "type": "word",
+            "position": 6
+        },
+        {
+            "token": "架构",
+            "start_offset": 11,
+            "end_offset": 13,
+            "type": "word",
+            "position": 7
+        },
+        {
+            "token": "师",
+            "start_offset": 13,
+            "end_offset": 14,
+            "type": "word",
+            "position": 8
+        }
+    ]
+}
+```
+
+* 卸载 sh elasticsearch-plugin remove analysis-smartcn
+
+#### IK分词器
+
+<a href="https://github.com/medcl/elasticsearch-analysis-ik/releases">下载</a>
+ 
+需要找到对应es版本的IK分词器版本
+
+安装 解压安装到es安装目录的`plugins`⽬录
+
+安装后重新启动
+
+POST localhost:9200/_analyze
+
+``
+{
+ "analyzer": "ik_max_word",
+ "text": "⽕箭明年总冠军"
+}
+``
+
+结果
+
+```
+{
+    "tokens": [
+        {
+            "token": "我",
+            "start_offset": 0,
+            "end_offset": 1,
+            "type": "CN_CHAR",
+            "position": 0
+        },
+        {
+            "token": "是",
+            "start_offset": 1,
+            "end_offset": 2,
+            "type": "CN_CHAR",
+            "position": 1
+        },
+        {
+            "token": "一位",
+            "start_offset": 2,
+            "end_offset": 4,
+            "type": "CN_WORD",
+            "position": 2
+        },
+        {
+            "token": "一",
+            "start_offset": 2,
+            "end_offset": 3,
+            "type": "TYPE_CNUM",
+            "position": 3
+        },
+        {
+            "token": "位",
+            "start_offset": 3,
+            "end_offset": 4,
+            "type": "COUNT",
+            "position": 4
+        },
+        {
+            "token": "出色",
+            "start_offset": 4,
+            "end_offset": 6,
+            "type": "CN_WORD",
+            "position": 5
+        },
+        {
+            "token": "出",
+            "start_offset": 4,
+            "end_offset": 5,
+            "type": "COUNT",
+            "position": 6
+        },
+        {
+            "token": "色",
+            "start_offset": 5,
+            "end_offset": 6,
+            "type": "CN_CHAR",
+            "position": 7
+        },
+        {
+            "token": "的",
+            "start_offset": 6,
+            "end_offset": 7,
+            "type": "CN_CHAR",
+            "position": 8
+        },
+        {
+            "token": "java",
+            "start_offset": 7,
+            "end_offset": 11,
+            "type": "ENGLISH",
+            "position": 9
+        },
+        {
+            "token": "架构师",
+            "start_offset": 11,
+            "end_offset": 14,
+            "type": "CN_WORD",
+            "position": 10
+        },
+        {
+            "token": "架构",
+            "start_offset": 11,
+            "end_offset": 13,
+            "type": "CN_WORD",
+            "position": 11
+        },
+        {
+            "token": "师",
+            "start_offset": 13,
+            "end_offset": 14,
+            "type": "CN_CHAR",
+            "position": 12
+        }
+    ]
+}
+```
