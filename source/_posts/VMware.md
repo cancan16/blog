@@ -52,3 +52,9 @@ ONBOOT=yes
 LAST_CONNECT=1438160743	
 ```
 
+
+重启网卡，使其生效
+
+```sh
+[root@centos7desk redis]# service network restart
+```
