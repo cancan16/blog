@@ -1518,7 +1518,52 @@ POST localhost:9200/_analyze
 }
 ```
 
+### 常见的数据类型
 
+* 数据类型
+    * 核⼼数据类型
+    * 复杂数据类型
+    * 专⽤数据类型
+
+
+#### 核⼼数据类型
+
+* 字符串
+
+    * text
+
+        ⽤于全⽂索引，该类型的字段将通过分词器进⾏分词
+    * keyword
+
+        不分词，只能搜索该字段的完整的值
+    * 数值型
+
+        long, integer, short, byte, double, float, half_float, scaled_float
+    * 布尔 - boolean
+    * ⼆进制 - binary
+
+        * 该类型的字段把值当做经过 base64 编码的字符串，默认不存储，且不可搜索
+    * 范围类型
+
+        * 范围类型表示值是⼀个范围，⽽不是⼀个具体的值
+        * integer_range, float_range, long_range, double_range, date_range
+        * 譬如 age 的类型是 integer_range，那么值可以是 {"gte" : 20, "lte" : 40}；搜索 "term" : {"age": 21} 可以搜索该值
+    * ⽇期 - date
+
+        * 由于Json没有date类型，所以es通过识别字符串是否符合format定义的格式来判断是否为date类型
+
+        * format默认为：strict_date_optional_time||epoch_millis
+        * 格式
+
+            "2022-01-01" "2022/01/01 12:10:30" 这种字符串格式
+        * 从开始纪元（1970年1⽉1⽇0点） 开始的毫秒数
+
+            从开始纪元开始的秒数
+        * PUT localhost:9200/nba/_mapping
+
+
+
+        
 
 
 
