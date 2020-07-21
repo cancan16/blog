@@ -1530,38 +1530,237 @@ POST localhost:9200/_analyze
 
 * 字符串
 
-    * text
+* text
 
-        ⽤于全⽂索引，该类型的字段将通过分词器进⾏分词
-    * keyword
+    ⽤于全⽂索引，该类型的字段将通过分词器进⾏分词
+* keyword
 
-        不分词，只能搜索该字段的完整的值
-    * 数值型
+    不分词，只能搜索该字段的完整的值
+* 数值型
 
-        long, integer, short, byte, double, float, half_float, scaled_float
-    * 布尔 - boolean
-    * ⼆进制 - binary
+    long, integer, short, byte, double, float, half_float, scaled_float
+* 布尔 - boolean
+* ⼆进制 - binary
 
-        * 该类型的字段把值当做经过 base64 编码的字符串，默认不存储，且不可搜索
-    * 范围类型
+    * 该类型的字段把值当做经过 base64 编码的字符串，默认不存储，且不可搜索
+* 范围类型
 
-        * 范围类型表示值是⼀个范围，⽽不是⼀个具体的值
-        * integer_range, float_range, long_range, double_range, date_range
-        * 譬如 age 的类型是 integer_range，那么值可以是 {"gte" : 20, "lte" : 40}；搜索 "term" : {"age": 21} 可以搜索该值
-    * ⽇期 - date
+    * 范围类型表示值是⼀个范围，⽽不是⼀个具体的值
+    * integer_range, float_range, long_range, double_range, date_range
+    * 譬如 age 的类型是 integer_range，那么值可以是 {"gte" : 20, "lte" : 40}
 
-        * 由于Json没有date类型，所以es通过识别字符串是否符合format定义的格式来判断是否为date类型
+        搜索 "term" : {"age": 21} 可以搜索该值
 
-        * format默认为：strict_date_optional_time||epoch_millis
-        * 格式
+* ⽇期 - date
 
-            "2022-01-01" "2022/01/01 12:10:30" 这种字符串格式
-        * 从开始纪元（1970年1⽉1⽇0点） 开始的毫秒数
+    * 由于Json没有date类型，所以es通过识别字符串是否符合format定义的格式来判断是否为date类型
 
-            从开始纪元开始的秒数
-        * PUT localhost:9200/nba/_mapping
+    * format默认为：strict_date_optional_time||epoch_millis
+    * 格式
+
+        "2022-01-01" "2022/01/01 12:10:30" 这种字符串格式
+    * 从开始纪元（1970年1⽉1⽇0点） 开始的毫秒数
+
+        从开始纪元开始的秒数
+    * PUT localhost:9200/nba/_mapping
+
+    ```json
+    {
+        "properties": {
+            "name": {
+                "type": "text"
+            },
+            "team_name": {
+                "type": "text"
+            },
+            "position": {
+                "type": "text"
+            },
+            "play_year": {
+                "type": "long"
+            },
+            "jerse_no": {
+                "type": "keyword"
+            },
+            "title": {
+                "type": "text"
+            },
+            "date": {
+                "type": "date"
+            }
+        }
+    }
+    ```
+
+    * POST localhost:9200/nba/_doc/4
+
+    ```json
+    {
+    "name": "蔡x坤",
+    "team_name": "勇⼠",
+    "position": "得分后卫",
+    "play_year": 10,
+    "jerse_no": "31",
+    "title": "打球最帅的明星",
+    "date":"2020-01-01"
+    }
+    ```
+
+    * POST localhost:9200/nba/_doc/5
+
+    ```json
+    {
+    "name": "杨超越",
+    "team_name": "猴急",
+    "position": "得分后卫",
+    "play_year": 10,
+    "jerse_no": "32",
+    "title": "打球最可爱的明星",
+    "date":1610350870
+    }
+    ```
+
+    * POST localhost:9200/nba/_doc/6
+
+    ```json
+    {
+    "name": "吴亦凡",
+    "team_name": "湖⼈",
+    "position": "得分后卫",
+    "play_year": 10,
+    "jerse_no": "33",
+    "title": "最会说唱的明星",
+    "date":1641886870000
+    }
+    ```
 
 
+#### 复杂数据类型
+
+
+* 数组类型 Array
+
+    * ES中没有专⻔的数组类型, 直接使⽤[]定义即可，数组中所有的值必须是同⼀种数据类
+型, 不⽀持混合数据类型的数组:
+    * 字符串数组 [ "one", "two" ]
+    * 整数数组 [ 1, 2 ]
+    * Object对象数组 [ { "name": "Louis", "age": 18 }, { "name": "Daniel", "age": 17 }]
+    * 同⼀个数组只能存同类型的数据，不能混存，譬如 [ 10, "some string" ] 是错误的
+* 对象类型 Object
+    * 对象类型可能有内部对象
+    * POST localhost:9200/nba/_doc/8
+
+    ```json
+    {
+        "name": "吴亦凡",
+        "team_name": "湖⼈",
+        "position": "得分后卫",
+        "play_year": 10,
+        "jerse_no": "33",
+        "title": "最会说唱的明星",
+        "date": "1641886870",
+        "array": [
+            "one",
+            "two"
+        ],
+        "address": {
+            "region": "China",
+            "location": {
+                "province": "GuangDong",
+                "city": "GuangZhou"
+            }
+        }
+    }
+    ```
+
+    * 索引⽅式
+
+    ```
+    "address.region": "China",
+    "address.location.province": "GuangDong",
+    "address.location.city": "GuangZhou"
+    ```
+
+    * POST localhost:9200/nba/_search
+
+    ```json
+    {
+        "query": {
+            "match": {
+                "address.region": "china"
+            }
+        }
+    }
+    ```
+
+#### 专属数据类型
+
+
+* IP类型
+    * IP类型的字段⽤于存储IPv4或IPv6的地址, 本质上是⼀个⻓整型字段.
+    * POST localhost:9200/nba/_mapping
+
+    ```json
+    {
+        "properties": {
+            "name": {
+                "type": "text"
+            },
+            "team_name": {
+                "type": "text"
+            },
+            "position": {
+                "type": "text"
+            },
+            "play_year": {
+                "type": "long"
+            },
+            "jerse_no": {
+                "type": "keyword"
+            },
+            "title": {
+                "type": "text"
+            },
+            "date": {
+                "type": "date"
+            },
+            "ip_addr": {
+                "type": "ip"
+            }
+        }
+    }
+    ```
+
+    * PUT localhost:9200/nba/_doc/9 (新增数据)
+
+
+    ```json
+    {
+    "name": "吴亦凡",
+    "team_name": "湖⼈",
+    "position": "得分后卫",
+    "play_year": 10,
+    "jerse_no": "33",
+    "title": "最会说唱的明星",
+    "ip_addr": "192.168.1.1"
+    }
+    ```
+
+    * POST localhost:9200/nba/_search (查询)
+
+    ip_addr": "192.168.0.0/16  => 192.168.0.0~192.168.255.255 之间
+
+    
+
+    ```json
+    {
+        "query": {
+            "term": {
+                "ip_addr": "192.168.0.0/16"
+            }
+        }
+    }
+    ```
 
         
 
